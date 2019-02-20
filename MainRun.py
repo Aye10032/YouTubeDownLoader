@@ -1,18 +1,20 @@
+import html
 import json
 import os
-import socket
-from urllib.request import urlretrieve
+import re
 
 import pyperclip
-import socks
+import requests
 import wx
 import youtube_dl
 
 with open('res/config.json', 'r') as conf:
     config = json.load(conf)
     name = config['name']
-    soc = 'http://'+config['ipaddress']
+    soc = config['ipaddress']
     useProxy = config['useProxy']
+    num = config['xiancheng']
+    token = config['token']
 
 if not os.path.exists('Download_Video'):
     os.mkdir('Download_Video')
@@ -28,8 +30,13 @@ class window(wx.Frame):
     description = ''
     URL = ''
     thumbnail = ''
+    downloadpath = ''
+    dlpath = ''
+    canrun = False
 
     def __init__(self, parent, id):
+        self.api_url = 'https://api.zhuwei.me/v1/captions/'
+
         wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V1.0', size=(600, 700),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
 
@@ -45,17 +52,22 @@ class window(wx.Frame):
         t1 = wx.StaticText(panel, -1, '个人设置', (0, 5), (600, -1), wx.ALIGN_CENTER)
         t1.SetFont(font1)
 
-        # --------------------------------- 搬运者ID部分 ---------------------------------
+        # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
         wx.StaticText(panel, -1, '搬运者ID：', (22, 35))
         self.yourname = wx.TextCtrl(panel, -1, name, (90, 30), (130, 23))
 
+        wx.StaticText(panel, -1, '下载线程：', (300, 35))
+        listc = ['1', '2', '4', '6', '8', '16']
+        self.xiancheng = wx.ComboBox(panel, -1, value=num, pos=(370, 30), size=(80, 23),
+                                     choices=listc)
+
         # --------------------------------- 代理设置部分 ---------------------------------
 
-        self.usebtn = wx.CheckBox(panel, -1, '使用代理', (250, 65), style=wx.ALIGN_RIGHT)
+        self.usebtn = wx.CheckBox(panel, -1, '使用代理', (320, 65), style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.usePor, self.usebtn)
         wx.StaticText(panel, -1, '代理IP：', (22, 65))
-        self.ipaddress = wx.TextCtrl(panel, -1, soc, (90, 62), (130, 23))
+        self.ipaddress = wx.TextCtrl(panel, -1, soc, (90, 62), (170, 23))
 
         if useProxy:
             self.usebtn.SetValue(True)
@@ -63,7 +75,7 @@ class window(wx.Frame):
             self.usebtn.SetValue(False)
             self.ipaddress.SetEditable(False)
 
-        self.savebtn = button = wx.Button(panel, label='保存', pos=(400, 60), size=(60, 23))
+        self.savebtn = button = wx.Button(panel, label='保存', pos=(430, 60), size=(60, 23))
         self.Bind(wx.EVT_BUTTON, self.save, button)
 
         wx.StaticText(panel, -1, '——————————————————————————————————————————————————————————————————',
@@ -105,11 +117,13 @@ class window(wx.Frame):
         soc = self.ipaddress.GetValue()
         useProxy = self.usebtn.GetValue()
         name = self.yourname.GetValue()
+        xiancheng = self.xiancheng.GetValue()
 
         with open('res/config.json', 'w') as c:
             config['useProxy'] = useProxy
             config['name'] = name
             config['ipaddress'] = soc
+            config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
     def start(self, event):
@@ -119,31 +133,84 @@ class window(wx.Frame):
         else:
             URL = self.youtubeURL.GetValue()
             self.updatemesage(URL)
+            self.Update()
+            self.req_api(URL)
             self.dl(URL)
 
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
         pyperclip.copy(msg)
 
-    # --------------------------------- 下载功能 ---------------------------------
+    # --------------------------------- 下载视频&封面 ---------------------------------
     def dl(self, url):
-        path = 'Download_video/' + self.title + '/%(title)s.%(ext)s'
         ydl_opts = {}
         if useProxy:
             ydl_opts = {
                 'proxy': soc,
-                "external_downloader_args": ['--max-connection-per-server', '16'],
+                "writethumbnail": True,
+                "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
                 "external_downloader": "aria2c",
-                'outtmpl': path
+                'outtmpl': self.downloadpath
             }
         else:
             ydl_opts = {
-                'outtmpl': path
+                "writethumbnail": True,
+                "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
+                "external_downloader": "aria2c",
+                'outtmpl': self.downloadpath
             }
+
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        self.urllib_download(self.thumbnail)
+    # --------------------------------- 下载字幕 ---------------------------------
+    def req_api(self, v_url):
+        have_sub = requests.get(self.api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
+
+        if have_sub['meta']['code'] == 200:
+            res = have_sub['response']['captions']
+            sub_title = res['title']
+            sub_list = res['available_captions']
+
+            find = False
+            for i in sub_list:
+
+                if i['language'] in config['single_language']:
+                    print('Find （' + sub_title + '） 【' + i['language'] + '】 subtitle!')
+
+                    sub_url = i['caption_content_url'] + '?api-key=' + token \
+                              + ('&multilanguage=multilanguage' if config['multilanguage'] else '') \
+                              + ('&notimeline=notimeline' if config['notimeline'] else '')
+
+                    # 获取字幕url数据
+                    sub_res = requests.get(sub_url)
+                    sub_content = sub_res.json().get('contents').get('content')
+
+                    # 写入字幕文件
+                    if not os.path.exists(self.dlpath):
+                        os.mkdir(self.dlpath)
+
+                    if os.name == 'nt':
+
+                        with open(self.dlpath + '/%s.srt' % re.sub('[\/:?"*<>|]', '-', html.unescape(sub_title)),
+                                  'w') as sub_file:
+                            sub_file.write(html.unescape(sub_content))
+                    else:
+                        with open(self.dlpath + '/%s.srt' % html.unescape(sub_title).replace('/', '-'),
+                                  'w') as sub_file:
+                            sub_file.write(html.unescape(sub_content))
+                    print('Download 【' + sub_title + '.srt】 complete!')
+
+                    find = True
+                    break
+
+            if find:
+                print('Success find ' + i['language'] + ' subtitle!')
+            else:
+                print('Can\'t find ' + i['language'] + ' subtitle!')
+
+        else:
+            print('Can\'t find ' + v_url + ' sub! check video id!')
 
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self, url):
@@ -165,17 +232,8 @@ class window(wx.Frame):
             submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + name + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
 
-    # --------------------------------- 下载封面 ---------------------------------
-    def urllib_download(self, IMAGE_URL):
-        socks.setdefaultproxy(socks.PROXY_TYPE_HTTP, "127.0.0.1", 1080)
-        socket.socket = socks.socksocket
-
-        imgpath = 'Download_Video/' + self.title
-        print(imgpath)
-        if not os.path.exists(imgpath):
-            os.mkdir(imgpath)
-
-        urlretrieve(IMAGE_URL, imgpath + '/img1.png')
+        self.downloadpath = 'Download_video/' + self.title.replace(':', '') + '/%(title)s.%(ext)s'
+        self.dlpath = 'Download_video/' + self.title.replace(':', '')
 
 
 if __name__ == '__main__':
