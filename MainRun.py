@@ -3,6 +3,7 @@ import os
 import socket
 from urllib.request import urlretrieve
 
+import pyperclip
 import socks
 import wx
 import youtube_dl
@@ -10,7 +11,7 @@ import youtube_dl
 with open('res/config.json', 'r') as conf:
     config = json.load(conf)
     name = config['name']
-    soc = config['ipaddress']
+    soc = 'http://'+config['ipaddress']
     useProxy = config['useProxy']
 
 if not os.path.exists('Download_Video'):
@@ -88,6 +89,10 @@ class window(wx.Frame):
                                          (500, 400),
                                          style=wx.TE_MULTILINE)
 
+        pic2 = wx.Image('res/copy.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
+        self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
+
     def usePor(self, event):
         if self.usebtn.GetValue():
             self.ipaddress.SetEditable(True)
@@ -114,6 +119,11 @@ class window(wx.Frame):
         else:
             URL = self.youtubeURL.GetValue()
             self.updatemesage(URL)
+            self.dl(URL)
+
+    def Copy(self, event):
+        msg = self.youtubesubmit.GetValue()
+        pyperclip.copy(msg)
 
     # --------------------------------- 下载功能 ---------------------------------
     def dl(self, url):
@@ -122,6 +132,8 @@ class window(wx.Frame):
         if useProxy:
             ydl_opts = {
                 'proxy': soc,
+                "external_downloader_args": ['--max-connection-per-server', '16'],
+                "external_downloader": "aria2c",
                 'outtmpl': path
             }
         else:
@@ -152,8 +164,6 @@ class window(wx.Frame):
             self.youtubeLink.SetValue('转自' + url + ' 有能力请支持原作者')
             submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + name + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
-
-        self.dl(url)
 
     # --------------------------------- 下载封面 ---------------------------------
     def urllib_download(self, IMAGE_URL):
