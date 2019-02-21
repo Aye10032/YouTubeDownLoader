@@ -7,8 +7,8 @@
 ## 依赖环境
 
 Windows系统；      
-python3     
-代理软件        
+[python3](https://www.python.org/downloads/);     
+代理软件;        
 
 ## 使用方法
 
