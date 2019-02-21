@@ -1,8 +1,8 @@
 {
-    "name": "Aye10032",
+  "name": "",
     "ipaddress": "http://127.0.0.1:1080",
-    "useProxy": false,
-    "xiancheng": "16",
+  "useProxy": true,
+  "xiancheng": "4",
     "token": "5460f6d462bc3067e27a3fbc8d732799339a7f85",
     "single_language": "en",
     "multilanguage": false,
