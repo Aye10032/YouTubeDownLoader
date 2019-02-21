@@ -2,6 +2,7 @@ import html
 import json
 import os
 import re
+from multiprocessing import Process
 
 import pyperclip
 import requests
@@ -15,6 +16,9 @@ with open('res/config.json', 'r') as conf:
     useProxy = config['useProxy']
     num = config['xiancheng']
     token = config['token']
+
+with open('res/temp.json', 'r') as conf2:
+    config2 = json.load(conf2)
 
 if not os.path.exists('Download_Video'):
     os.mkdir('Download_Video')
@@ -30,12 +34,8 @@ class window(wx.Frame):
     description = ''
     URL = ''
     thumbnail = ''
-    downloadpath = ''
-    dlpath = ''
 
     def __init__(self, parent, id):
-        self.api_url = 'https://api.zhuwei.me/v1/captions/'
-
         wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V1.0', size=(600, 700),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
 
@@ -133,89 +133,26 @@ class window(wx.Frame):
             URL = self.youtubeURL.GetValue()
             self.updatemesage(URL)
             self.Update()
-            self.req_api(URL)
-            self.dl(URL)
+            # self.req_api(URL)
+            # self.dl(URL)
+            p1 = Process(target=dl)
+            p2 = Process(target=req_api)
+            p1.start()
+            p2.start()
 
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
         pyperclip.copy(msg)
 
-    # --------------------------------- 下载视频&封面 ---------------------------------
-    def dl(self, url):
-        ydl_opts = {}
-        if useProxy:
-            ydl_opts = {
-                'proxy': soc,
-                "writethumbnail": True,
-                "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
-                "external_downloader": "aria2c",
-                'outtmpl': self.downloadpath
-            }
-        else:
-            ydl_opts = {
-                "writethumbnail": True,
-                "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
-                "external_downloader": "aria2c",
-                'outtmpl': self.downloadpath
-            }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-
-    # --------------------------------- 下载字幕 ---------------------------------
-    def req_api(self, v_url):
-        have_sub = requests.get(self.api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
-
-        if have_sub['meta']['code'] == 200:
-            res = have_sub['response']['captions']
-            sub_title = res['title']
-            sub_list = res['available_captions']
-
-            find = False
-            for i in sub_list:
-
-                if i['language'] in config['single_language']:
-                    print('Find （' + sub_title + '） 【' + i['language'] + '】 subtitle!')
-
-                    sub_url = i['caption_content_url'] + '?api-key=' + token \
-                              + ('&multilanguage=multilanguage' if config['multilanguage'] else '') \
-                              + ('&notimeline=notimeline' if config['notimeline'] else '')
-
-                    # 获取字幕url数据
-                    sub_res = requests.get(sub_url)
-                    sub_content = sub_res.json().get('contents').get('content')
-
-                    # 写入字幕文件
-                    if not os.path.exists(self.dlpath):
-                        os.mkdir(self.dlpath)
-
-                    if os.name == 'nt':
-
-                        with open(self.dlpath + '/%s.srt' % re.sub('[\/:?"*<>|]', '-', html.unescape(sub_title)),
-                                  'w') as sub_file:
-                            sub_file.write(html.unescape(sub_content))
-                    else:
-                        with open(self.dlpath + '/%s.srt' % html.unescape(sub_title).replace('/', '-'),
-                                  'w') as sub_file:
-                            sub_file.write(html.unescape(sub_content))
-                    print('Download 【' + sub_title + '.srt】 complete!')
-
-                    find = True
-                    break
-
-            if find:
-                print('Success find ' + i['language'] + ' subtitle!')
-            else:
-                print('Can\'t find ' + i['language'] + ' subtitle!')
-
-        else:
-            print('Can\'t find ' + v_url + ' sub! check video id!')
-
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self, url):
-        ydl_opts = {
-            'proxy': soc
-        }
+
+        ydl_opts = {}
+
+        if useProxy:
+            ydl_opts = {
+                'proxy': soc
+            }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=False)
@@ -231,11 +168,95 @@ class window(wx.Frame):
             submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + name + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
 
-        self.downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace(
+        downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace(
             '\\', ' ').replace('/', ' ') + '/%(title)s.%(ext)s'
-        self.dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace('\\',
-                                                                                                                  ' ').replace(
+        dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace('\\',
+                                                                                                             ' ').replace(
             '/', ' ')
+        with open('res/temp.json', 'w') as c:
+            config2['url'] = url
+            config2['downloadpath'] = downloadpath
+            config2['dlpath'] = dlpath
+            json.dump(config2, c, indent=4)
+
+
+# --------------------------------- 下载视频&封面 ---------------------------------
+def dl():
+    path = config2['downloadpath']
+    url = config2['url']
+
+    ydl_opts = {}
+    if useProxy:
+        ydl_opts = {
+            'proxy': soc,
+            "writethumbnail": True,
+            "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
+            "external_downloader": "aria2c",
+            'outtmpl': path
+        }
+    else:
+        ydl_opts = {
+            "writethumbnail": True,
+            "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
+            "external_downloader": "aria2c",
+            'outtmpl': path
+        }
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+
+# --------------------------------- 下载字幕 ---------------------------------
+def req_api():
+    api_url = 'https://api.zhuwei.me/v1/captions/'
+    v_url = config2['url']
+    dlpath = config2['dlpath']
+    have_sub = requests.get(api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
+
+    if have_sub['meta']['code'] == 200:
+        res = have_sub['response']['captions']
+        sub_title = res['title']
+        sub_list = res['available_captions']
+
+        find = False
+        for i in sub_list:
+
+            if i['language'] in config['single_language']:
+                print('Find （' + sub_title + '） 【' + i['language'] + '】 subtitle!')
+
+                sub_url = i['caption_content_url'] + '?api-key=' + token \
+                          + ('&multilanguage=multilanguage' if config['multilanguage'] else '') \
+                          + ('&notimeline=notimeline' if config['notimeline'] else '')
+
+                # 获取字幕url数据
+                sub_res = requests.get(sub_url)
+                sub_content = sub_res.json().get('contents').get('content')
+
+                # 写入字幕文件
+                if not os.path.exists(dlpath):
+                    os.mkdir(dlpath)
+
+                if os.name == 'nt':
+
+                    with open(dlpath + '/%s.srt' % re.sub('[\/:?"*<>|]', '-', html.unescape(sub_title)),
+                              'w') as sub_file:
+                        sub_file.write(html.unescape(sub_content))
+                else:
+                    with open(dlpath + '/%s.srt' % html.unescape(sub_title).replace('/', '-'),
+                              'w') as sub_file:
+                        sub_file.write(html.unescape(sub_content))
+                print('Download 【' + sub_title + '.srt】 complete!')
+
+                find = True
+                break
+
+        if find:
+            print('Success find ' + i['language'] + ' subtitle!')
+        else:
+            print('Can\'t find ' + i['language'] + ' subtitle!')
+
+    else:
+        print('Can\'t find ' + v_url + ' sub! check video id!')
 
 
 if __name__ == '__main__':
