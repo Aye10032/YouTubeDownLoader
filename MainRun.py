@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import html
 import json
 import os
@@ -36,8 +37,8 @@ class window(wx.Frame):
     thumbnail = ''
 
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V1.0', size=(600, 700),
-                          style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
+        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V1.0', size=(600, 720),
+                          style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
         icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
@@ -46,10 +47,21 @@ class window(wx.Frame):
         panel = wx.Panel(self)
 
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
-        font2 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 
         t1 = wx.StaticText(panel, -1, '个人设置', (0, 5), (600, -1), wx.ALIGN_CENTER)
         t1.SetFont(font1)
+
+        self.Bind(wx.EVT_CLOSE, self.closewindow)
+
+        # --------------------------------- 菜单栏部分 ---------------------------------
+        menubar = wx.MenuBar()
+        first = wx.Menu()
+        help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
+        about = first.Append(wx.NewId(), '关于', '软件信息')
+        menubar.Append(first, '其他')
+        self.Bind(wx.EVT_MENU, self.help, help)
+        self.Bind(wx.EVT_MENU, self.about, about)
+        self.SetMenuBar(menubar)
 
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
@@ -143,6 +155,15 @@ class window(wx.Frame):
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
         pyperclip.copy(msg)
+
+    def about(self, event):
+        frame2.Show(True)
+
+    def help(self, event):
+        frame1.Show(True)
+
+    def closewindow(self, event):
+        self.Destroy()
 
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self, url):
@@ -259,8 +280,60 @@ def req_api():
         print('Can\'t find ' + v_url + ' sub! check video id!')
 
 
+# --------------------------------- 帮助界面 ---------------------------------
+class helpwin(wx.Frame):
+    def __init__(self, parent, id, titletext, text1):
+        wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
+        panel = wx.Panel(self)
+
+        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+
+        title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
+        title.SetFont(font1)
+
+        text = "Youtube Download\r\n\r\n红石科技搬运组工具软件，用于自动下载视频，视频封面，字幕，同时规范简介格式。\r\n字幕组空间：https://space.bilibili.com/1311124\r\n作者：Aye10032\r\n\r\n依赖环境\r\nWindows系统；\r\npython3：https://www.python.org/downloads/;\r\n代理软件;\r\n\r\n使用方法\r\n首次运行先运行buildEnvironment.bat，自动配置环境。\r\n或者你也可以选择自行配置环境：\r\npip install pyperclip requests youtube_dl\r\npip install -U wxPython\r\n之后再将本文件夹中的res文件夹加入系统环境变量的path变量中即可。\r\n\r\n正常运行直接双击运行run.bat即可\r\n\r\n界面设置\r\n\r\n设置搬运者ID，是否适用代理（如果代理是部署在路由器上选择不使用即可），以及代理IP，代理必须是以http：//开头，之后跟上IP及端口号即可。这里编辑完毕后点击保存下次运行软件时会自动载入配置。\r\n输入视频链接，点击下载按钮即可开始。运行结束后可以点击按钮复制简介部分的文字。"
+
+        msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
+        msg.SetEditable(False)
+
+        button = wx.Button(panel, label='OK', pos=(220, 300), size=(60, 20))
+        self.Bind(wx.EVT_BUTTON, self.closewindow, button)
+
+    def closewindow(self, event):
+        self.Destroy()
+
+
+# --------------------------------- 关于界面 ---------------------------------
+class aboutwin(wx.Frame):
+    def __init__(self, parent, id, titletext, text1):
+        wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
+        panel = wx.Panel(self)
+
+        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+
+        title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
+        title.SetFont(font1)
+
+        text = '本软件使用了YouTube_dl库进行编写\r\n字幕下载采用了https://zhuwei.me/y2b/ 的字幕下载接口\r\n作者Aye10032,下载地址：https://github.com/Aye10032/YouTubeDownLoad/releases\r\n本软件和YouTube没有任何关系\r\n仅供学习、参考使用'
+
+        msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
+        msg.SetEditable(False)
+
+        button = wx.Button(panel, label='OK', pos=(220, 300), size=(60, 20))
+        self.Bind(wx.EVT_BUTTON, self.closewindow, button)
+
+    def closewindow(self, event):
+        self.Destroy()
+
+
 if __name__ == '__main__':
     app = wx.App()
     frame = window(parent=None, id=-1)
+    frame1 = helpwin(parent=None, id=-1, titletext='help', text1='软件帮助')
+    frame2 = aboutwin(parent=None, id=-1, titletext='about', text1='关于')
     frame.Show()
+    frame1.Show(False)
+    frame2.Show(False)
+    frame1.Center()
+    frame2.Center()
     app.MainLoop()
