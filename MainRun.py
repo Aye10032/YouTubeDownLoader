@@ -32,7 +32,6 @@ class window(wx.Frame):
     thumbnail = ''
     downloadpath = ''
     dlpath = ''
-    canrun = False
 
     def __init__(self, parent, id):
         self.api_url = 'https://api.zhuwei.me/v1/captions/'
@@ -232,8 +231,11 @@ class window(wx.Frame):
             submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + name + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
 
-        self.downloadpath = 'Download_video/' + self.title.replace(':', '') + '/%(title)s.%(ext)s'
-        self.dlpath = 'Download_video/' + self.title.replace(':', '')
+        self.downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace(
+            '\\', ' ').replace('/', ' ') + '/%(title)s.%(ext)s'
+        self.dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace('\\',
+                                                                                                                  ' ').replace(
+            '/', ' ')
 
 
 if __name__ == '__main__':
