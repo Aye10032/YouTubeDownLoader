@@ -12,11 +12,6 @@ import youtube_dl
 
 with open('res/config.json', 'r') as conf:
     config = json.load(conf)
-    name = config['name']
-    soc = config['ipaddress']
-    useProxy = config['useProxy']
-    num = config['xiancheng']
-    token = config['token']
 
 with open('res/temp.json', 'r') as conf2:
     config2 = json.load(conf2)
@@ -66,11 +61,11 @@ class window(wx.Frame):
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
         wx.StaticText(panel, -1, '搬运者ID：', (22, 35))
-        self.yourname = wx.TextCtrl(panel, -1, name, (90, 30), (130, 23))
+        self.yourname = wx.TextCtrl(panel, -1, config['name'], (90, 30), (130, 23))
 
         wx.StaticText(panel, -1, '下载线程：', (300, 35))
         listc = ['1', '2', '4', '6', '8', '16']
-        self.xiancheng = wx.ComboBox(panel, -1, value=num, pos=(370, 30), size=(80, 23),
+        self.xiancheng = wx.ComboBox(panel, -1, value=config['xiancheng'], pos=(370, 30), size=(80, 23),
                                      choices=listc)
 
         # --------------------------------- 代理设置部分 ---------------------------------
@@ -78,9 +73,9 @@ class window(wx.Frame):
         self.usebtn = wx.CheckBox(panel, -1, '使用代理', (320, 65), style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.usePor, self.usebtn)
         wx.StaticText(panel, -1, '代理IP：', (22, 65))
-        self.ipaddress = wx.TextCtrl(panel, -1, soc, (90, 62), (170, 23))
+        self.ipaddress = wx.TextCtrl(panel, -1, config['ipaddress'], (90, 62), (170, 23))
 
-        if useProxy:
+        if config['useProxy']:
             self.usebtn.SetValue(True)
         else:
             self.usebtn.SetValue(False)
@@ -170,9 +165,9 @@ class window(wx.Frame):
 
         ydl_opts = {}
 
-        if useProxy:
+        if config['useProxy']:
             ydl_opts = {
-                'proxy': soc
+                'proxy': config['ipaddress']
             }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -186,14 +181,15 @@ class window(wx.Frame):
 
             self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
             self.youtubeLink.SetValue('转自' + url + ' 有能力请支持原作者')
-            submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + name + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
+            submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + config[
+                'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
 
-        downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace(
-            '\\', ' ').replace('/', ' ') + '/%(title)s.%(ext)s'
-        dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', ' ').replace('|', ' ').replace('\\',
-                                                                                                             ' ').replace(
-            '/', ' ')
+        downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
+            '\\', '').replace('/', '') + '/%(title)s.%(ext)s'
+        dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
+                                                                                                           '').replace(
+            '/', '')
         with open('res/temp.json', 'w') as c:
             config2['url'] = url
             config2['downloadpath'] = downloadpath
@@ -205,20 +201,20 @@ class window(wx.Frame):
 def dl():
     path = config2['downloadpath']
     url = config2['url']
-
+    print(path)
     ydl_opts = {}
-    if useProxy:
+    if config['useProxy']:
         ydl_opts = {
-            'proxy': soc,
+            'proxy': config['ipaddress'],
             "writethumbnail": True,
-            "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
+            "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
             "external_downloader": "aria2c",
             'outtmpl': path
         }
     else:
         ydl_opts = {
             "writethumbnail": True,
-            "external_downloader_args": ['--max-connection-per-server', num, '--min-split-size', '1M'],
+            "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
             "external_downloader": "aria2c",
             'outtmpl': path
         }
@@ -232,6 +228,7 @@ def req_api():
     api_url = 'https://api.zhuwei.me/v1/captions/'
     v_url = config2['url']
     dlpath = config2['dlpath']
+    token = config['token']
     have_sub = requests.get(api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
 
     if have_sub['meta']['code'] == 200:
@@ -329,8 +326,8 @@ class aboutwin(wx.Frame):
 if __name__ == '__main__':
     app = wx.App()
     frame = window(parent=None, id=-1)
-    frame1 = helpwin(parent=None, id=-1, titletext='help', text1='软件帮助')
-    frame2 = aboutwin(parent=None, id=-1, titletext='about', text1='关于')
+    frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
+    frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
     frame.Show()
     frame1.Show(False)
     frame2.Show(False)
