@@ -40,7 +40,7 @@ def updatemesage(url):
             file_size.append(f.get('filesize'))
 
 
-class TestFrame(wx.Frame):
+class QualityFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "视频格式", size=(505, 400), style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
         icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
@@ -92,13 +92,12 @@ class SimpleGrid(gridlib.Grid):
                 config2['vidoecode'] = format_code[i]
             json.dump(config2, c, indent=4)
 
-        print(format_code[i])
         evt.Skip()
 
 
 if __name__ == '__main__':
     updatemesage('https://youtu.be/syYQxdIZ2Po')
     app = wx.App()
-    frame = TestFrame(None)
+    frame = QualityFrame(None)
     frame.Show()
     app.MainLoop()
