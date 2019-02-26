@@ -3,6 +3,6 @@
     "downloadpath": "",
     "dlpath": "",
     "count": 0,
-    "vidoecode": "0",
-    "audiocode": "0"
+    "vidoecode": 0,
+    "audiocode": 0
 }
