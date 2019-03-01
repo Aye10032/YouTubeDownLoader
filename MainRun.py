@@ -241,6 +241,12 @@ class window(wx.Frame):
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
 
+            date = ''
+            if self.upload_date[4] == '0':
+                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
+            else:
+                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
+
             formats = info_dict.get('formats')
             file_count = len(formats)
 
@@ -257,7 +263,7 @@ class window(wx.Frame):
 
             self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
             self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
-            submit = '作者：' + self.uploader + '\r\n发布时间：' + self.upload_date + '\r\n搬运：' + config[
+            submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
                 'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
             self.youtubesubmit.SetValue(submit)
 
