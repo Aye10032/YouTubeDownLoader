@@ -211,6 +211,15 @@ class window(wx.Frame):
 
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
+
+        if not os.path.exists(config2['dlpath']):
+            os.mkdir(config2['dlpath'])
+
+        path = config2['dlpath'] + '/submit.txt'
+        f = open(path, mode='w', encoding='utf8')
+        f.write(msg)
+        f.close()
+
         pyperclip.copy(msg)
 
     def about(self, event):
@@ -422,7 +431,8 @@ class helpwin(wx.Frame):
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        text = "Youtube Download\r\n\r\n红石科技搬运组工具软件，用于自动下载视频，视频封面，字幕，同时规范简介格式。\r\n字幕组空间：https://space.bilibili.com/1311124\r\n作者：Aye10032\r\n\r\n依赖环境\r\nWindows系统；\r\npython3：https://www.python.org/downloads/;\r\n代理软件;\r\n\r\n使用方法\r\n首次运行先运行buildEnvironment.bat，自动配置环境。\r\n或者你也可以选择自行配置环境：\r\npip install pyperclip requests youtube_dl\r\npip install -U wxPython\r\n之后再将本文件夹中的res文件夹加入系统环境变量的path变量中即可。\r\n\r\n正常运行直接双击运行run.bat即可\r\n\r\n界面设置\r\n\r\n设置搬运者ID，是否适用代理（如果代理是部署在路由器上选择不使用即可），以及代理IP，代理必须是以http：//开头，之后跟上IP及端口号即可。这里编辑完毕后点击保存下次运行软件时会自动载入配置。\r\n输入视频链接，点击下载按钮即可开始。运行结束后可以点击按钮复制简介部分的文字。\r\n 你也可以仅点击获取简介按钮来仅获取简介信息而并不下载视频；\r\n\r\n对于自定义视频质量功能，在勾选该复选框并输入视频链接后，点击边上的搜索按钮获取视频可用格式列表，点击你要的音频及视频格式并关闭该窗口，之后点击加载按钮，文本框显示你选择的视频格式代码。如果想要修改格式重复上述动作即可。选择好格式之后点击下载视频按钮即可。\r\n\r\n如果你得电脑上装了ffmpeg程序会自动调用，没装会用默认方法合成音频及视频，但实际上也就慢一点点。"
+        f = open('res/HELP', mode='r', encoding='utf8')
+        text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
         msg.SetEditable(False)
@@ -445,7 +455,8 @@ class aboutwin(wx.Frame):
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        text = '本软件使用了YouTube_dl库进行编写\r\n字幕下载采用了https://zhuwei.me/y2b/ 的字幕下载接口\r\n作者Aye10032,下载地址：https://github.com/Aye10032/YouTubeDownLoad/releases\r\n本软件和YouTube没有任何关系\r\n仅供学习、参考使用'
+        f = open('res/LICENCE', mode='r', encoding='utf8')
+        text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
         msg.SetEditable(False)
