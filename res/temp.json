@@ -1,8 +1,8 @@
 {
-    "url": "",
-    "downloadpath": "",
-    "dlpath": "",
-    "count": 0,
-    "vidoecode": 0,
-    "audiocode": 0
+    "audiocode": "140",
+    "vidoecode": "133",
+    "url": "https://www.youtube.com/watch?v=hKrkj0fxJpY",
+    "count": 20,
+    "downloadpath": "Download_video/Minecraft News 19w12 More Trades Per Day  Iron Farms Nerfed More/%(title)s.%(ext)s",
+    "dlpath": "Download_video/Minecraft News 19w12 More Trades Per Day  Iron Farms Nerfed More"
 }

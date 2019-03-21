@@ -11,6 +11,32 @@ import wx
 import wx.grid as gridlib
 import youtube_dl
 
+# --------------------------------- 前置检查部分开始 ---------------------------------
+RES_PATH = 'res'
+CONFIG_PATH = 'res/config.json'
+TEMP_PATH = 'res/temp.json'
+if not os.path.exists(RES_PATH):
+    os.makedirs('res')
+if not os.path.exists(CONFIG_PATH):
+    default_config = {
+        "name": "",
+        "ipaddress": "http://127.0.0.1:1080",
+        "useProxy": True,
+        "xiancheng": "4",
+        "token": "5460f6d462bc3067e27a3fbc8d732799339a7f85",
+        "single_language": "en",
+        "multilanguage": False,
+        "notimeline": False,
+        "videopro": True
+    }
+    with open(CONFIG_PATH, 'w+') as conf:
+        json.dump(default_config, conf, indent=4)
+
+if not os.path.exists(TEMP_PATH):
+    default_config = {}
+    with open(TEMP_PATH, 'w+') as conf:
+        json.dump(default_config, conf, indent=4)
+# --------------------------------- 前置检查部分结束 ---------------------------------
 with open('res/config.json', 'r') as conf:
     config = json.load(conf)
 
@@ -39,8 +65,9 @@ class window(wx.Frame):
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
-        icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
+        #pyinstaller会替代logo
+        #icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
+        #self.SetIcon(icon)
 
         with open('res/temp.json', 'w') as c:
             config2['audiocode'] = 0
@@ -165,7 +192,7 @@ class window(wx.Frame):
         name = self.yourname.GetValue()
         xiancheng = self.xiancheng.GetValue()
 
-        with open('res/config.json', 'w') as c:
+        with open('res/config.json', 'w+') as c:
             config['useProxy'] = useProxy
             config['name'] = name
             config['ipaddress'] = soc
@@ -181,7 +208,7 @@ class window(wx.Frame):
         frame3.Show(True)
 
     def load(self, event):
-        msg = config2['vidoecode'] + '+' + config2['audiocode']
+        msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
         self.qualitytext.SetValue(msg)
 
     def get(self, event):
