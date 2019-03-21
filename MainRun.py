@@ -61,7 +61,7 @@ class window(wx.Frame):
     thumbnail = ''
 
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V1.0', size=(600, 720),
+        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V2.1', size=(600, 720),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
