@@ -3,7 +3,9 @@ import html
 import json
 import os
 import re
+import sys
 from multiprocessing import Process
+from multiprocessing import freeze_support
 
 import pyperclip
 import requests
@@ -11,10 +13,27 @@ import wx
 import wx.grid as gridlib
 import youtube_dl
 
-# --------------------------------- 前置检查部分开始 ---------------------------------
+# --------------------------------- 资源文件位置设置 ---------------------------------
+basedir = ""
+if getattr(sys, 'frozen', False):
+    # we are running in a |PyInstaller| bundle
+    basedir = sys._MEIPASS
+else:
+    # we are running in a normal Python environment
+    basedir = os.path.dirname(__file__)
+
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
+ARIA2C_PATH = basedir + '/res/aria2c'
+LOGO_PATH = basedir + '/res/logo.ico'
+LICENCE_PATH = basedir + '/res/LICENCE'
+HELP_PATH = basedir + "/res/HELP"
+SEARCH_PATH = basedir + "/res/search.png"
+COPY_PATH = basedir + "/res/copy.png"
+
+# --------------------------------- 前置检查部分开始 ---------------------------------
+
 if not os.path.exists(RES_PATH):
     os.makedirs('res')
 if not os.path.exists(CONFIG_PATH):
@@ -37,10 +56,10 @@ if not os.path.exists(TEMP_PATH):
     with open(TEMP_PATH, 'w+') as conf:
         json.dump(default_config, conf, indent=4)
 # --------------------------------- 前置检查部分结束 ---------------------------------
-with open('res/config.json', 'r') as conf:
+with open(CONFIG_PATH, 'r') as conf:
     config = json.load(conf)
 
-with open('res/temp.json', 'r') as conf2:
+with open(TEMP_PATH, 'r') as conf2:
     config2 = json.load(conf2)
 
 if not os.path.exists('Download_Video'):
@@ -65,11 +84,10 @@ class window(wx.Frame):
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
-        #pyinstaller会替代logo
-        #icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
-        #self.SetIcon(icon)
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
 
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['audiocode'] = 0
             config2['vidoecode'] = 0
             json.dump(config2, c, indent=4)
@@ -147,7 +165,7 @@ class window(wx.Frame):
             self.highbtn.SetValue(False)
             self.qualitytext.SetEditable(False)
 
-        pic1 = wx.Image('res/search.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        pic1 = wx.Image(SEARCH_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.viewbtn = wx.BitmapButton(panel, -1, pic1, (340, 135), (23, 23))
         self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
         self.Bind(wx.EVT_BUTTON, self.view, self.viewbtn)
@@ -164,7 +182,7 @@ class window(wx.Frame):
                                          (500, 395),
                                          style=wx.TE_MULTILINE)
 
-        pic2 = wx.Image('res/copy.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        pic2 = wx.Image(COPY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
         self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
 
@@ -182,7 +200,7 @@ class window(wx.Frame):
         else:
             self.qualitytext.SetEditable(False)
 
-        with open('res/config.json', 'w') as c:
+        with open(CONFIG_PATH, 'w') as c:
             config['videopro'] = self.highbtn.GetValue()
             json.dump(config, c, indent=4)
 
@@ -192,7 +210,7 @@ class window(wx.Frame):
         name = self.yourname.GetValue()
         xiancheng = self.xiancheng.GetValue()
 
-        with open('res/config.json', 'w+') as c:
+        with open(CONFIG_PATH, 'w+') as c:
             config['useProxy'] = useProxy
             config['name'] = name
             config['ipaddress'] = soc
@@ -200,7 +218,7 @@ class window(wx.Frame):
             json.dump(config, c, indent=4)
 
     def view(self, event):
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             json.dump(config2, c, indent=4)
         self.updatemesage()
@@ -231,6 +249,7 @@ class window(wx.Frame):
                 self.Update()
             # self.req_api(URL)
             # self.dl(URL)
+            print("Download Process Start")
             p1 = Process(target=dl)
             p2 = Process(target=req_api)
             p1.start()
@@ -286,7 +305,7 @@ class window(wx.Frame):
             formats = info_dict.get('formats')
             file_count = len(formats)
 
-            with open('res/temp.json', 'w') as c:
+            with open(TEMP_PATH, 'w') as c:
                 config2['count'] = file_count
                 json.dump(config2, c, indent=4)
 
@@ -308,7 +327,7 @@ class window(wx.Frame):
         dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
                                                                                                            '').replace(
             '/', '')
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             config2['downloadpath'] = downloadpath
             config2['dlpath'] = dlpath
@@ -323,7 +342,7 @@ def dl():
     ydl_opts = {
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
-        "external_downloader": "aria2c",
+        "external_downloader": ARIA2C_PATH,
         'outtmpl': path
     }
     if config['useProxy']:
@@ -395,7 +414,7 @@ def req_api():
 class QualityFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "视频格式", size=(505, 400), style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
-        icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon)
         self.Center()
         self.grid = SimpleGrid(self)
@@ -437,7 +456,7 @@ class SimpleGrid(gridlib.Grid):
         a = "%d" % (evt.GetRow())
         i = int(a)
 
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             if resolution[i] == 'audio only':
                 config2['audiocode'] = format_code[i]
             else:
@@ -458,7 +477,7 @@ class helpwin(wx.Frame):
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        f = open('res/HELP', mode='r', encoding='utf8')
+        f = open(HELP_PATH, mode='r', encoding='utf8')
         text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
@@ -482,7 +501,7 @@ class aboutwin(wx.Frame):
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        f = open('res/LICENCE', mode='r', encoding='utf8')
+        f = open(LICENCE_PATH, mode='r', encoding='utf8')
         text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
@@ -496,6 +515,8 @@ class aboutwin(wx.Frame):
 
 
 if __name__ == '__main__':
+    #修复pyinstaller win下的多线程问题 千万不能删！
+    freeze_support()
     app = wx.App()
     frame = window(parent=None, id=-1)
     frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
