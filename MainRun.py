@@ -3,18 +3,40 @@ import html
 import json
 import os
 import re
-from multiprocessing import Process
-
+import sys
+from multiprocessing import freeze_support
+import threading
 import pyperclip
 import requests
 import wx
 import wx.grid as gridlib
 import youtube_dl
 
-# --------------------------------- 前置检查部分开始 ---------------------------------
+#TODO 记得改README@Aye10032
+#TODO 因为没有了'加载'按钮所以记得调整一下那行的布局@Aye10023
+
+# --------------------------------- 资源文件位置设置 ---------------------------------
+basedir = ""
+if getattr(sys, 'frozen', False):
+    # we are running in a |PyInstaller| bundle
+    basedir = sys._MEIPASS
+else:
+    # we are running in a normal Python environment
+    basedir = os.path.dirname(__file__)
+
+VERSION = 'V2.4'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
+ARIA2C_PATH = basedir + '/res/aria2c'
+LOGO_PATH = basedir + '/res/logo.ico'
+LICENCE_PATH = basedir + '/res/LICENCE'
+HELP_PATH = basedir + "/res/HELP"
+SEARCH_PATH = basedir + "/res/search.png"
+COPY_PATH = basedir + "/res/copy.png"
+
+# --------------------------------- 前置检查部分开始 ---------------------------------
+
 if not os.path.exists(RES_PATH):
     os.makedirs('res')
 if not os.path.exists(CONFIG_PATH):
@@ -37,10 +59,10 @@ if not os.path.exists(TEMP_PATH):
     with open(TEMP_PATH, 'w+') as conf:
         json.dump(default_config, conf, indent=4)
 # --------------------------------- 前置检查部分结束 ---------------------------------
-with open('res/config.json', 'r') as conf:
+with open(CONFIG_PATH, 'r') as conf:
     config = json.load(conf)
 
-with open('res/temp.json', 'r') as conf2:
+with open(TEMP_PATH, 'r') as conf2:
     config2 = json.load(conf2)
 
 if not os.path.exists('Download_Video'):
@@ -51,7 +73,6 @@ if not os.path.exists('res'):
 
 format_code, extension, resolution, format_note, file_size = [], [], [], [], []
 
-
 class window(wx.Frame):
     uploader = ''
     upload_date = ''
@@ -61,15 +82,14 @@ class window(wx.Frame):
     thumbnail = ''
 
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 V2.1', size=(600, 720),
+        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 720),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
-        #pyinstaller会替代logo
-        #icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
-        #self.SetIcon(icon)
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
 
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['audiocode'] = 0
             config2['vidoecode'] = 0
             json.dump(config2, c, indent=4)
@@ -147,11 +167,11 @@ class window(wx.Frame):
             self.highbtn.SetValue(False)
             self.qualitytext.SetEditable(False)
 
-        pic1 = wx.Image('res/search.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        pic1 = wx.Image(SEARCH_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.viewbtn = wx.BitmapButton(panel, -1, pic1, (340, 135), (23, 23))
-        self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
+        #self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
         self.Bind(wx.EVT_BUTTON, self.view, self.viewbtn)
-        self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
+        #self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
 
         # --------------------------------- 视频信息部分 ---------------------------------
 
@@ -164,7 +184,7 @@ class window(wx.Frame):
                                          (500, 395),
                                          style=wx.TE_MULTILINE)
 
-        pic2 = wx.Image('res/copy.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        pic2 = wx.Image(COPY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
         self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
 
@@ -182,7 +202,7 @@ class window(wx.Frame):
         else:
             self.qualitytext.SetEditable(False)
 
-        with open('res/config.json', 'w') as c:
+        with open(CONFIG_PATH, 'w') as c:
             config['videopro'] = self.highbtn.GetValue()
             json.dump(config, c, indent=4)
 
@@ -192,7 +212,7 @@ class window(wx.Frame):
         name = self.yourname.GetValue()
         xiancheng = self.xiancheng.GetValue()
 
-        with open('res/config.json', 'w+') as c:
+        with open(CONFIG_PATH, 'w+') as c:
             config['useProxy'] = useProxy
             config['name'] = name
             config['ipaddress'] = soc
@@ -200,7 +220,7 @@ class window(wx.Frame):
             json.dump(config, c, indent=4)
 
     def view(self, event):
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             json.dump(config2, c, indent=4)
         self.updatemesage()
@@ -225,16 +245,25 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
+
+            frame4 = outPutwin(parent=frame, id=-1, titletext='output', text1='输出')
+            frame4.Show(True)
+
             URL = self.youtubeURL.GetValue()
             if not config['videopro']:
                 self.updatemesage()
                 self.Update()
             # self.req_api(URL)
             # self.dl(URL)
-            p1 = Process(target=dl)
-            p2 = Process(target=req_api)
-            p1.start()
-            p2.start()
+            print("Download Process Start")
+            #p1 = Process(target=dl)
+            t1 = threading.Thread(target=dl)
+            #p2 = Process(target=req_api)
+            t2 = threading.Thread(target=req_api)
+            t1.start()
+            t2.start()
+            #p1.start()
+            #p2.start()
 
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
@@ -250,9 +279,11 @@ class window(wx.Frame):
         pyperclip.copy(msg)
 
     def about(self, event):
+        frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
         frame2.Show(True)
 
     def help(self, event):
+        frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
         frame1.Show(True)
 
     def closewindow(self, event):
@@ -277,7 +308,6 @@ class window(wx.Frame):
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
 
-            date = ''
             if self.upload_date[4] == '0':
                 date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
             else:
@@ -286,7 +316,7 @@ class window(wx.Frame):
             formats = info_dict.get('formats')
             file_count = len(formats)
 
-            with open('res/temp.json', 'w') as c:
+            with open(TEMP_PATH, 'w') as c:
                 config2['count'] = file_count
                 json.dump(config2, c, indent=4)
 
@@ -308,7 +338,7 @@ class window(wx.Frame):
         dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
                                                                                                            '').replace(
             '/', '')
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             config2['downloadpath'] = downloadpath
             config2['dlpath'] = dlpath
@@ -319,11 +349,10 @@ class window(wx.Frame):
 def dl():
     path = config2['downloadpath']
     msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
-
     ydl_opts = {
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
-        "external_downloader": "aria2c",
+        "external_downloader": ARIA2C_PATH,
         'outtmpl': path
     }
     if config['useProxy']:
@@ -395,10 +424,15 @@ def req_api():
 class QualityFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "视频格式", size=(505, 400), style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
-        icon = wx.Icon('res/logo.ico', wx.BITMAP_TYPE_ICO)
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon)
         self.Center()
         self.grid = SimpleGrid(self)
+        self.Bind(wx.EVT_CLOSE, self.OnExit)
+
+    def OnExit(self, event):
+        self.GetParent().load(event)
+        self.Destroy()
 
 
 class SimpleGrid(gridlib.Grid):
@@ -437,7 +471,7 @@ class SimpleGrid(gridlib.Grid):
         a = "%d" % (evt.GetRow())
         i = int(a)
 
-        with open('res/temp.json', 'w') as c:
+        with open(TEMP_PATH, 'w') as c:
             if resolution[i] == 'audio only':
                 config2['audiocode'] = format_code[i]
             else:
@@ -452,13 +486,16 @@ class helpwin(wx.Frame):
     def __init__(self, parent, id, titletext, text1):
         wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
         panel = wx.Panel(self)
+        self.Center()
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
 
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
 
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        f = open('res/HELP', mode='r', encoding='utf8')
+        f = open(HELP_PATH, mode='r', encoding='utf8')
         text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
@@ -476,13 +513,16 @@ class aboutwin(wx.Frame):
     def __init__(self, parent, id, titletext, text1):
         wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
         panel = wx.Panel(self)
+        self.Center()
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
 
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
 
         title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
 
-        f = open('res/LICENCE', mode='r', encoding='utf8')
+        f = open(LICENCE_PATH, mode='r', encoding='utf8')
         text = f.read()
 
         msg = wx.TextCtrl(panel, -1, text, (10, 40), (465, 250), style=wx.TE_MULTILINE)
@@ -494,15 +534,60 @@ class aboutwin(wx.Frame):
     def closewindow(self, event):
         self.Destroy()
 
+# --------------------------------- 输出界面 ---------------------------------
+class outPutwin(wx.Frame):
+
+    # TODO 记得修改这个输出窗口的布局@Aye10032
+    def __init__(self, parent, id, titletext, text1):
+        wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
+        panel = wx.Panel(self)
+        self.Center()
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
+        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+        title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
+        title.SetFont(font1)
+        msgs = wx.TextCtrl(parent=panel,id=-1, value="", pos=(10, 40), size=(465, 250), style=wx.TE_MULTILINE)
+        msgs.SetEditable(False)
+        self.stdout = LogOutput(msgs, sys.stdout)
+        sys.stdout = self.stdout
+        self.Bind(wx.EVT_CLOSE, self.onClose)
+
+    def onClose(self, event):
+        sys.stdout = self.stdout.savedStdout
+        self.Destroy()
+
+# --------------------------------- 拦截标准输出 ---------------------------------
+class LogOutput():
+
+    def __init__(self, textCtrl, overload_out):
+        self.savedStdout = overload_out
+        self.textCtrl = textCtrl
+
+    def write(self, text):
+        self.textCtrl.write(text)
+
+    def flush(self):
+        self.textCtrl.flush()
 
 if __name__ == '__main__':
+
+    #修复pyinstaller win下的多线程问题 千万不能删！
+    freeze_support()
+
     app = wx.App()
     frame = window(parent=None, id=-1)
-    frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
-    frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
+    #frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
+    # frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
+    #
     frame.Show()
-    frame1.Show(False)
-    frame2.Show(False)
-    frame1.Center()
-    frame2.Center()
+    # frame1.Show(False)
+    # frame2.Show(False)
+
+    # frame3 = outPutwin(parent=frame, id=-1, titletext='output', text1='输出')
+    # frame3.Show(True)
+    # frame3.Center()
+
+    # frame1.Center()
+    # frame2.Center()
     app.MainLoop()
