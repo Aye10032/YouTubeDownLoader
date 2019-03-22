@@ -26,4 +26,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=True , icon='F:\\Èí¼þ\\youtubedownload\\YouTubeDownLoad\\res\\logo.ico')
+          console=False , icon='F:\\Èí¼þ\\youtubedownload\\YouTubeDownLoad\\res\\logo.ico')
