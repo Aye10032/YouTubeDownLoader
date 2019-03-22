@@ -154,11 +154,11 @@ class window(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.get, self.getbtn)
 
         # --------------------------------- 质量代码部分 ---------------------------------
-        self.highbtn = wx.CheckBox(panel, -1, '自定义视频质量', (13, 138), style=wx.ALIGN_RIGHT)
+        self.highbtn = wx.CheckBox(panel, -1, '自定义视频质量   ', (13, 138), style=wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_CHECKBOX, self.provideo, self.highbtn)
 
-        wx.StaticText(panel, -1, '格式代码：', (140, 138))
-        self.qualitytext = wx.TextCtrl(panel, -1, '', (200, 135), (130, 23))
+        wx.StaticText(panel, -1, '格式代码：', (160, 138))
+        self.qualitytext = wx.TextCtrl(panel, -1, '', (225, 135), (130, 23))
 
         if config['videopro']:
             self.highbtn.SetValue(True)
@@ -168,7 +168,7 @@ class window(wx.Frame):
             self.qualitytext.SetEditable(False)
 
         pic1 = wx.Image(SEARCH_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-        self.viewbtn = wx.BitmapButton(panel, -1, pic1, (340, 135), (23, 23))
+        self.viewbtn = wx.BitmapButton(panel, -1, pic1, (370, 135), (23, 23))
         #self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
         self.Bind(wx.EVT_BUTTON, self.view, self.viewbtn)
         #self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
@@ -539,15 +539,15 @@ class outPutwin(wx.Frame):
 
     # TODO 记得修改这个输出窗口的布局@Aye10032
     def __init__(self, parent, id, titletext, text1):
-        wx.Frame.__init__(self, parent, id, titletext, size=(500, 370))
+        wx.Frame.__init__(self, parent, id, titletext, size=(600, 370))
         panel = wx.Panel(self)
         self.Center()
         icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon)
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
-        title = wx.StaticText(panel, -1, text1, (0, 15), (500, -1), wx.ALIGN_CENTER)
+        title = wx.StaticText(panel, -1, text1, (0, 15), (600, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
-        msgs = wx.TextCtrl(parent=panel,id=-1, value="", pos=(10, 40), size=(465, 250), style=wx.TE_MULTILINE)
+        msgs = wx.TextCtrl(parent=panel,id=-1, value="", pos=(10, 40), size=(565, 250), style=wx.TE_MULTILINE)
         msgs.SetEditable(False)
         self.stdout = LogOutput(msgs, sys.stdout)
         sys.stdout = self.stdout
