@@ -4,16 +4,12 @@ import json
 import os
 import re
 import sys
-from multiprocessing import freeze_support
 import threading
 import pyperclip
 import requests
 import wx
 import wx.grid as gridlib
 import youtube_dl
-
-#TODO 记得改README@Aye10032
-#TODO 因为没有了'加载'按钮所以记得调整一下那行的布局@Aye10023
 
 # --------------------------------- 资源文件位置设置 ---------------------------------
 basedir = ""
@@ -537,7 +533,6 @@ class aboutwin(wx.Frame):
 # --------------------------------- 输出界面 ---------------------------------
 class outPutwin(wx.Frame):
 
-    # TODO 记得修改这个输出窗口的布局@Aye10032
     def __init__(self, parent, id, titletext, text1):
         wx.Frame.__init__(self, parent, id, titletext, size=(600, 370))
         panel = wx.Panel(self)
@@ -571,9 +566,6 @@ class LogOutput():
         self.textCtrl.flush()
 
 if __name__ == '__main__':
-
-    #修复pyinstaller win下的多线程问题 千万不能删！
-    freeze_support()
 
     app = wx.App()
     frame = window(parent=None, id=-1)
