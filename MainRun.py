@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import threading
+from shutil import copy2
 import pyperclip
 import requests
 import wx
@@ -20,11 +21,12 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V2.4'
+VERSION = 'V2.5'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
-ARIA2C_PATH = basedir + '/res/aria2c'
+ARIA2C='aria2c.exe'
+ARIA2C_PATH = basedir + '/res/aria2c.exe'
 LOGO_PATH = basedir + '/res/logo.ico'
 LICENCE_PATH = basedir + '/res/LICENCE'
 HELP_PATH = basedir + "/res/HELP"
@@ -32,6 +34,8 @@ SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
+if not os.path.exists(ARIA2C):
+    copy2(ARIA2C_PATH, os.getcwd())
 
 if not os.path.exists(RES_PATH):
     os.makedirs('res')

@@ -5,7 +5,7 @@ block_cipher = None
 
 a = Analysis(['F:\\软件\\youtubedownload\\YouTubeDownLoad\\MainRun.py'],
              pathex=['F:\\软件\\youtubedownload\\YouTubeDownLoad'],
-             binaries=[('F:\\软件\\youtubedownload\\YouTubeDownLoad/res/aria2c.exe', 'lib')],
+             binaries=[],
              datas=[('F:\\软件\\youtubedownload\\YouTubeDownLoad/res/HELP', 'res'), ('F:\\软件\\youtubedownload\\YouTubeDownLoad/res/LICENCE', 'res'), ('F:\\软件\\youtubedownload\\YouTubeDownLoad/res/copy.png', 'res'), ('F:\\软件\\youtubedownload\\YouTubeDownLoad/res/search.png', 'res'), ('F:\\软件\\youtubedownload\\YouTubeDownLoad\\res\\logo.ico', 'res'), ('F:\\软件\\youtubedownload\\YouTubeDownLoad\\res\\aria2c.exe', 'res')],
              hiddenimports=[],
              hookspath=[],
@@ -26,4 +26,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False , icon='F:\\软件\\youtubedownload\\YouTubeDownLoad\\res\\logo.ico')
+          console=False, icon='F:\\软件\\youtubedownload\\YouTubeDownLoad\\res\\logo.ico')
