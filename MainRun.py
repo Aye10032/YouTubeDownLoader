@@ -23,9 +23,10 @@ else:
 
 VERSION = 'V2.5'
 RES_PATH = 'res'
+LOG_PATH = 'res/aria2c.log'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
-ARIA2C='aria2c.exe'
+ARIA2C='aria2c'
 ARIA2C_PATH = basedir + '/res/aria2c.exe'
 LOGO_PATH = basedir + '/res/logo.ico'
 LICENCE_PATH = basedir + '/res/LICENCE'
@@ -36,7 +37,6 @@ COPY_PATH = basedir + "/res/copy.png"
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
     copy2(ARIA2C_PATH, os.getcwd())
-
 if not os.path.exists(RES_PATH):
     os.makedirs('res')
 if not os.path.exists(CONFIG_PATH):
@@ -351,9 +351,10 @@ def dl():
     msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
     ydl_opts = {
         "writethumbnail": True,
-        "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
-        "external_downloader": ARIA2C_PATH,
-        'outtmpl': path
+        "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M', '-l', LOG_PATH],
+        "external_downloader": ARIA2C,
+        'outtmpl': path,
+        'logger': sys.stdout,
     }
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
@@ -568,6 +569,15 @@ class LogOutput():
 
     def flush(self):
         self.textCtrl.flush()
+
+    def debug(self, text):
+        self.textCtrl.write(text)
+
+    def warning(self, text):
+        self.textCtrl.write(text)
+
+    def error(self, text):
+        self.textCtrl.write(text)
 
 if __name__ == '__main__':
 
