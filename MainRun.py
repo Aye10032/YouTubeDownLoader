@@ -73,6 +73,16 @@ if not os.path.exists('res'):
 
 format_code, extension, resolution, format_note, file_size = [], [], [], [], []
 
+menuBar = None
+rootdir = 'Download_Video'
+list = os.listdir(rootdir)
+filelist = []
+for i in range(0, len(list)):
+    path = os.path.join(rootdir, list[i])
+    if not os.path.isfile(path):
+        filelist.append(list[i])
+
+
 class window(wx.Frame):
     uploader = ''
     upload_date = ''
@@ -80,6 +90,7 @@ class window(wx.Frame):
     description = ''
     URL = ''
     thumbnail = ''
+    hasEdit = False
 
     def __init__(self, parent, id):
         wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 720),
@@ -104,14 +115,24 @@ class window(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.closewindow)
 
         # --------------------------------- 菜单栏部分 ---------------------------------
-        menubar = wx.MenuBar()
+        _menubar = wx.MenuBar()
+        file = wx.Menu()
+        load = wx.Menu()
+        for i in filelist:
+            but_1 = load.Append(-1, i)
+            self.Bind(wx.EVT_MENU, loadmsg, but_1)
+        file.Append(-1, '加载', load)
+        savefilebtn = file.Append(-1, '保存')
+        _menubar.Append(file, '文件')
+        # 其他部分
         first = wx.Menu()
         help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
         about = first.Append(wx.NewId(), '关于', '软件信息')
-        menubar.Append(first, '其他')
+        _menubar.Append(first, '其他')
         self.Bind(wx.EVT_MENU, self.help, help)
         self.Bind(wx.EVT_MENU, self.about, about)
-        self.SetMenuBar(menubar)
+        self.Bind(wx.EVT_MENU, self.savefile, savefilebtn)
+        self.SetMenuBar(_menubar)
 
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
@@ -219,6 +240,25 @@ class window(wx.Frame):
             config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
+    def savefile(self,event):
+
+        if self.hasEdit:
+            msgpath = config2['dlpath']+'/msg.json'
+            print(msgpath)
+
+            title = self.youtubeTitle.GetValue()
+            link = self.youtubeLink.GetValue()
+            submit = self.youtubesubmit.GetValue()
+
+            msg = {
+                "title":title,
+                "link":link,
+                "submit":submit
+            }
+            with open(msgpath,'w') as msgwrite:
+                json.dump(msg, msgwrite, indent=4)
+
+
     def view(self, event):
         with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
@@ -226,6 +266,7 @@ class window(wx.Frame):
         self.updatemesage()
         frame3 = QualityFrame(parent=frame)
         frame3.Show(True)
+        self.hasEdit = True
 
     def load(self, event):
         msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
@@ -239,6 +280,7 @@ class window(wx.Frame):
             URL = self.youtubeURL.GetValue()
             self.updatemesage()
             self.Update()
+        self.hasEdit = True
 
     def start(self, event):
         if self.youtubeURL.GetValue() == '':
@@ -264,6 +306,7 @@ class window(wx.Frame):
             t2.start()
             #p1.start()
             #p2.start()
+        self.hasEdit = True
 
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
@@ -343,6 +386,15 @@ class window(wx.Frame):
             config2['downloadpath'] = downloadpath
             config2['dlpath'] = dlpath
             json.dump(config2, c, indent=4)
+
+# --------------------------------- 加载视频信息 ---------------------------------
+
+def loadmsg(self):
+    #调用全局的变量menuBar
+    print(menuBar.FindItemById(self.Id).Name)
+    msgpath = 'Download_Video/' + menuBar.FindItemById(self.Id).Name + '/msg.json'
+    with open(msgpath,'r') as msgjson:
+        msg = json.load(msgjson)
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
@@ -586,4 +638,5 @@ if __name__ == '__main__':
 
     # frame1.Center()
     # frame2.Center()
+    menuBar = frame.MenuBar
     app.MainLoop()
