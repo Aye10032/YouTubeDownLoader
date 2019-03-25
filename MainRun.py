@@ -3,7 +3,9 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
+import time
 import threading
 from shutil import copy2
 import pyperclip
@@ -11,6 +13,29 @@ import requests
 import wx
 import wx.grid as gridlib
 import youtube_dl
+from youtube_dl.downloader import external
+
+p1 = None
+
+def _newProcessToDownLoad(cmd):
+    pass
+
+def _call_downloader(self, tmpfilename, info_dict):
+    """ Either overwrite this or implement _make_cmd """
+    cmd = [external.encodeArgument(a) for a in self._make_cmd(tmpfilename, info_dict)]
+
+    self._debug_cmd(cmd)
+    print(1)
+    p1 = subprocess.Popen(
+        cmd, stdout=sys.stdout, stderr=sys.stderr)
+    # t = threading.Thread(target=_newProcessToDownLoad, args=[cmd])
+
+    _stdout, _stderr = p1.communicate()
+    while p1.poll() is None:
+        pass
+    return p1.returncode
+
+external.ExternalFD._call_downloader =  _call_downloader
 
 # --------------------------------- 资源文件位置设置 ---------------------------------
 basedir = ""
@@ -187,6 +212,11 @@ class window(wx.Frame):
         pic2 = wx.Image(COPY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
         self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
+        # --------------------------------- 视频信息部分 ---------------------------------
+        # statusBar = self.CreateStatusBar()  # 调用框架wx.frame的CreateStatusBar方法
+        # statusBar.statusBar.SetFieldsCount(3)  # 状态栏分成3个区域
+        # statusBar.SetStatusWidths([-1, -1, -1])  # 区域宽度比列，用负数
+        # statusBar.SetStatusText("A Custom StatusBar...", 0)  # 给状态栏设文字
 
     def usePor(self, event):
         if self.usebtn.GetValue():
@@ -558,14 +588,54 @@ class outPutwin(wx.Frame):
         self.Destroy()
 
 # --------------------------------- 拦截标准输出 ---------------------------------
+def RemoveOneCharInStr(string, index):
+    return string[:index] + string[index + 1:]
+
+def ReplaceTextIgnoreEnter(textEntry, text):
+    removeList = []
+    for i2 in range(0, len(textEntry)):
+        i1 = 0
+        while True:
+            # 忽略回车
+            while True:
+                if text[i1] == '\n':
+                    i1 += 1
+                    continue
+                if textEntry[i2] == '\n':
+                    i2 += 1
+                    continue
+                break
+            if text[i1] == textEntry[i2]:
+                removeList.append(i2)
+                if i1 == len(text) - 1:
+                    for i3 in range(len(removeList)):
+                        i3 = removeList[len(removeList) - 1 - i3]
+                        textEntry = RemoveOneCharInStr(textEntry, i3)
+                    reg = re.compile('\n+')
+                    return reg.sub('\n', textEntry)
+                else:
+                    i1 += 1
+                    i2 += 1
+                    continue
+            else:
+                i1 = 0
+                removeList = []
+                break
+    return textEntry
+
 class LogOutput():
 
     def __init__(self, textCtrl, overload_out):
         self.savedStdout = overload_out
         self.textCtrl = textCtrl
+        self.lastAppend = ''
 
     def write(self, text):
-        self.textCtrl.write(text)
+        if not self.lastAppend.endswith('\n') and self.lastAppend != '':
+            textEntry = ReplaceTextIgnoreEnter(self.textCtrl.GetValue(), self.lastAppend)
+            self.textCtrl.SetValue(textEntry + text)
+        else:
+            self.textCtrl.AppendText(text)
 
     def flush(self):
         self.textCtrl.flush()
