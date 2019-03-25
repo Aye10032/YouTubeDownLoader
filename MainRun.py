@@ -6,6 +6,7 @@ import re
 import sys
 import threading
 from shutil import copy2
+
 import pyperclip
 import requests
 import wx
@@ -25,7 +26,7 @@ VERSION = 'V2.5'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
-ARIA2C='aria2c.exe'
+ARIA2C = 'aria2c.exe'
 ARIA2C_PATH = basedir + '/res/aria2c.exe'
 LOGO_PATH = basedir + '/res/logo.ico'
 LICENCE_PATH = basedir + '/res/LICENCE'
@@ -190,9 +191,9 @@ class window(wx.Frame):
 
         pic1 = wx.Image(SEARCH_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.viewbtn = wx.BitmapButton(panel, -1, pic1, (370, 135), (23, 23))
-        #self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
+        # self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
         self.Bind(wx.EVT_BUTTON, self.view, self.viewbtn)
-        #self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
+        # self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
 
         # --------------------------------- 视频信息部分 ---------------------------------
 
@@ -240,10 +241,10 @@ class window(wx.Frame):
             config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
-    def savefile(self,event):
+    def savefile(self, event):
 
         if self.hasEdit:
-            msgpath = config2['dlpath']+'/msg.json'
+            msgpath = config2['dlpath'] + '/msg.json'
             print(msgpath)
 
             title = self.youtubeTitle.GetValue()
@@ -251,13 +252,12 @@ class window(wx.Frame):
             submit = self.youtubesubmit.GetValue()
 
             msg = {
-                "title":title,
-                "link":link,
-                "submit":submit
+                "title": title,
+                "link": link,
+                "submit": submit
             }
-            with open(msgpath,'w') as msgwrite:
+            with open(msgpath, 'w') as msgwrite:
                 json.dump(msg, msgwrite, indent=4)
-
 
     def view(self, event):
         with open(TEMP_PATH, 'w') as c:
@@ -298,14 +298,14 @@ class window(wx.Frame):
             # self.req_api(URL)
             # self.dl(URL)
             print("Download Process Start")
-            #p1 = Process(target=dl)
+            # p1 = Process(target=dl)
             t1 = threading.Thread(target=dl)
-            #p2 = Process(target=req_api)
+            # p2 = Process(target=req_api)
             t2 = threading.Thread(target=req_api)
             t1.start()
             t2.start()
-            #p1.start()
-            #p2.start()
+            # p1.start()
+            # p2.start()
         self.hasEdit = True
 
     def Copy(self, event):
@@ -321,12 +321,10 @@ class window(wx.Frame):
 
         pyperclip.copy(msg)
 
-
-    def setGUI(self,title,link,sub):
+    def setGUI(self, title, link, sub):
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(sub)
-
 
     def about(self, event):
         frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
@@ -384,29 +382,30 @@ class window(wx.Frame):
             self.youtubesubmit.SetValue(submit)
 
         downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
-            '\\', '').replace('/', '') + '/%(title)s.%(ext)s'
+            '\\', '').replace('/', '').replace('?', '') + '/%(title)s.%(ext)s'
         dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
                                                                                                            '').replace(
-            '/', '')
+            '/', '').replace('?', '')
         with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             config2['downloadpath'] = downloadpath
             config2['dlpath'] = dlpath
             json.dump(config2, c, indent=4)
 
+
 # --------------------------------- 加载视频信息 ---------------------------------
 
 def loadmsg(self):
-    #调用全局的变量menuBar
+    # 调用全局的变量menuBar
     print(menuBar.FindItemById(self.Id).Name)
     msgpath = 'Download_Video/' + menuBar.FindItemById(self.Id).Name + '/msg.json'
-    with open(msgpath,'r') as msgjson:
+    with open(msgpath, 'r') as msgjson:
         msg = json.load(msgjson)
 
     title = msg['title']
     link = msg['link']
     submit = msg['submit']
-    window.setGUI(title,link,submit)
+    print(title)
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
@@ -598,6 +597,7 @@ class aboutwin(wx.Frame):
     def closewindow(self, event):
         self.Destroy()
 
+
 # --------------------------------- 输出界面 ---------------------------------
 class outPutwin(wx.Frame):
 
@@ -610,7 +610,7 @@ class outPutwin(wx.Frame):
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
         title = wx.StaticText(panel, -1, text1, (0, 15), (600, -1), wx.ALIGN_CENTER)
         title.SetFont(font1)
-        msgs = wx.TextCtrl(parent=panel,id=-1, value="", pos=(10, 40), size=(565, 250), style=wx.TE_MULTILINE)
+        msgs = wx.TextCtrl(parent=panel, id=-1, value="", pos=(10, 40), size=(565, 250), style=wx.TE_MULTILINE)
         msgs.SetEditable(False)
         self.stdout = LogOutput(msgs, sys.stdout)
         sys.stdout = self.stdout
@@ -619,6 +619,7 @@ class outPutwin(wx.Frame):
     def onClose(self, event):
         sys.stdout = self.stdout.savedStdout
         self.Destroy()
+
 
 # --------------------------------- 拦截标准输出 ---------------------------------
 class LogOutput():
@@ -633,11 +634,11 @@ class LogOutput():
     def flush(self):
         self.textCtrl.flush()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     app = wx.App()
     frame = window(parent=None, id=-1)
-    #frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
+    # frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
     # frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
     #
     frame.Show()
