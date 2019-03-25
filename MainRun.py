@@ -321,6 +321,13 @@ class window(wx.Frame):
 
         pyperclip.copy(msg)
 
+
+    def setGUI(self,title,link,sub):
+        self.youtubeTitle.SetValue(title)
+        self.youtubeLink.SetValue(link)
+        self.youtubesubmit.SetValue(sub)
+
+
     def about(self, event):
         frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
         frame2.Show(True)
@@ -395,6 +402,11 @@ def loadmsg(self):
     msgpath = 'Download_Video/' + menuBar.FindItemById(self.Id).Name + '/msg.json'
     with open(msgpath,'r') as msgjson:
         msg = json.load(msgjson)
+
+    title = msg['title']
+    link = msg['link']
+    submit = msg['submit']
+    window.setGUI(title,link,submit)
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
