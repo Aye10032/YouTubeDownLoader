@@ -270,10 +270,6 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-
-            frame4 = outPutwin(parent=frame, id=-1, titletext='output', text1='输出')
-            frame4.Show(True)
-
             URL = self.youtubeURL.GetValue()
             if not config['videopro']:
                 self.updatemesage()
@@ -434,7 +430,7 @@ def dl():
     ydl_opts = {
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
-        "external_downloader": ARIA2C_PATH,
+        "external_downloader": ARIA2C,
         'outtmpl': path
     }
     if config['useProxy']:
@@ -615,44 +611,6 @@ class aboutwin(wx.Frame):
 
     def closewindow(self, event):
         self.Destroy()
-
-
-# --------------------------------- 输出界面 ---------------------------------
-class outPutwin(wx.Frame):
-
-    def __init__(self, parent, id, titletext, text1):
-        wx.Frame.__init__(self, parent, id, titletext, size=(600, 370))
-        panel = wx.Panel(self)
-        self.Center()
-        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
-        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
-        title = wx.StaticText(panel, -1, text1, (0, 15), (600, -1), wx.ALIGN_CENTER)
-        title.SetFont(font1)
-        msgs = wx.TextCtrl(parent=panel, id=-1, value="", pos=(10, 40), size=(565, 250), style=wx.TE_MULTILINE)
-        msgs.SetEditable(False)
-        self.stdout = LogOutput(msgs, sys.stdout)
-        sys.stdout = self.stdout
-        self.Bind(wx.EVT_CLOSE, self.onClose)
-
-    def onClose(self, event):
-        sys.stdout = self.stdout.savedStdout
-        self.Destroy()
-
-
-# --------------------------------- 拦截标准输出 ---------------------------------
-class LogOutput():
-
-    def __init__(self, textCtrl, overload_out):
-        self.savedStdout = overload_out
-        self.textCtrl = textCtrl
-
-    def write(self, text):
-        self.textCtrl.write(text)
-
-    def flush(self):
-        self.textCtrl.flush()
-
 
 if __name__ == '__main__':
     updateFilelist()
