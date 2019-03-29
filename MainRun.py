@@ -226,6 +226,9 @@ class window(wx.Frame):
     def savefile(self):
 
         if self.hasEdit:
+            if not os.path.exists(config2['dlpath']):
+                os.mkdir(config2['dlpath'])
+
             msgpath = config2['dlpath'] + '/msg.json'
 
             title = self.youtubeTitle.GetValue()
