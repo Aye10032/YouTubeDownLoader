@@ -111,25 +111,7 @@ class window(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.closewindow)
 
-        # --------------------------------- 菜单栏部分 ---------------------------------
-        _menubar = wx.MenuBar()
-        file = wx.Menu()
-        load = wx.Menu()
-        for i in filelist:
-            but_1 = load.Append(-1, i)
-            self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
-        file.Append(-1, '加载', load)
-        savefilebtn = file.Append(-1, '保存')
-        _menubar.Append(file, '文件')
-        # 其他部分
-        first = wx.Menu()
-        help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
-        about = first.Append(wx.NewId(), '关于', '软件信息')
-        _menubar.Append(first, '其他')
-        self.Bind(wx.EVT_MENU, self.help, help)
-        self.Bind(wx.EVT_MENU, self.about, about)
-        self.Bind(wx.EVT_MENU, self.savefile, savefilebtn)
-        self.SetMenuBar(_menubar)
+        self.updateMenuBar()
 
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
@@ -237,11 +219,14 @@ class window(wx.Frame):
             config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
-    def savefile(self, event):
+
+    def savefileevt(self,event):
+        self.savefile()
+
+    def savefile(self):
 
         if self.hasEdit:
             msgpath = config2['dlpath'] + '/msg.json'
-            print(msgpath)
 
             title = self.youtubeTitle.GetValue()
             link = self.youtubeLink.GetValue()
@@ -407,6 +392,29 @@ class window(wx.Frame):
             config2['downloadpath'] = downloadpath
             config2['dlpath'] = dlpath
             json.dump(config2, c, indent=4)
+
+    # --------------------------------- 菜单栏部分 ---------------------------------
+    def updateMenuBar(self):
+        _menubar = wx.MenuBar()
+        file = wx.Menu()
+        load = wx.Menu()
+        for i in filelist:
+            but_1 = load.Append(-1, i)
+            self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
+        file.Append(-1, '加载', load)
+        savefilebtn = file.Append(-1, '保存')
+        _menubar.Append(file, '文件')
+        # 其他部分
+        first = wx.Menu()
+        help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
+        about = first.Append(wx.NewId(), '关于', '软件信息')
+        _menubar.Append(first, '其他')
+        self.Bind(wx.EVT_MENU, self.help, help)
+        self.Bind(wx.EVT_MENU, self.about, about)
+        self.Bind(wx.EVT_MENU, self.savefileevt, savefilebtn)
+        self.SetMenuBar(_menubar)
+
+
 
 
 def updateFilelist():
