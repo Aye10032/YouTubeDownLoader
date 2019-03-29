@@ -81,7 +81,9 @@ filelist = []
 for i in range(0, len(list)):
     path = os.path.join(rootdir, list[i])
     if not os.path.isfile(path):
-        filelist.append(list[i])
+        temp = os.listdir(path)
+        if 'msg.json' in temp:
+            filelist.append(list[i])
 
 
 class window(wx.Frame):
