@@ -3,9 +3,7 @@ import html
 import json
 import os
 import re
-import subprocess
 import sys
-import time
 import threading
 from shutil import copy2
 import pyperclip
@@ -13,29 +11,8 @@ import requests
 import wx
 import wx.grid as gridlib
 import youtube_dl
-from youtube_dl.downloader import external
 
-p1 = None
-
-def _newProcessToDownLoad(cmd):
-    pass
-
-def _call_downloader(self, tmpfilename, info_dict):
-    """ Either overwrite this or implement _make_cmd """
-    cmd = [external.encodeArgument(a) for a in self._make_cmd(tmpfilename, info_dict)]
-
-    self._debug_cmd(cmd)
-    print(1)
-    p1 = subprocess.Popen(
-        cmd, stdout=sys.stdout, stderr=sys.stderr)
-    # t = threading.Thread(target=_newProcessToDownLoad, args=[cmd])
-
-    _stdout, _stderr = p1.communicate()
-    while p1.poll() is None:
-        pass
-    return p1.returncode
-
-external.ExternalFD._call_downloader =  _call_downloader
+#https://www.youtube.com/watch?v=yfSGRhKLBN4
 
 # --------------------------------- 资源文件位置设置 ---------------------------------
 basedir = ""
@@ -275,10 +252,6 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-
-            frame4 = outPutwin(parent=frame, id=-1, titletext='output', text1='输出')
-            frame4.Show(True)
-
             URL = self.youtubeURL.GetValue()
             if not config['videopro']:
                 self.updatemesage()
@@ -383,8 +356,7 @@ def dl():
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M', '-l', LOG_PATH],
         "external_downloader": ARIA2C,
-        'outtmpl': path,
-        'logger': sys.stdout,
+        'outtmpl': path
     }
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
@@ -564,90 +536,6 @@ class aboutwin(wx.Frame):
 
     def closewindow(self, event):
         self.Destroy()
-
-# --------------------------------- 输出界面 ---------------------------------
-class outPutwin(wx.Frame):
-
-    def __init__(self, parent, id, titletext, text1):
-        wx.Frame.__init__(self, parent, id, titletext, size=(600, 370))
-        panel = wx.Panel(self)
-        self.Center()
-        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
-        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
-        title = wx.StaticText(panel, -1, text1, (0, 15), (600, -1), wx.ALIGN_CENTER)
-        title.SetFont(font1)
-        msgs = wx.TextCtrl(parent=panel,id=-1, value="", pos=(10, 40), size=(565, 250), style=wx.TE_MULTILINE)
-        msgs.SetEditable(False)
-        self.stdout = LogOutput(msgs, sys.stdout)
-        sys.stdout = self.stdout
-        self.Bind(wx.EVT_CLOSE, self.onClose)
-
-    def onClose(self, event):
-        sys.stdout = self.stdout.savedStdout
-        self.Destroy()
-
-# --------------------------------- 拦截标准输出 ---------------------------------
-def RemoveOneCharInStr(string, index):
-    return string[:index] + string[index + 1:]
-
-def ReplaceTextIgnoreEnter(textEntry, text):
-    removeList = []
-    for i2 in range(0, len(textEntry)):
-        i1 = 0
-        while True:
-            # 忽略回车
-            while True:
-                if text[i1] == '\n':
-                    i1 += 1
-                    continue
-                if textEntry[i2] == '\n':
-                    i2 += 1
-                    continue
-                break
-            if text[i1] == textEntry[i2]:
-                removeList.append(i2)
-                if i1 == len(text) - 1:
-                    for i3 in range(len(removeList)):
-                        i3 = removeList[len(removeList) - 1 - i3]
-                        textEntry = RemoveOneCharInStr(textEntry, i3)
-                    reg = re.compile('\n+')
-                    return reg.sub('\n', textEntry)
-                else:
-                    i1 += 1
-                    i2 += 1
-                    continue
-            else:
-                i1 = 0
-                removeList = []
-                break
-    return textEntry
-
-class LogOutput():
-
-    def __init__(self, textCtrl, overload_out):
-        self.savedStdout = overload_out
-        self.textCtrl = textCtrl
-        self.lastAppend = ''
-
-    def write(self, text):
-        if not self.lastAppend.endswith('\n') and self.lastAppend != '':
-            textEntry = ReplaceTextIgnoreEnter(self.textCtrl.GetValue(), self.lastAppend)
-            self.textCtrl.SetValue(textEntry + text)
-        else:
-            self.textCtrl.AppendText(text)
-
-    def flush(self):
-        self.textCtrl.flush()
-
-    def debug(self, text):
-        self.textCtrl.write(text)
-
-    def warning(self, text):
-        self.textCtrl.write(text)
-
-    def error(self, text):
-        self.textCtrl.write(text)
 
 if __name__ == '__main__':
 
