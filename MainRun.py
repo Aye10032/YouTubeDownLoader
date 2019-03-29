@@ -77,12 +77,6 @@ format_code, extension, resolution, format_note, file_size = [], [], [], [], []
 rootdir = 'Download_Video'
 list = os.listdir(rootdir)
 filelist = []
-for i in range(0, len(list)):
-    path = os.path.join(rootdir, list[i])
-    if not os.path.isfile(path):
-        temp = os.listdir(path)
-        if 'msg.json' in temp:
-            filelist.append(list[i])
 
 
 class window(wx.Frame):
@@ -261,6 +255,8 @@ class window(wx.Frame):
             with open(msgpath, 'w') as msgwrite:
                 json.dump(msg, msgwrite, indent=4)
 
+        updateFilelist()
+
     def view(self, event):
         with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
@@ -337,6 +333,7 @@ class window(wx.Frame):
         frame1.Show(True)
 
     def closewindow(self, event):
+        self.savefile()
         self.Destroy()
 
     # --------------------------------- 加载视频信息 ---------------------------------
@@ -411,6 +408,15 @@ class window(wx.Frame):
             config2['dlpath'] = dlpath
             json.dump(config2, c, indent=4)
 
+
+def updateFilelist():
+    filelistlist = []
+    for i in range(0, len(list)):
+        path = os.path.join(rootdir, list[i])
+        if not os.path.isfile(path):
+            temp = os.listdir(path)
+            if 'msg.json' in temp:
+                filelist.append(list[i])
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
@@ -641,6 +647,7 @@ class LogOutput():
 
 
 if __name__ == '__main__':
+    updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
     # frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
