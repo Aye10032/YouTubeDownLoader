@@ -74,7 +74,6 @@ if not os.path.exists('res'):
 
 format_code, extension, resolution, format_note, file_size = [], [], [], [], []
 
-menuBar = None
 rootdir = 'Download_Video'
 list = os.listdir(rootdir)
 filelist = []
@@ -94,6 +93,7 @@ class window(wx.Frame):
     URL = ''
     thumbnail = ''
     hasEdit = False
+    menuBar = None
 
     def __init__(self, parent, id):
         wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 720),
@@ -123,7 +123,7 @@ class window(wx.Frame):
         load = wx.Menu()
         for i in filelist:
             but_1 = load.Append(-1, i)
-            self.Bind(wx.EVT_MENU, loadmsg, but_1)
+            self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
         file.Append(-1, '加载', load)
         savefilebtn = file.Append(-1, '保存')
         _menubar.Append(file, '文件')
@@ -339,6 +339,23 @@ class window(wx.Frame):
     def closewindow(self, event):
         self.Destroy()
 
+    # --------------------------------- 加载视频信息 ---------------------------------
+
+    def loadmsg(self,self2):
+        # 调用全局的变量menuBar
+        name = menuBar.FindItemById(self2.Id).Name
+        print(name)
+        msgpath = 'Download_Video/' + name + '/msg.json'
+        with open(msgpath, 'r') as msgjson:
+            msg = json.load(msgjson)
+
+        title = msg['title']
+        link = msg['link']
+        submit = msg['submit']
+        self.youtubeTitle.SetValue(title)
+        self.youtubeLink.SetValue(link)
+        self.youtubesubmit.SetValue(submit)
+
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self):
 
@@ -394,20 +411,6 @@ class window(wx.Frame):
             config2['dlpath'] = dlpath
             json.dump(config2, c, indent=4)
 
-
-# --------------------------------- 加载视频信息 ---------------------------------
-
-def loadmsg(self):
-    # 调用全局的变量menuBar
-    print(menuBar.FindItemById(self.Id).Name)
-    msgpath = 'Download_Video/' + menuBar.FindItemById(self.Id).Name + '/msg.json'
-    with open(msgpath, 'r') as msgjson:
-        msg = json.load(msgjson)
-
-    title = msg['title']
-    link = msg['link']
-    submit = msg['submit']
-    print(title)
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
