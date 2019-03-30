@@ -250,9 +250,9 @@ class window(wx.Frame):
             config2['url'] = self.youtubeURL.GetValue()
             json.dump(config2, c, indent=4)
         self.updatemesage()
+        self.hasEdit = True
         frame3 = QualityFrame(parent=frame)
         frame3.Show(True)
-        self.hasEdit = True
 
     def load(self, event):
         msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
