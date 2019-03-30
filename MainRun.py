@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import threading
+import webbrowser
 from shutil import copy2
 
 import pyperclip
@@ -219,8 +220,7 @@ class window(wx.Frame):
             config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
-
-    def savefileevt(self,event):
+    def savefileevt(self, event):
         self.savefile()
 
     def savefile(self):
@@ -316,13 +316,17 @@ class window(wx.Frame):
         frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
         frame1.Show(True)
 
+    def updateevt(self, event):
+        frame4 = updatewin(parent=frame, id=-1, titletext='update', text1='检查更新')
+        frame4.Show(True)
+
     def closewindow(self, event):
         self.savefile()
         self.Destroy()
 
     # --------------------------------- 加载视频信息 ---------------------------------
 
-    def loadmsg(self,self2):
+    def loadmsg(self, self2):
         # 调用全局的变量menuBar
         name = menuBar.FindItemById(self2.Id).Name
         print(name)
@@ -407,13 +411,13 @@ class window(wx.Frame):
         first = wx.Menu()
         help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
         about = first.Append(wx.NewId(), '关于', '软件信息')
+        update = first.Append(wx.NewId(), '检查更新', '检查软件更新')
         _menubar.Append(first, '其他')
         self.Bind(wx.EVT_MENU, self.help, help)
         self.Bind(wx.EVT_MENU, self.about, about)
         self.Bind(wx.EVT_MENU, self.savefileevt, savefilebtn)
+        self.Bind(wx.EVT_MENU, self.updateevt, update)
         self.SetMenuBar(_menubar)
-
-
 
 
 def updateFilelist():
@@ -614,6 +618,52 @@ class aboutwin(wx.Frame):
 
     def closewindow(self, event):
         self.Destroy()
+
+
+# --------------------------------- 更新界面 ---------------------------------
+class updatewin(wx.Frame):
+    url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
+
+    r = requests.get(url)
+    rjs = r.json()
+    downloadLink = rjs['assets'][0]['browser_download_url']
+    appname = rjs['assets'][0]['name']
+    version = rjs['tag_name']
+    link = rjs['html_url']
+
+    def __init__(self, parent, id, titletext, text1):
+        wx.Frame.__init__(self, parent, id, titletext, size=(400, 250))
+        panel = wx.Panel(self)
+        self.Center()
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
+
+        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+
+        if self.version == VERSION:
+            inf = wx.StaticText(panel, -1, '当前版本已经是最新', (0, 40), (400, -1), wx.ALIGN_CENTER)
+            inf.SetFont(font1)
+            wx.StaticText(panel, -1, '当前版本  ' + VERSION, (0, 80), (400, -1), wx.ALIGN_CENTER)
+            wx.StaticText(panel, -1, '最新版本  ' + self.version, (0, 100), (400, -1), wx.ALIGN_CENTER)
+            buttonopen = wx.Button(panel, label='确定', pos=(170, 150), size=(60, 25))
+            self.Bind(wx.EVT_BUTTON, self.closewindow, buttonopen)
+        else:
+            inf = wx.StaticText(panel, -1, '有新的可使用版本!', (0, 35), (400, -1), wx.ALIGN_CENTER)
+            inf.SetFont(font1)
+            wx.StaticText(panel, -1, '点击 确定 按钮前往下载', (0, 60), (400, -1), wx.ALIGN_CENTER)
+            wx.StaticText(panel, -1, '当前版本  ' + VERSION, (0, 80), (400, -1), wx.ALIGN_CENTER)
+            wx.StaticText(panel, -1, '最新版本  ' + self.version, (0, 100), (400, -1), wx.ALIGN_CENTER)
+            buttonopen = wx.Button(panel, label='确定', pos=(100, 150), size=(60, 25))
+            buttoncancel = wx.Button(panel, label='取消', pos=(240, 150), size=(60, 25))
+            self.Bind(wx.EVT_BUTTON, self.openevt, buttonopen)
+            self.Bind(wx.EVT_BUTTON, self.closewindow, buttoncancel)
+
+    def openevt(self, event):
+        webbrowser.open(self.link)
+
+    def closewindow(self, event):
+        self.Destroy()
+
 
 if __name__ == '__main__':
     updateFilelist()
