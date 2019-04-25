@@ -34,6 +34,7 @@ LICENCE_PATH = basedir + '/res/LICENCE'
 HELP_PATH = basedir + "/res/HELP"
 SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
+LINK_PATH = basedir + "/res/link.png"
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
@@ -91,7 +92,7 @@ class window(wx.Frame):
     menuBar = None
 
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 720),
+        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 745),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
@@ -187,7 +188,14 @@ class window(wx.Frame):
 
         pic2 = wx.Image(COPY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
+        self.Bind(wx.EVT_ENTER_WINDOW, self.CopyMSG, self.CopyLink)
         self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
+
+        pic3 = wx.Image(LINK_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        self.OpenLink = wx.BitmapButton(panel, -1, pic3, pos=(535, 600), size=(35, 25))
+        self.Bind(wx.EVT_BUTTON, self.openlink, self.OpenLink)
+
+        self.statusbar = self.CreateStatusBar()
 
     def usePor(self, event):
         if self.usebtn.GetValue():
@@ -231,11 +239,13 @@ class window(wx.Frame):
 
             msgpath = config2['dlpath'] + '/msg.json'
 
+            origin = self.youtubeURL.GetValue()
             title = self.youtubeTitle.GetValue()
             link = self.youtubeLink.GetValue()
             submit = self.youtubesubmit.GetValue()
 
             msg = {
+                "origin": origin,
                 "title": title,
                 "link": link,
                 "submit": submit
@@ -303,6 +313,13 @@ class window(wx.Frame):
 
         pyperclip.copy(msg)
 
+    def CopyMSG(self, event):
+        self.statusbar.SetStatusText('复制简介信息')
+
+    def openlink(self, event):
+        webbrowser.open(self.youtubeURL.GetValue())
+
+
     def setGUI(self, title, link, sub):
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
@@ -334,9 +351,11 @@ class window(wx.Frame):
         with open(msgpath, 'r') as msgjson:
             msg = json.load(msgjson)
 
+        url = msg['origin']
         title = msg['title']
         link = msg['link']
         submit = msg['submit']
+        self.youtubeURL.SetValue(url)
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(submit)
@@ -405,7 +424,7 @@ class window(wx.Frame):
             but_1 = load.Append(-1, i)
             self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
         file.Append(-1, '加载', load)
-        savefilebtn = file.Append(-1, '保存')
+        savefilebtn = file.Append(-1, '保存', '保存当前视频信息')
         _menubar.Append(file, '文件')
         # 其他部分
         first = wx.Menu()
