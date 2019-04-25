@@ -23,7 +23,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.1'
+VERSION = 'V3.2.1'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
