@@ -6,8 +6,7 @@
 程序协助：Dazo66 [https://space.bilibili.com/5725331/](https://space.bilibili.com/5725331/)
 ## 依赖环境
 
-Windows系统；      
-[python3](https://www.python.org/downloads/);     
+Windows系统；        
 代理软件;        
 
 
@@ -29,3 +28,5 @@ Windows系统；
 在视频信息编辑完成之后点击 “X” 关闭窗口，简介等信息会自动保存。或者手动点击 文件-保存 也可以保存未编辑完的视频，以便之后继续进行编辑。
 
 点击 文件-加载 可以加载历史视频的标题、链接和简介信息。
+
+点击软件界面右下角的🔗按钮可以跳转到油管原网页。
