@@ -6,6 +6,7 @@ import re
 import sys
 import threading
 import webbrowser
+import win32api
 from shutil import copy2
 
 import pyperclip
@@ -83,12 +84,16 @@ filelist = []
 
 
 class window(wx.Frame):
+    current_path = os.path.abspath(__file__)
+    father_path = os.path.abspath(os.path.dirname(current_path) + os.path.sep + ".")
+
     uploader = ''
     upload_date = ''
     title = ''
     description = ''
     URL = ''
     thumbnail = ''
+    basepath = ''
     hasEdit = False
     menuBar = None
 
@@ -200,7 +205,8 @@ class window(wx.Frame):
 
         pic4 = wx.Image(PLAY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 520), size=(35, 35))
-        # self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
+        self.OpenVideo.Enable(False)
+        self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
 
     def usePor(self, event):
         if self.usebtn.GetValue():
@@ -324,8 +330,8 @@ class window(wx.Frame):
     def openlink(self, event):
         webbrowser.open(self.youtubeURL.GetValue())
 
-    # def openvideo(self, event):
-
+    def openvideo(self, event):
+        win32api.ShellExecute(0, 'open', self.basepath, '', '', 1)
 
 
     def setGUI(self, title, link, sub):
@@ -363,10 +369,17 @@ class window(wx.Frame):
         title = msg['title']
         link = msg['link']
         submit = msg['submit']
+        self.basepath = 'Download_Video/' + name
         self.youtubeURL.SetValue(url)
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(submit)
+
+        templist = os.listdir(self.basepath)
+        for i in templist:
+            if i.__contains__('.mp4'):
+                self.OpenVideo.Enable(True)
+                self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self):
