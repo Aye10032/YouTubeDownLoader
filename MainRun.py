@@ -35,6 +35,7 @@ HELP_PATH = basedir + "/res/HELP"
 SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
 LINK_PATH = basedir + "/res/link.png"
+PLAY_PATH = basedir + "/res/play.png"
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
@@ -197,6 +198,10 @@ class window(wx.Frame):
 
         self.statusbar = self.CreateStatusBar()
 
+        pic4 = wx.Image(PLAY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 520), size=(35, 35))
+        # self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
+
     def usePor(self, event):
         if self.usebtn.GetValue():
             self.ipaddress.SetEditable(True)
@@ -318,6 +323,9 @@ class window(wx.Frame):
 
     def openlink(self, event):
         webbrowser.open(self.youtubeURL.GetValue())
+
+    # def openvideo(self, event):
+
 
 
     def setGUI(self, title, link, sub):
