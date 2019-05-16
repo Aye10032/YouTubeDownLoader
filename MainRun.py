@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.3'
+VERSION = 'V3.4'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -366,7 +366,6 @@ class window(wx.Frame):
     def loadmsg(self, self2):
         # 调用全局的变量menuBar
         name = menuBar.FindItemById(self2.Id).Name
-        print(name)
         msgpath = 'Download_Video/' + name + '/msg.json'
         with open(msgpath, 'r') as msgjson:
             msg = json.load(msgjson)
