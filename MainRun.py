@@ -35,7 +35,7 @@ LICENCE_PATH = basedir + '/res/LICENCE'
 HELP_PATH = basedir + "/res/HELP"
 SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
-LINK_PATH = basedir + "/res/link.png"
+TRANSLATE_PATH = basedir + "/res/translate.png"
 PLAY_PATH = basedir + "/res/play.png"
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
@@ -197,14 +197,17 @@ class window(wx.Frame):
         self.Bind(wx.EVT_ENTER_WINDOW, self.CopyMSG, self.CopyLink)
         self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
 
-        pic3 = wx.Image(LINK_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-        self.OpenLink = wx.BitmapButton(panel, -1, pic3, pos=(535, 600), size=(35, 25))
+        pic3 = wx.Image(TRANSLATE_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+        self.Translate = wx.BitmapButton(panel, -1, pic3, pos=(535, 480), size=(35, 35))
+        self.Bind(wx.EVT_BUTTON, self.translate, self.Translate)
+
+        self.OpenLink = wx.Button(panel, -1, '🔗', pos=(535, 600), size=(35, 35))
         self.Bind(wx.EVT_BUTTON, self.openlink, self.OpenLink)
 
         self.statusbar = self.CreateStatusBar()
 
         pic4 = wx.Image(PLAY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-        self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 520), size=(35, 35))
+        self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 550), size=(35, 35))
         self.OpenVideo.Enable(False)
         self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
 
@@ -327,12 +330,15 @@ class window(wx.Frame):
     def CopyMSG(self, event):
         self.statusbar.SetStatusText('复制简介信息')
 
+    def translate(self, event):
+        frame3 = translatewin(parent=frame, id=-1, titletext='翻译', text1='原文')
+        frame3.Show(True)
+
     def openlink(self, event):
         webbrowser.open(self.youtubeURL.GetValue())
 
     def openvideo(self, event):
         win32api.ShellExecute(0, 'open', self.basepath, '', '', 1)
-
 
     def setGUI(self, title, link, sub):
         self.youtubeTitle.SetValue(title)
@@ -542,6 +548,54 @@ def req_api():
 
     else:
         print('Can\'t find ' + v_url + ' sub! check video id!')
+
+
+# --------------------------------- 翻译界面 ---------------------------------
+class translatewin(wx.Frame):
+    originText = ''
+    resText = ''
+
+    def __init__(self, parent, id, titletext, text1):
+        wx.Frame.__init__(self, parent, id, titletext, size=(500, 480))
+        panel = wx.Panel(self)
+        self.Center()
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
+
+        font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+
+        title = wx.StaticText(panel, -1, text1, (0, 10), (500, -1), wx.ALIGN_CENTER)
+        title.SetFont(font1)
+
+        self.originTeaxArea = wx.TextCtrl(panel, -1, '', (10, 35), (465, 160), style=wx.TE_MULTILINE)
+
+        button = wx.Button(panel, label='翻译', pos=(220, 200), size=(60, 20))
+        self.Bind(wx.EVT_BUTTON, self.tran, button)
+
+        self.res = wx.TextCtrl(panel, -1, self.resText, (10, 225), (465, 200), style=wx.TE_MULTILINE)
+        self.res.SetEditable(False)
+
+    def tran(self, event):
+        url = "http://translate.google.cn/translate_a/single"
+        self.originText = self.originTeaxArea.GetValue()
+        querystring = {"client": "gtx", "dt": "t", "dj": "1", "ie": "UTF-8", "sl": "auto", "tl": "zh_CN",
+                       "q": self.originText}
+
+        payload = ""
+        headers = {
+            'User-Agent': "PostmanRuntime/7.11.0",
+            'Accept': "*/*",
+            'Cache-Control': "no-cache",
+            'Postman-Token': "2fb29936-69ef-405e-be97-02ba2bf646ad,2d2b4882-edd6-4b30-9cb1-0802f7a89458",
+            'Host': "translate.google.cn",
+            'accept-encoding': "gzip, deflate",
+            'Connection': "keep-alive",
+            'cache-control': "no-cache"
+        }
+
+        response = requests.request("GET", url, data=payload, headers=headers, params=querystring).json()
+        self.resText = response['sentences'][0]['trans']
+        self.res.SetValue(self.resText)
 
 
 # --------------------------------- 视频质量界面 ---------------------------------
