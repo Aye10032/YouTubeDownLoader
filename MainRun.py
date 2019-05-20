@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.4'
+VERSION = 'V3.4.1'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -723,6 +723,9 @@ class updatewin(wx.Frame):
     appname = rjs['assets'][0]['name']
     version = rjs['tag_name']
     link = rjs['html_url']
+
+    version = version.replace('v', 'V')
+    VERSION = VERSION.replace('v', 'V')
 
     def __init__(self, parent, id, titletext, text1):
         wx.Frame.__init__(self, parent, id, titletext, size=(400, 250))
