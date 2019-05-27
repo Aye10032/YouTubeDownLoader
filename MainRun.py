@@ -385,6 +385,9 @@ class window(wx.Frame):
             if i.__contains__('.mp4'):
                 self.OpenVideo.Enable(True)
                 self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
+            elif i.__contains__('.webm'):
+                self.OpenVideo.Enable(True)
+                self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self):
