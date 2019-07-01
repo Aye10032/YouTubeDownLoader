@@ -52,7 +52,7 @@ if not os.path.exists(CONFIG_PATH):
         "xiancheng": "4",
         "token": "5460f6d462bc3067e27a3fbc8d732799339a7f85",
         "single_language": "en",
-        "multilanguage": False,
+        "multilanguage": True,
         "notimeline": False,
         "videopro": True
     }
