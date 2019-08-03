@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.4.3'
+VERSION = 'V3.4.4'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -379,6 +379,8 @@ class window(wx.Frame):
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(submit)
+
+        self.hasEdit = True
 
         templist = os.listdir(self.basepath)
         for i in templist:
