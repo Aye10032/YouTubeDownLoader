@@ -410,8 +410,12 @@ class window(wx.Frame):
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
 
-            if self.upload_date[4] == '0':
+            if self.upload_date[4] == '0' and self.upload_date[6] == '0':
+                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
+            elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
                 date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
+            elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
+                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
             else:
                 date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
 
