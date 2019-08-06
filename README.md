@@ -4,6 +4,7 @@
 搬运组空间：[https://space.bilibili.com/1311124](https://space.bilibili.com/1311124)      
 作者：Aye10032 [https://space.bilibili.com/40077740](https://space.bilibili.com/40077740)     
 程序协助：Dazo66 [https://space.bilibili.com/5725331/](https://space.bilibili.com/5725331/)
+
 ## 依赖环境
 
 Windows系统；        
@@ -34,3 +35,10 @@ Windows系统；
 - 点击▶按钮会使用系统默认播放器播放视频。
 - 点击谷歌翻译的logo可以弹出翻译对话框，不过因为发送格式的原因，目前不支持有换行的翻译。（也就是只能一段一段的翻译）
 - 最后一个按钮可以一键将简介区内容复制到剪贴板，方便投稿时使用。
+
+
+
+### 引用
+
+- [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+- [youtube字幕下载接口](https://zhuwei.me/y2b/)
