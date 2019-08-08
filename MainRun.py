@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.5'
+VERSION = 'V3.5.1'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -127,7 +127,7 @@ class window(wx.Frame):
         self.yourname = wx.TextCtrl(panel, -1, config['name'], (90, 30), (130, 23))
 
         wx.StaticText(panel, -1, '下载线程：', (300, 35))
-        listc = ['1', '2', '4', '6', '8', '16']
+        listc = ['1', '2', '4', '6', '8', '16', '32', '64', '128', '256', '1024']
         self.xiancheng = wx.ComboBox(panel, -1, value=config['xiancheng'], pos=(370, 30), size=(80, 23),
                                      choices=listc)
 
