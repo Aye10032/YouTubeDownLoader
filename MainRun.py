@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.5.1'
+VERSION = 'V3.5.2'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -127,7 +127,7 @@ class window(wx.Frame):
         self.yourname = wx.TextCtrl(panel, -1, config['name'], (90, 30), (130, 23))
 
         wx.StaticText(panel, -1, '下载线程：', (300, 35))
-        listc = ['1', '2', '4', '6', '8', '16', '32', '64', '128', '256', '1024']
+        listc = ['1', '2', '4', '6', '8', '16']
         self.xiancheng = wx.ComboBox(panel, -1, value=config['xiancheng'], pos=(370, 30), size=(80, 23),
                                      choices=listc)
 
@@ -585,7 +585,7 @@ class translatewin(wx.Frame):
 
     def tran(self, event):
         url = "http://translate.google.cn/translate_a/single"
-        self.originText = self.originTeaxArea.GetValue()
+        self.originText = self.originTeaxArea.GetValue().replace('\n','')
         querystring = {"client": "gtx", "dt": "t", "dj": "1", "ie": "UTF-8", "sl": "auto", "tl": "zh_CN",
                        "q": self.originText}
 
@@ -602,7 +602,9 @@ class translatewin(wx.Frame):
         }
 
         response = requests.request("GET", url, data=payload, headers=headers, params=querystring).json()
-        self.resText = response['sentences'][0]['trans']
+        for s in response['sentences']:
+            self.resText = self.resText + s['trans']
+
         self.res.SetValue(self.resText)
 
 
