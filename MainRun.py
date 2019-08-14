@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.4.3'
+VERSION = 'V3.5.2'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -380,6 +380,8 @@ class window(wx.Frame):
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(submit)
 
+        self.hasEdit = True
+
         templist = os.listdir(self.basepath)
         for i in templist:
             if i.__contains__('.mp4'):
@@ -408,8 +410,12 @@ class window(wx.Frame):
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
 
-            if self.upload_date[4] == '0':
+            if self.upload_date[4] == '0' and self.upload_date[6] == '0':
+                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
+            elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
                 date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
+            elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
+                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
             else:
                 date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
 
@@ -579,7 +585,7 @@ class translatewin(wx.Frame):
 
     def tran(self, event):
         url = "http://translate.google.cn/translate_a/single"
-        self.originText = self.originTeaxArea.GetValue()
+        self.originText = self.originTeaxArea.GetValue().replace('\n','')
         querystring = {"client": "gtx", "dt": "t", "dj": "1", "ie": "UTF-8", "sl": "auto", "tl": "zh_CN",
                        "q": self.originText}
 
@@ -596,7 +602,9 @@ class translatewin(wx.Frame):
         }
 
         response = requests.request("GET", url, data=payload, headers=headers, params=querystring).json()
-        self.resText = response['sentences'][0]['trans']
+        for s in response['sentences']:
+            self.resText = self.resText + s['trans']
+
         self.res.SetValue(self.resText)
 
 
