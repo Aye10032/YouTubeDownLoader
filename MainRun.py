@@ -495,7 +495,7 @@ def dl():
         'outtmpl': path,
         'writesubtitles': True,
         'writeautomaticsub': True,
-        'subtitlesformat': 'ttml',
+        'subtitlesformat': 'srt',
         'subtitleslangs': ['zh-Hans', 'en']
     }
     if config['useProxy']:
@@ -508,58 +508,58 @@ def dl():
         ydl.download([config2['url']])
 
 
-# --------------------------------- 下载字幕 ---------------------------------
-def req_api():
-    api_url = 'https://api.zhuwei.me/v1/captions/'
-    v_url = config2['url']
-    dlpath = config2['dlpath']
-    token = config['token']
-    have_sub = requests.get(api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
-
-    if have_sub['meta']['code'] == 200:
-        res = have_sub['response']['captions']
-        sub_title = res['title']
-        sub_list = res['available_captions']
-
-        find = False
-        for i in sub_list:
-
-            if i['language'] in config['single_language']:
-                print('Find （' + sub_title + '） 【' + i['language'] + '】 subtitle!')
-
-                sub_url = i['caption_content_url'] + '?api-key=' + token \
-                          + ('&multilanguage=multilanguage' if config['multilanguage'] else '') \
-                          + ('&notimeline=notimeline' if config['notimeline'] else '')
-
-                # 获取字幕url数据
-                sub_res = requests.get(sub_url)
-                sub_content = sub_res.json().get('contents').get('content')
-
-                # 写入字幕文件
-                if not os.path.exists(dlpath):
-                    os.mkdir(dlpath)
-
-                if os.name == 'nt':
-
-                    with open(dlpath + '/%s.srt' % re.sub('[\/:?"*<>|]', '-', html.unescape(sub_title)),
-                              'w') as sub_file:
-                        sub_file.write(html.unescape(sub_content))
-                else:
-                    with open(dlpath + '/%s.srt' % html.unescape(sub_title).replace('/', '-'),
-                              'w') as sub_file:
-                        sub_file.write(html.unescape(sub_content))
-                print('Download 【' + sub_title + '.srt】 complete!')
-
-                find = True
-                break
-
-        if find:
-            print('Success find ' + i['language'] + ' subtitle!')
-        else:
-            print('Can\'t find ' + i['language'] + ' subtitle!')
-
-    else:
-        print('Can\'t find ' + v_url + ' sub! check video id!')
+# # --------------------------------- 下载字幕 ---------------------------------
+# def req_api():
+#     api_url = 'https://api.zhuwei.me/v1/captions/'
+#     v_url = config2['url']
+#     dlpath = config2['dlpath']
+#     token = config['token']
+#     have_sub = requests.get(api_url + v_url[-11:] + '?' + 'api-key=' + token).json()
+#
+#     if have_sub['meta']['code'] == 200:
+#         res = have_sub['response']['captions']
+#         sub_title = res['title']
+#         sub_list = res['available_captions']
+#
+#         find = False
+#         for i in sub_list:
+#
+#             if i['language'] in config['single_language']:
+#                 print('Find （' + sub_title + '） 【' + i['language'] + '】 subtitle!')
+#
+#                 sub_url = i['caption_content_url'] + '?api-key=' + token \
+#                           + ('&multilanguage=multilanguage' if config['multilanguage'] else '') \
+#                           + ('&notimeline=notimeline' if config['notimeline'] else '')
+#
+#                 # 获取字幕url数据
+#                 sub_res = requests.get(sub_url)
+#                 sub_content = sub_res.json().get('contents').get('content')
+#
+#                 # 写入字幕文件
+#                 if not os.path.exists(dlpath):
+#                     os.mkdir(dlpath)
+#
+#                 if os.name == 'nt':
+#
+#                     with open(dlpath + '/%s.srt' % re.sub('[\/:?"*<>|]', '-', html.unescape(sub_title)),
+#                               'w') as sub_file:
+#                         sub_file.write(html.unescape(sub_content))
+#                 else:
+#                     with open(dlpath + '/%s.srt' % html.unescape(sub_title).replace('/', '-'),
+#                               'w') as sub_file:
+#                         sub_file.write(html.unescape(sub_content))
+#                 print('Download 【' + sub_title + '.srt】 complete!')
+#
+#                 find = True
+#                 break
+#
+#         if find:
+#             print('Success find ' + i['language'] + ' subtitle!')
+#         else:
+#             print('Can\'t find ' + i['language'] + ' subtitle!')
+#
+#     else:
+#         print('Can\'t find ' + v_url + ' sub! check video id!')
 
 
 # --------------------------------- 翻译界面 ---------------------------------
