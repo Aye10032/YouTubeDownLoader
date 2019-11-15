@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.5.2'
+VERSION = 'V3.5.3'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -307,9 +307,9 @@ class window(wx.Frame):
             # p1 = Process(target=dl)
             t1 = threading.Thread(target=dl)
             # p2 = Process(target=req_api)
-            t2 = threading.Thread(target=req_api)
+            # t2 = threading.Thread(target=req_api)
             t1.start()
-            t2.start()
+            # t2.start()
             # p1.start()
             # p2.start()
         self.hasEdit = True
@@ -440,10 +440,10 @@ class window(wx.Frame):
             self.youtubesubmit.SetValue(submit)
 
         downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
-            '\\', '').replace('/', '').replace('?', '') + '/%(title)s.%(ext)s'
+            '\\', '').replace('/', '').replace('?', '').replace('\"', '') + '/%(title)s.%(ext)s'
         dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
                                                                                                            '').replace(
-            '/', '').replace('?', '')
+            '/', '').replace('?', '').replace('\"', '')
         with open(TEMP_PATH, 'w') as c:
             config2['url'] = self.youtubeURL.GetValue()
             config2['downloadpath'] = downloadpath
@@ -492,7 +492,11 @@ def dl():
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
         "external_downloader": ARIA2C,
-        'outtmpl': path
+        'outtmpl': path,
+        'writesubtitles': True,
+        'writeautomaticsub': True,
+        'subtitlesformat': 'ttml',
+        'subtitleslangs': ['zh-Hans', 'en']
     }
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
@@ -585,7 +589,7 @@ class translatewin(wx.Frame):
 
     def tran(self, event):
         url = "http://translate.google.cn/translate_a/single"
-        self.originText = self.originTeaxArea.GetValue().replace('\n','')
+        self.originText = self.originTeaxArea.GetValue().replace('\n', '')
         querystring = {"client": "gtx", "dt": "t", "dj": "1", "ie": "UTF-8", "sl": "auto", "tl": "zh_CN",
                        "q": self.originText}
 
