@@ -14,7 +14,9 @@ Windows系统；
 ## 使用方法
 
 将下载下来的exe文件放入一个新建文件夹中运行即可，第一次运行会在根目录下生成一些系统配置文件，之后正常运行即可。       
-使用介绍视频：[https://www.bilibili.com/video/av52651468/](https://www.bilibili.com/video/av52651468/)
+使用介绍视频：
+<iframe src="//player.bilibili.com/player.html?aid=52651468&cid=92141094&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
 ## 界面
 
 设置搬运者ID，是否适用代理（如果代理是部署在路由器上选择不使用即可），以及代理IP，**代理必须是以http：//开头**，之后跟上IP及端口号即可。
