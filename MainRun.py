@@ -24,7 +24,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.6.1'
+VERSION = 'V3.7.0'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -117,8 +117,6 @@ class window(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.closewindow)
 
-        self.updateMenuBar()
-
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
         wx.StaticText(panel, -1, '搬运者ID：', (22, 35))
@@ -208,6 +206,8 @@ class window(wx.Frame):
         self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 550), size=(35, 35))
         self.OpenVideo.Enable(False)
         self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
+
+        self.updateMenuBar()
 
     def usePor(self, event):
         if self.usebtn.GetValue():
@@ -720,22 +720,21 @@ class updatewin(wx.Frame):
         self.Destroy()
 
 
+class cjview(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        wx.StaticText(self, label='Page Two2')
+        pass
+
+
 if __name__ == '__main__':
     updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
-    # frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
-    # frame2 = aboutwin(parent=frame, id=-1, titletext='about', text1='关于')
-    #
+    nb = wx.Notebook(frame)
+    nb.AddPage(cjview(nb), "Page Two")
+
     frame.Show()
-    # frame1.Show(False)
-    # frame2.Show(False)
 
-    # frame3 = outPutwin(parent=frame, id=-1, titletext='output', text1='输出')
-    # frame3.Show(True)
-    # frame3.Center()
-
-    # frame1.Center()
-    # frame2.Center()
     menuBar = frame.MenuBar
     app.MainLoop()
