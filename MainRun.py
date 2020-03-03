@@ -1,8 +1,6 @@
 # -*- coding:utf-8 -*-
-import html
 import json
 import os
-import re
 import sys
 import threading
 import webbrowser
@@ -24,7 +22,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.7.0'
+VERSION = 'V3.8.0'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -676,7 +674,13 @@ class aboutwin(wx.Frame):
 class updatewin(wx.Frame):
     url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
 
-    r = requests.get(url)
+    if config['useProxy']:
+        proxy = {
+            'http':config['ipaddress']
+        }
+        r = requests.get(url,proxy=proxy)
+    else:
+        r = requests.get(url)
     rjs = r.json()
     downloadLink = rjs['assets'][0]['browser_download_url']
     appname = rjs['assets'][0]['name']
