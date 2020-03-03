@@ -678,7 +678,7 @@ class updatewin(wx.Frame):
         proxy = {
             'http':config['ipaddress']
         }
-        r = requests.get(url,proxy=proxy)
+        r = requests.get(url,proxies=proxy)
     else:
         r = requests.get(url)
     rjs = r.json()
