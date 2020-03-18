@@ -43,4 +43,3 @@ Windows系统；
 ### 引用
 
 - [youtube-dl](https://github.com/ytdl-org/youtube-dl)
-- [youtube字幕下载接口](https://zhuwei.me/y2b/)
