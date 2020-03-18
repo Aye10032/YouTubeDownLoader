@@ -675,14 +675,14 @@ class aboutwin(wx.Frame):
 class updatewin(wx.Frame):
     url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
 
-    r = requests.get(url)
-    # if config['useProxy']:
-    #     proxy = {
-    #         'http':config['ipaddress']
-    #     }
-    #     r = requests.get(url,proxies=proxy)
-    # else:
-    #     r = requests.get(url)
+    # r = requests.get(url)
+    if config['useProxy']:
+        proxy = {
+            'http':config['ipaddress']
+        }
+        r = requests.get(url,proxies=proxy)
+    else:
+        r = requests.get(url)
         
     rjs = r.json()
     downloadLink = rjs['assets'][0]['browser_download_url']
@@ -728,19 +728,10 @@ class updatewin(wx.Frame):
         self.Destroy()
 
 
-class cjview(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        wx.StaticText(self, label='Page Two2')
-        pass
-
-
 if __name__ == '__main__':
     updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
-    nb = wx.Notebook(frame)
-    nb.AddPage(cjview(nb), "Page Two")
 
     frame.Show()
 
