@@ -3,7 +3,6 @@ import json
 import os
 import sys
 import threading
-import webbrowser
 import win32api
 from shutil import copy2
 
@@ -22,7 +21,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.8.0'
+VERSION = 'V3.8.1'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -331,9 +330,11 @@ class window(wx.Frame):
         frame3.Show(True)
 
     def openlink(self, event):
-        webbrowser.open(self.youtubeURL.GetValue())
+        win32api.ShellExecute(0, 'open', self.youtubeURL.GetValue(), '', '', 1)
+        # webbrowser.open(self.youtubeURL.GetValue())
 
     def openvideo(self, event):
+        print('尝试打开 ' + self.basepath)
         win32api.ShellExecute(0, 'open', self.basepath, '', '', 1)
 
     def setGUI(self, title, link, sub):
@@ -674,13 +675,15 @@ class aboutwin(wx.Frame):
 class updatewin(wx.Frame):
     url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
 
-    if config['useProxy']:
-        proxy = {
-            'http':config['ipaddress']
-        }
-        r = requests.get(url,proxies=proxy)
-    else:
-        r = requests.get(url)
+    r = requests.get(url)
+    # if config['useProxy']:
+    #     proxy = {
+    #         'http':config['ipaddress']
+    #     }
+    #     r = requests.get(url,proxies=proxy)
+    # else:
+    #     r = requests.get(url)
+        
     rjs = r.json()
     downloadLink = rjs['assets'][0]['browser_download_url']
     appname = rjs['assets'][0]['name']
@@ -718,7 +721,8 @@ class updatewin(wx.Frame):
             self.Bind(wx.EVT_BUTTON, self.closewindow, buttoncancel)
 
     def openevt(self, event):
-        webbrowser.open(self.link)
+        win32api.ShellExecute(0, 'open', self.link, '', '', 1)
+        # webbrowser.open(self.link)
 
     def closewindow(self, event):
         self.Destroy()
