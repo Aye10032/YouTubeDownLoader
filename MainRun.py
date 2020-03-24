@@ -678,7 +678,7 @@ class updatewin(wx.Frame):
     # r = requests.get(url)
     if config['useProxy']:
         proxy = {
-            'http':config['ipaddress']
+            'http':'http://127.0.0.1:1080'
         }
         r = requests.get(url,proxies=proxy)
     else:
