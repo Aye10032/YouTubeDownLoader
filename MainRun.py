@@ -675,16 +675,16 @@ class aboutwin(wx.Frame):
 class updatewin(wx.Frame):
     url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
 
-    # r = requests.get(url)
-    if config['useProxy']:
-        proxy = {
-            'http':'http://127.0.0.1:1080'
-        }
-        r = requests.get(url,proxies=proxy)
-    else:
-        r = requests.get(url)
-        
-    rjs = r.json()
+    proxy = {
+        'http': config['ipaddress']
+    }
+    print(proxy)
+    try:
+        response = requests.request("GET", url)
+    except requests.exceptions.ConnectionError:
+        response = requests.request("GET", url, proxies=proxy)
+
+    rjs = response.json()
     downloadLink = rjs['assets'][0]['browser_download_url']
     appname = rjs['assets'][0]['name']
     version = rjs['tag_name']
