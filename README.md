@@ -1,7 +1,6 @@
 # Youtube Download
 
-
-[![](https://img.shields.io/badge/blog-@champyin-red.svg)](https://www.aye10032.com) [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.png?v=103)](https://opensource.org/licenses/GPL-3.0/) [![Build Status](https://travis-ci.com/Aye10032/YouTubeDownLoad.svg?branch=master)](https://travis-ci.com/Aye10032/YouTubeDownLoad)
+[![](https://img.shields.io/badge/blog-@Aye10032-red.svg)](https://www.aye10032.com) [![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.png?v=103)](https://opensource.org/licenses/GPL-3.0/) [![Build Status](https://travis-ci.com/Aye10032/YouTubeDownLoad.svg?branch=master)](https://travis-ci.com/Aye10032/YouTubeDownLoad)
 
 红石科技搬运组工具软件，用于自动下载视频，视频封面，字幕，同时规范简介格式。      
 搬运组空间：[https://space.bilibili.com/1311124](https://space.bilibili.com/1311124)      
