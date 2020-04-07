@@ -21,7 +21,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.9.2'
+VERSION = 'V3.10.0'
 RES_PATH = 'res'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
@@ -676,24 +676,11 @@ class aboutwin(wx.Frame):
 
 # --------------------------------- 更新界面 ---------------------------------
 class updatewin(wx.Frame):
-    url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
+    downloadLink = ""
+    appname = ""
+    version = ""
+    link = ""
 
-    proxy = {
-        'http': config['ipaddress']
-    }
-    print(proxy)
-    try:
-        response = requests.request("GET", url)
-    except requests.exceptions.ConnectionError:
-        response = requests.request("GET", url, proxies=proxy)
-
-    rjs = response.json()
-    downloadLink = rjs['assets'][0]['browser_download_url']
-    appname = rjs['assets'][0]['name']
-    version = rjs['tag_name']
-    link = rjs['html_url']
-
-    version = version.replace('v', 'V')
     VERSION = VERSION.replace('v', 'V')
 
     def __init__(self, parent, id, titletext, text1):
@@ -704,6 +691,23 @@ class updatewin(wx.Frame):
         self.SetIcon(icon)
 
         font1 = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, '微软雅黑')  # 标题字体
+
+        url = 'https://api.github.com/repos/Aye10032/YouTubeDownLoad/releases/latest'
+
+        proxy = {
+            'http': config['ipaddress']
+        }
+        print(proxy)
+
+        try:
+            response = requests.request("GET", url)
+            self.updaetGithubInf(response)
+        except ConnectionResetError:
+            response = requests.request("GET", url, proxies=proxy)
+            self.updaetGithubInf(response)
+        except requests.exceptions.ConnectionError:
+            response = requests.request("GET", url, proxies=proxy)
+            self.updaetGithubInf(response)
 
         if self.version == VERSION:
             inf = wx.StaticText(panel, -1, '当前版本已经是最新', (0, 40), (400, -1), wx.ALIGN_CENTER)
@@ -725,10 +729,18 @@ class updatewin(wx.Frame):
 
     def openevt(self, event):
         win32api.ShellExecute(0, 'open', self.link, '', '', 1)
-        # webbrowser.open(self.link)
 
     def closewindow(self, event):
         self.Destroy()
+
+    def updaetGithubInf(self, body):
+        rjs = body.json()
+        self.downloadLink = rjs['assets'][0]['browser_download_url']
+        self.appname = rjs['assets'][0]['name']
+        self.version = rjs['tag_name']
+        self.link = rjs['html_url']
+
+        self.version = self.version.replace('v', 'V')
 
 
 if __name__ == '__main__':
