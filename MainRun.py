@@ -93,7 +93,7 @@ class window(wx.Frame):
     menuBar = None
 
     def __init__(self, parent, id):
-        wx.Frame.__init__(self, parent, id, '半自动搬运工具@Aye10032 ' + VERSION, size=(600, 745),
+        wx.Frame.__init__(self, parent, id, '视频下载工具陶碗工厂特供版@Aye10032 ' + VERSION, size=(600, 745),
                           style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.SYSTEM_MENU)
 
         self.Center()
@@ -177,11 +177,11 @@ class window(wx.Frame):
         # --------------------------------- 视频信息部分 ---------------------------------
 
         wx.StaticText(panel, -1, '标题：', (22, 170))
-        self.youtubeTitle = wx.TextCtrl(panel, -1, '【MC】【】', (90, 165), (450, 23))
+        self.youtubeTitle = wx.TextCtrl(panel, -1, '', (90, 165), (450, 23))
         wx.StaticText(panel, -1, '视频来源：', (22, 200))
-        self.youtubeLink = wx.TextCtrl(panel, -1, '转自 有能力请支持原作者', (90, 195), (450, 23))
+        self.youtubeLink = wx.TextCtrl(panel, -1, '源链接', (90, 195), (450, 23))
         wx.StaticText(panel, -1, '视频简介', (0, 230), (520, -1), wx.ALIGN_CENTER)
-        self.youtubesubmit = wx.TextCtrl(panel, -1, '作者：\r\n发布时间：\r\n搬运：\r\n视频摘要：\r\n原简介翻译：\r\n存档：\r\n其他外链：', (20, 260),
+        self.youtubesubmit = wx.TextCtrl(panel, -1, '作者：\r\n发布时间：\r\n搬运：\r\n原简介：', (20, 260),
                                          (500, 395),
                                          style=wx.TE_MULTILINE)
 
@@ -433,10 +433,10 @@ class window(wx.Frame):
                 format_note.append(f.get('format_note'))
                 file_size.append(f.get('filesize'))
 
-            self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
-            self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
+            self.youtubeTitle.SetValue(self.title + '【' + self.uploader + '】')
+            self.youtubeLink.SetValue('源链接' + config2['url'])
             submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
-                'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
+                'name'] + '\r\n原简介：' + self.description
             self.youtubesubmit.SetValue(submit)
 
         downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
@@ -493,10 +493,7 @@ def dl():
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
         "external_downloader": ARIA2C,
         'outtmpl': path,
-        'writesubtitles': True,
         'writeautomaticsub': True,
-        'subtitlesformat': 'srt',
-        'subtitleslangs': ['zh-Hans', 'en']
     }
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
@@ -669,6 +666,12 @@ class aboutwin(wx.Frame):
 
         button = wx.Button(panel, label='OK', pos=(220, 300), size=(60, 20))
         self.Bind(wx.EVT_BUTTON, self.closewindow, button)
+
+        buttonAuthor = wx.Button(panel, label='作者的空间', pos=(320, 300), size=(70, 20))
+        self.Bind(wx.EVT_BUTTON, self.openAye, buttonAuthor)
+
+    def openAye(self, event):
+        win32api.ShellExecute(0, 'open', 'https://space.bilibili.com/40077740', '', '', 1)
 
     def closewindow(self, event):
         self.Destroy()
