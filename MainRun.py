@@ -3,6 +3,8 @@ import json
 import os
 import sys
 import threading
+import time
+
 import win32api
 from shutil import copy2
 
@@ -21,8 +23,9 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.10.0'
+VERSION = 'V3.10.1'
 RES_PATH = 'res'
+LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
 ARIA2C = 'aria2c.exe'
@@ -34,13 +37,16 @@ SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
 TRANSLATE_PATH = basedir + "/res/translate.png"
 PLAY_PATH = basedir + "/res/play.png"
-
+LOG_NAME = time.strftime("%Y-%m-%d", time.localtime())
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
     copy2(ARIA2C_PATH, os.getcwd())
 
 if not os.path.exists(RES_PATH):
     os.makedirs('res')
+
+if not os.path.exists(LOG_PATH):
+    os.makedirs('log')
 if not os.path.exists(CONFIG_PATH):
     default_config = {
         "name": "",
@@ -410,6 +416,10 @@ class window(wx.Frame):
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
 
+            print('标题:' + self.title)
+            print('作者:' + self.uploader)
+            print('上传日期:' + self.upload_date)
+
             if self.upload_date[4] == '0' and self.upload_date[6] == '0':
                 date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
             elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
@@ -746,7 +756,24 @@ class updatewin(wx.Frame):
         self.version = self.version.replace('v', 'V')
 
 
+class Logger(object):
+    def __init__(self, filename='default.log', stream=sys.stdout):
+        self.terminal = stream
+        self.log = open(filename, 'a')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.terminal.flush()
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        pass
+
+
 if __name__ == '__main__':
+    sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
+    sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
     updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
