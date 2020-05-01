@@ -283,7 +283,6 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-            URL = self.youtubeURL.GetValue()
             self.updatemesage()
             self.Update()
         self.hasEdit = True
@@ -293,21 +292,15 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-            URL = self.youtubeURL.GetValue()
             if not config['videopro']:
                 self.updatemesage()
                 self.Update()
-            # self.req_api(URL)
-            # self.dl(URL)
+
             print("Download Process Start")
-            # p1 = Process(target=dl)
+
             t1 = threading.Thread(target=dl)
-            # p2 = Process(target=req_api)
-            # t2 = threading.Thread(target=req_api)
             t1.start()
-            # t2.start()
-            # p1.start()
-            # p2.start()
+
         self.hasEdit = True
 
     def Copy(self, event):
@@ -405,11 +398,13 @@ class window(wx.Frame):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(self.youtubeURL.GetValue(), download=False)
 
-            self.uploader = info_dict.get("uploader", None)
-            self.title = info_dict.get('title', None)
-            self.thumbnail = info_dict.get('thumbnail', None)
-            self.description = info_dict.get('description', None)
-            if not (info_dict.get("upload_date", None) is None):
+            self.uploader = info_dict.get("uploader")
+            self.title = info_dict.get('title')
+            self.thumbnail = info_dict.get('thumbnail')
+            self.description = info_dict.get('description')
+            print(info_dict.get('upload_date'))
+
+            if not (info_dict.get("upload_date") is None):
                 self.upload_date = info_dict.get("upload_date", None)
             else:
                 self.upload_date = '00000000'
