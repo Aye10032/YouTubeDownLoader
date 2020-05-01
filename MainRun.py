@@ -4,12 +4,12 @@ import os
 import sys
 import threading
 import time
-
+import pywintypes
 import win32api
 from shutil import copy2
 
 import pyperclip
-import requests
+from requests import request, exceptions
 import wx
 import wx.grid as gridlib
 import youtube_dl
@@ -288,7 +288,6 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-            URL = self.youtubeURL.GetValue()
             self.updatemesage()
             self.Update()
         self.hasEdit = True
@@ -411,10 +410,10 @@ class window(wx.Frame):
         else:
             date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
 
-        self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
-        self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
+        self.youtubeTitle.SetValue('【' + self.uploader + '】' + self.title)
+        self.youtubeLink.SetValue('转自' + self.youtubeURL.GetValue() + ' 有能力请支持原作者')
         submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
-            'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
+            'name'] + '\r\n原简介翻译：' + self.description
         self.youtubesubmit.SetValue(submit)
 
         downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
@@ -504,6 +503,7 @@ def returnmesage(url):
 
         return uploader, title, thumbnail, description, upload_date
 
+
 # --------------------------------- 下载视频&封面 ---------------------------------
 def dl():
     path = config2['downloadpath']
@@ -568,7 +568,7 @@ class translatewin(wx.Frame):
             'cache-control': "no-cache"
         }
 
-        response = requests.request("GET", url, data=payload, headers=headers, params=querystring).json()
+        response = request("GET", url, data=payload, headers=headers, params=querystring).json()
         for s in response['sentences']:
             self.resText = self.resText + s['trans']
 
@@ -723,13 +723,13 @@ class updatewin(wx.Frame):
         print(proxy)
 
         try:
-            response = requests.request("GET", url)
+            response = request("GET", url)
             self.updaetGithubInf(response)
         except ConnectionResetError:
-            response = requests.request("GET", url, proxies=proxy)
+            response = request("GET", url, proxies=proxy)
             self.updaetGithubInf(response)
-        except requests.exceptions.ConnectionError:
-            response = requests.request("GET", url, proxies=proxy)
+        except exceptions.ConnectionError:
+            response = request("GET", url, proxies=proxy)
             self.updaetGithubInf(response)
 
         if self.version == VERSION:
