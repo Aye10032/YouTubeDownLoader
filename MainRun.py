@@ -399,55 +399,23 @@ class window(wx.Frame):
 
     # --------------------------------- 更新信息 ---------------------------------
     def updatemesage(self):
+        self.uploader, self.title, self.thumbnail, self.description, self.upload_date \
+            = returnmesage(self.youtubeURL.GetValue())
 
-        ydl_opts = {}
+        if self.upload_date[4] == '0' and self.upload_date[6] == '0':
+            date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
+        elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
+            date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
+        elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
+            date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
+        else:
+            date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
 
-        if config['useProxy']:
-            ydl_opts = {
-                'proxy': config['ipaddress']
-            }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(self.youtubeURL.GetValue(), download=False)
-
-            self.uploader = info_dict.get("uploader", None)
-            self.upload_date = info_dict.get("upload_date", None)
-            self.title = info_dict.get('title', None)
-            self.thumbnail = info_dict.get('thumbnail', None)
-            self.description = info_dict.get('description', None)
-
-            print('标题:' + self.title)
-            print('作者:' + self.uploader)
-            print('上传日期:' + self.upload_date)
-
-            if self.upload_date[4] == '0' and self.upload_date[6] == '0':
-                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
-            elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
-                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
-            elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
-                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
-            else:
-                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
-
-            formats = info_dict.get('formats')
-            file_count = len(formats)
-
-            with open(TEMP_PATH, 'w') as c:
-                config2['count'] = file_count
-                json.dump(config2, c, indent=4)
-
-            for f in formats:
-                format_code.append(f.get('format_id'))
-                extension.append(f.get('ext'))
-                resolution.append(ydl.format_resolution(f))
-                format_note.append(f.get('format_note'))
-                file_size.append(f.get('filesize'))
-
-            self.youtubeTitle.SetValue(self.title + '【' + self.uploader + '】')
-            self.youtubeLink.SetValue('源链接' + config2['url'])
-            submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
-                'name'] + '\r\n原简介：' + self.description
-            self.youtubesubmit.SetValue(submit)
+        self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
+        self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
+        submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
+            'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
+        self.youtubesubmit.SetValue(submit)
 
         downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
             '\\', '').replace('/', '').replace('?', '').replace('\"', '') + '/%(title)s.%(ext)s'
@@ -468,14 +436,14 @@ class window(wx.Frame):
         for i in filelist:
             but_1 = load.Append(-1, i)
             self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
-        file.Append(-1, '加载', load)
+        file.AppendSubMenu(load, '加载')
         savefilebtn = file.Append(-1, '保存', '保存当前视频信息')
         _menubar.Append(file, '文件')
         # 其他部分
         first = wx.Menu()
-        help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
-        about = first.Append(wx.NewId(), '关于', '软件信息')
-        update = first.Append(wx.NewId(), '检查更新', '检查软件更新')
+        help = first.Append(wx.ID_NEW, '帮助', '软件使用帮助')
+        about = first.Append(wx.ID_NEW, '关于', '软件信息')
+        update = first.Append(wx.ID_NEW, '检查更新', '检查软件更新')
         _menubar.Append(first, '其他')
         self.Bind(wx.EVT_MENU, self.help, help)
         self.Bind(wx.EVT_MENU, self.about, about)
@@ -493,6 +461,48 @@ def updateFilelist():
             if 'msg.json' in temp:
                 filelist.append(list[i])
 
+
+# --------------------------------- 更新信息 ---------------------------------
+def returnmesage(url):
+    ydl_opts = {}
+
+    if config['useProxy']:
+        ydl_opts = {
+            'proxy': config['ipaddress']
+        }
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        print(ydl_opts)
+        youtubeext = youtube_dl.extractor.YoutubeIE
+        ydl.add_info_extractor(youtubeext)
+
+        info_dict = ydl.extract_info(url, download=False, force_generic_extractor=True)
+
+        uploader = info_dict.get("uploader")
+        title = info_dict.get('title')
+        thumbnail = info_dict.get('thumbnail')
+        description = info_dict.get('description')
+
+        if not (info_dict.get("upload_date") is None):
+            upload_date = info_dict.get("upload_date", None)
+        else:
+            upload_date = '00000000'
+
+        formats = info_dict.get('formats')
+        file_count = len(formats)
+
+        with open(TEMP_PATH, 'w') as c:
+            config2['count'] = file_count
+            json.dump(config2, c, indent=4)
+
+        for f in formats:
+            format_code.append(f.get('format_id'))
+            extension.append(f.get('ext'))
+            resolution.append(ydl.format_resolution(f))
+            format_note.append(f.get('format_note'))
+            file_size.append(f.get('filesize'))
+
+        return uploader, title, thumbnail, description, upload_date
 
 # --------------------------------- 下载视频&封面 ---------------------------------
 def dl():
