@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import threading
+import pywintypes
 import win32api
 from shutil import copy2
 
@@ -405,10 +406,13 @@ class window(wx.Frame):
             info_dict = ydl.extract_info(self.youtubeURL.GetValue(), download=False)
 
             self.uploader = info_dict.get("uploader", None)
-            self.upload_date = info_dict.get("upload_date", None)
             self.title = info_dict.get('title', None)
             self.thumbnail = info_dict.get('thumbnail', None)
             self.description = info_dict.get('description', None)
+            if not (info_dict.get("upload_date", None) is None):
+                self.upload_date = info_dict.get("upload_date", None)
+            else:
+                self.upload_date = '00000000'
 
             if self.upload_date[4] == '0' and self.upload_date[6] == '0':
                 date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
@@ -458,14 +462,14 @@ class window(wx.Frame):
         for i in filelist:
             but_1 = load.Append(-1, i)
             self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
-        file.Append(-1, '加载', load)
+        file.AppendSubMenu(load, '加载')
         savefilebtn = file.Append(-1, '保存', '保存当前视频信息')
         _menubar.Append(file, '文件')
         # 其他部分
         first = wx.Menu()
-        help = first.Append(wx.NewId(), '帮助', '软件使用帮助')
-        about = first.Append(wx.NewId(), '关于', '软件信息')
-        update = first.Append(wx.NewId(), '检查更新', '检查软件更新')
+        help = first.Append(wx.ID_NEW, '帮助', '软件使用帮助')
+        about = first.Append(wx.ID_NEW, '关于', '软件信息')
+        update = first.Append(wx.ID_NEW, '检查更新', '检查软件更新')
         _menubar.Append(first, '其他')
         self.Bind(wx.EVT_MENU, self.help, help)
         self.Bind(wx.EVT_MENU, self.about, about)
