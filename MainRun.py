@@ -7,8 +7,8 @@ import pywintypes
 import win32api
 from shutil import copy2
 
+from requests import request, exceptions
 import pyperclip
-import requests
 import wx
 import wx.grid as gridlib
 import youtube_dl
@@ -210,10 +210,8 @@ class window(wx.Frame):
     def usePor(self, event):
         if self.usebtn.GetValue():
             self.ipaddress.SetEditable(True)
-            useProxy = True
         else:
             self.ipaddress.SetEditable(False)
-            useProxy = False
 
     def provideo(self, event):
         if self.highbtn.GetValue():
@@ -352,6 +350,37 @@ class window(wx.Frame):
         self.savefile()
         self.Destroy()
 
+    # ---------------------------------- 更新信息框 ----------------------------------
+    def updatemesage(self):
+        self.uploader, self.title, self.thumbnail, self.description, self.upload_date \
+            = returnmesage(self.youtubeURL.GetValue())
+
+        if self.upload_date[4] == '0' and self.upload_date[6] == '0':
+            date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
+        elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
+            date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
+        elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
+            date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
+        else:
+            date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
+
+        self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
+        self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
+        submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
+            'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
+        self.youtubesubmit.SetValue(submit)
+
+        downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
+            '\\', '').replace('/', '').replace('?', '').replace('\"', '') + '/%(title)s.%(ext)s'
+        dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
+                                                                                                           '').replace(
+            '/', '').replace('?', '').replace('\"', '')
+        with open(TEMP_PATH, 'w') as c:
+            config2['url'] = self.youtubeURL.GetValue()
+            config2['downloadpath'] = downloadpath
+            config2['dlpath'] = dlpath
+            json.dump(config2, c, indent=4)
+
     # --------------------------------- 加载视频信息 ---------------------------------
 
     def loadmsg(self, self2):
@@ -385,70 +414,6 @@ class window(wx.Frame):
                 self.OpenVideo.Enable(True)
                 self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
-    # --------------------------------- 更新信息 ---------------------------------
-    def updatemesage(self):
-
-        ydl_opts = {}
-
-        if config['useProxy']:
-            ydl_opts = {
-                'proxy': config['ipaddress']
-            }
-
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(self.youtubeURL.GetValue(), download=False)
-
-            self.uploader = info_dict.get("uploader")
-            self.title = info_dict.get('title')
-            self.thumbnail = info_dict.get('thumbnail')
-            self.description = info_dict.get('description')
-            print(info_dict.get('upload_date'))
-
-            if not (info_dict.get("upload_date") is None):
-                self.upload_date = info_dict.get("upload_date", None)
-            else:
-                self.upload_date = '00000000'
-
-            if self.upload_date[4] == '0' and self.upload_date[6] == '0':
-                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
-            elif self.upload_date[4] == '0' and not self.upload_date[6] == 0:
-                date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[6:8] + '日'
-            elif not self.upload_date[4] == '0' and self.upload_date[6] == '0':
-                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[7:8] + '日'
-            else:
-                date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
-
-            formats = info_dict.get('formats')
-            file_count = len(formats)
-
-            with open(TEMP_PATH, 'w') as c:
-                config2['count'] = file_count
-                json.dump(config2, c, indent=4)
-
-            for f in formats:
-                format_code.append(f.get('format_id'))
-                extension.append(f.get('ext'))
-                resolution.append(ydl.format_resolution(f))
-                format_note.append(f.get('format_note'))
-                file_size.append(f.get('filesize'))
-
-            self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
-            self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
-            submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
-                'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
-            self.youtubesubmit.SetValue(submit)
-
-        downloadpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace(
-            '\\', '').replace('/', '').replace('?', '').replace('\"', '') + '/%(title)s.%(ext)s'
-        dlpath = 'Download_video/' + self.title.replace(':', '').replace('.', '').replace('|', '').replace('\\',
-                                                                                                           '').replace(
-            '/', '').replace('?', '').replace('\"', '')
-        with open(TEMP_PATH, 'w') as c:
-            config2['url'] = self.youtubeURL.GetValue()
-            config2['downloadpath'] = downloadpath
-            config2['dlpath'] = dlpath
-            json.dump(config2, c, indent=4)
-
     # --------------------------------- 菜单栏部分 ---------------------------------
     def updateMenuBar(self):
         _menubar = wx.MenuBar()
@@ -471,6 +436,49 @@ class window(wx.Frame):
         self.Bind(wx.EVT_MENU, self.savefileevt, savefilebtn)
         self.Bind(wx.EVT_MENU, self.updateevt, update)
         self.SetMenuBar(_menubar)
+
+
+# --------------------------------- 更新信息 ---------------------------------
+def returnmesage(url):
+    ydl_opts = {}
+
+    if config['useProxy']:
+        ydl_opts = {
+            'proxy': config['ipaddress']
+        }
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        print(ydl_opts)
+        youtubeext = youtube_dl.extractor.YoutubeIE
+        ydl.add_info_extractor(youtubeext)
+
+        info_dict = ydl.extract_info(url, download=False, force_generic_extractor=True)
+
+        uploader = info_dict.get("uploader")
+        title = info_dict.get('title')
+        thumbnail = info_dict.get('thumbnail')
+        description = info_dict.get('description')
+
+        if not (info_dict.get("upload_date") is None):
+            upload_date = info_dict.get("upload_date", None)
+        else:
+            upload_date = '00000000'
+
+        formats = info_dict.get('formats')
+        file_count = len(formats)
+
+        with open(TEMP_PATH, 'w') as c:
+            config2['count'] = file_count
+            json.dump(config2, c, indent=4)
+
+        for f in formats:
+            format_code.append(f.get('format_id'))
+            extension.append(f.get('ext'))
+            resolution.append(ydl.format_resolution(f))
+            format_note.append(f.get('format_note'))
+            file_size.append(f.get('filesize'))
+
+        return uploader, title, thumbnail, description, upload_date
 
 
 def updateFilelist():
@@ -550,7 +558,7 @@ class translatewin(wx.Frame):
             'cache-control': "no-cache"
         }
 
-        response = requests.request("GET", url, data=payload, headers=headers, params=querystring).json()
+        response = request("GET", url, data=payload, headers=headers, params=querystring).json()
         for s in response['sentences']:
             self.resText = self.resText + s['trans']
 
@@ -699,13 +707,13 @@ class updatewin(wx.Frame):
         print(proxy)
 
         try:
-            response = requests.request("GET", url)
+            response = request("GET", url)
             self.updaetGithubInf(response)
         except ConnectionResetError:
-            response = requests.request("GET", url, proxies=proxy)
+            response = request("GET", url, proxies=proxy)
             self.updaetGithubInf(response)
-        except requests.exceptions.ConnectionError:
-            response = requests.request("GET", url, proxies=proxy)
+        except exceptions.ConnectionError:
+            response = request("GET", url, proxies=proxy)
             self.updaetGithubInf(response)
 
         if self.version == VERSION:
@@ -744,6 +752,7 @@ class updatewin(wx.Frame):
 
 if __name__ == '__main__':
     updateFilelist()
+    # print(returnmesage('https://youtu.be/oFalI3uagek'))
     app = wx.App()
     frame = window(parent=None, id=-1)
 
