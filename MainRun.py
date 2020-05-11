@@ -3,6 +3,8 @@ import json
 import os
 import sys
 import threading
+import time
+
 import pywintypes
 import win32api
 from shutil import copy2
@@ -22,8 +24,9 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.10.0'
+VERSION = 'V3.11.0'
 RES_PATH = 'res'
+LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
 TEMP_PATH = 'res/temp.json'
 ARIA2C = 'aria2c.exe'
@@ -35,6 +38,7 @@ SEARCH_PATH = basedir + "/res/search.png"
 COPY_PATH = basedir + "/res/copy.png"
 TRANSLATE_PATH = basedir + "/res/translate.png"
 PLAY_PATH = basedir + "/res/play.png"
+LOG_NAME = time.strftime("%Y-%m-%d", time.localtime())
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
@@ -42,6 +46,8 @@ if not os.path.exists(ARIA2C):
 
 if not os.path.exists(RES_PATH):
     os.makedirs('res')
+if not os.path.exists(LOG_PATH):
+    os.makedirs('log')
 if not os.path.exists(CONFIG_PATH):
     default_config = {
         "name": "",
@@ -503,7 +509,8 @@ def dl():
         'writesubtitles': True,
         'writeautomaticsub': True,
         'subtitlesformat': 'srt',
-        'subtitleslangs': ['zh-Hans', 'en']
+        'subtitleslangs': ['zh-Hans', 'en'],
+        'logger': Logger(LOG_PATH + '/' + LOG_NAME + '.log')
     }
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
@@ -750,9 +757,38 @@ class updatewin(wx.Frame):
         self.version = self.version.replace('v', 'V')
 
 
+class Logger(object):
+    def __init__(self, filename='default.log', stream=sys.stdout):
+        self.terminal = stream
+        self.log = open(filename, 'a')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.terminal.flush()
+        self.log.write(message)
+        self.log.flush()
+
+    def debug(self, message):
+        self.terminal.write('[debug]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[debug]' + message + '\n')
+        self.log.flush()
+
+    def warning(self, message):
+        self.terminal.write('[warning]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[warning]' + message + '\n')
+        self.log.flush()
+
+    def flush(self):
+        pass
+
+
 if __name__ == '__main__':
+    sys.stdout.isatty = lambda: False
+    sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
+    sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
     updateFilelist()
-    # print(returnmesage('https://youtu.be/oFalI3uagek'))
     app = wx.App()
     frame = window(parent=None, id=-1)
 
