@@ -2,6 +2,6 @@ pyperclip==1.7.0
 pywin32==227
 pywin32-ctypes==0.2.0
 requests==2.23.0
-urllib3==1.25.9
-wxPython==4.1.0
+urllib3==1.25.8
+wxPython==4.0.7
 youtube-dl==2020.5.8
