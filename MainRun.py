@@ -14,6 +14,8 @@ import pyperclip
 import wx
 import wx.grid as gridlib
 import youtube_dl
+from googleapiclient.discovery import build
+from httplib2 import socks, ProxyInfo, Http
 
 # --------------------------------- 资源文件位置设置 ---------------------------------
 basedir = ""
@@ -24,7 +26,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V3.11.1'
+VERSION = 'V4.0.0'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -39,6 +41,9 @@ COPY_PATH = basedir + "/res/copy.png"
 TRANSLATE_PATH = basedir + "/res/translate.png"
 PLAY_PATH = basedir + "/res/play.png"
 LOG_NAME = time.strftime("%Y-%m-%d", time.localtime())
+YOUTUBE_DEVELOPER_KEY = 'AIzaSyBLn6N3SVih9p3fdD97QcBn-weFM5j2WVI'
+YOUTUBE_API_SERVICE_NAME = 'youtube'
+YOUTUBE_API_VERSION = 'v3'
 
 # --------------------------------- 前置检查部分开始 ---------------------------------
 if not os.path.exists(ARIA2C):
@@ -56,7 +61,13 @@ if not os.path.exists(CONFIG_PATH):
         "xiancheng": "4",
         "multilanguage": True,
         "notimeline": False,
-        "videopro": True
+        "videopro": True,
+        "channellist": [
+            {
+                "name": "ilmango",
+                "url": "UCHSI8erNrN6hs3sUK6oONLA"
+            }
+        ]
     }
     with open(CONFIG_PATH, 'w+') as conf:
         json.dump(default_config, conf, indent=4)
@@ -69,8 +80,8 @@ if not os.path.exists(TEMP_PATH):
 with open(CONFIG_PATH, 'r') as conf:
     config = json.load(conf)
 
-with open(TEMP_PATH, 'r') as conf2:
-    config2 = json.load(conf2)
+with open(TEMP_PATH, 'r') as conf_temp:
+    config_temp = json.load(conf_temp)
 
 if not os.path.exists('Download_Video'):
     os.mkdir('Download_Video')
@@ -81,8 +92,15 @@ if not os.path.exists('res'):
 format_code, extension, resolution, format_note, file_size = [], [], [], [], []
 
 rootdir = 'Download_Video'
-list = os.listdir(rootdir)
+root_list = os.listdir(rootdir)
 filelist = []
+channel_result = {}
+
+channel_list = []
+for u in config['channellist']:
+    channel_list.append(u['name'])
+
+print(channel_list)
 
 
 class window(wx.Frame):
@@ -108,9 +126,9 @@ class window(wx.Frame):
         self.SetIcon(icon)
 
         with open(TEMP_PATH, 'w') as c:
-            config2['audiocode'] = 0
-            config2['vidoecode'] = 0
-            json.dump(config2, c, indent=4)
+            config_temp['audiocode'] = 0
+            config_temp['vidoecode'] = 0
+            json.dump(config_temp, c, indent=4)
 
         panel = wx.Panel(self)
 
@@ -153,12 +171,17 @@ class window(wx.Frame):
         # --------------------------------- 源视频链接部分 ---------------------------------
 
         wx.StaticText(panel, -1, '视频链接：', (22, 110))
-        self.youtubeURL = wx.TextCtrl(panel, -1, '', (90, 105), (350, 23))
+        self.youtubeURL = wx.TextCtrl(panel, -1, '', (90, 105), (340, 23))
 
-        self.startbtn = wx.Button(panel, -1, '下载视频', pos=(470, 104), size=(70, 25))
+        self.channel_list_btn = wx.ComboBox(panel, -1, '', pos=(435, 104), size=(105, 25), choices=channel_list,
+                                            style=wx.CB_READONLY)
+        # self.channel_list_btn = wx.Button(panel, -1, '...', pos=(435, 104), size=(25, 25))
+        self.Bind(wx.EVT_COMBOBOX, self.list_channel, self.channel_list_btn)
+
+        self.startbtn = wx.Button(panel, -1, '下载视频', pos=(470, 136), size=(70, 25))
         self.Bind(wx.EVT_BUTTON, self.start, self.startbtn)
 
-        self.getbtn = wx.Button(panel, -1, '获取简介', pos=(470, 136), size=(70, 25))
+        self.getbtn = wx.Button(panel, -1, '获取简介', pos=(390, 136), size=(70, 25))
         self.Bind(wx.EVT_BUTTON, self.get, self.getbtn)
 
         # --------------------------------- 质量代码部分 ---------------------------------
@@ -166,7 +189,7 @@ class window(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.provideo, self.highbtn)
 
         wx.StaticText(panel, -1, '格式代码：', (160, 138))
-        self.qualitytext = wx.TextCtrl(panel, -1, '', (225, 135), (130, 23))
+        self.qualitytext = wx.TextCtrl(panel, -1, '', (225, 135), (110, 23))
 
         if config['videopro']:
             self.highbtn.SetValue(True)
@@ -176,7 +199,7 @@ class window(wx.Frame):
             self.qualitytext.SetEditable(False)
 
         pic1 = wx.Image(SEARCH_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-        self.viewbtn = wx.BitmapButton(panel, -1, pic1, (370, 135), (23, 23))
+        self.viewbtn = wx.BitmapButton(panel, -1, pic1, (340, 135), (23, 23))
         # self.loadbtn = wx.Button(panel, -1, '加载', (380, 135), (40, 23))
         self.Bind(wx.EVT_BUTTON, self.view, self.viewbtn)
         # self.Bind(wx.EVT_BUTTON, self.load, self.loadbtn)
@@ -219,6 +242,20 @@ class window(wx.Frame):
         else:
             self.ipaddress.SetEditable(False)
 
+    def list_channel(self, event):
+        choice_channel = self.channel_list_btn.GetValue()
+        choice_url = ''
+        for u in config['channellist']:
+            if u['name'] == self.channel_list_btn.GetValue():
+                choice_url = u['url']
+                break
+        print('已选择' + choice_channel + '的频道(' + choice_url + ')')
+        frame5 = ChannelFrame(parent=frame,url=choice_url)
+        frame5.Show(True)
+
+    def set_channel_url(self, event):
+        self.youtubeURL.SetValue(config_temp['url'])
+
     def provideo(self, event):
         if self.highbtn.GetValue():
             self.qualitytext.SetEditable(True)
@@ -248,10 +285,10 @@ class window(wx.Frame):
     def savefile(self):
 
         if self.hasEdit:
-            if not os.path.exists(config2['dlpath']):
-                os.mkdir(config2['dlpath'])
+            if not os.path.exists(config_temp['dlpath']):
+                os.mkdir(config_temp['dlpath'])
 
-            msgpath = config2['dlpath'] + '/msg.json'
+            msgpath = config_temp['dlpath'] + '/msg.json'
 
             origin = self.youtubeURL.GetValue()
             title = self.youtubeTitle.GetValue()
@@ -271,15 +308,15 @@ class window(wx.Frame):
 
     def view(self, event):
         with open(TEMP_PATH, 'w') as c:
-            config2['url'] = self.youtubeURL.GetValue()
-            json.dump(config2, c, indent=4)
+            config_temp['url'] = self.youtubeURL.GetValue()
+            json.dump(config_temp, c, indent=4)
         self.updatemesage()
         self.hasEdit = True
         frame3 = QualityFrame(parent=frame)
         frame3.Show(True)
 
     def load(self, event):
-        msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
+        msg = str(config_temp['vidoecode']) + '+' + str(config_temp['audiocode'])
         self.qualitytext.SetValue(msg)
 
     def get(self, event):
@@ -310,10 +347,10 @@ class window(wx.Frame):
     def Copy(self, event):
         msg = self.youtubesubmit.GetValue()
 
-        if not os.path.exists(config2['dlpath']):
-            os.mkdir(config2['dlpath'])
+        if not os.path.exists(config_temp['dlpath']):
+            os.mkdir(config_temp['dlpath'])
 
-        path = config2['dlpath'] + '/submit.txt'
+        path = config_temp['dlpath'] + '/submit.txt'
         f = open(path, mode='w', encoding='utf8')
         f.write(msg)
         f.close()
@@ -371,7 +408,7 @@ class window(wx.Frame):
             date = self.upload_date[0:4] + '年' + self.upload_date[4:6] + '月' + self.upload_date[6:8] + '日'
 
         self.youtubeTitle.SetValue('【MC】' + self.title + '【' + self.uploader + '】')
-        self.youtubeLink.SetValue('转自' + config2['url'] + ' 有能力请支持原作者')
+        self.youtubeLink.SetValue('转自' + config_temp['url'] + ' 有能力请支持原作者')
         submit = '作者：' + self.uploader + '\r\n发布时间：' + date + '\r\n搬运：' + config[
             'name'] + '\r\n视频摘要：\r\n原简介翻译：' + self.description + '\r\n存档：\r\n其他外链：'
         self.youtubesubmit.SetValue(submit)
@@ -382,10 +419,10 @@ class window(wx.Frame):
                                                                                                            '').replace(
             '/', '').replace('?', '').replace('\"', '')
         with open(TEMP_PATH, 'w') as c:
-            config2['url'] = self.youtubeURL.GetValue()
-            config2['downloadpath'] = downloadpath
-            config2['dlpath'] = dlpath
-            json.dump(config2, c, indent=4)
+            config_temp['url'] = self.youtubeURL.GetValue()
+            config_temp['downloadpath'] = downloadpath
+            config_temp['dlpath'] = dlpath
+            json.dump(config_temp, c, indent=4)
 
     # --------------------------------- 加载视频信息 ---------------------------------
 
@@ -474,8 +511,8 @@ def returnmesage(url):
         file_count = len(formats)
 
         with open(TEMP_PATH, 'w') as c:
-            config2['count'] = file_count
-            json.dump(config2, c, indent=4)
+            config_temp['count'] = file_count
+            json.dump(config_temp, c, indent=4)
 
         for f in formats:
             format_code.append(f.get('format_id'))
@@ -489,18 +526,18 @@ def returnmesage(url):
 
 def updateFilelist():
     filelistlist = []
-    for i in range(0, len(list)):
-        path = os.path.join(rootdir, list[i])
+    for i in range(0, len(root_list)):
+        path = os.path.join(rootdir, root_list[i])
         if not os.path.isfile(path):
             temp = os.listdir(path)
             if 'msg.json' in temp:
-                filelist.append(list[i])
+                filelist.append(root_list[i])
 
 
 # --------------------------------- 下载视频&封面 ---------------------------------
 def dl():
-    path = config2['downloadpath']
-    msg = str(config2['vidoecode']) + '+' + str(config2['audiocode'])
+    path = config_temp['downloadpath']
+    msg = str(config_temp['vidoecode']) + '+' + str(config_temp['audiocode'])
     ydl_opts = {
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
@@ -519,7 +556,7 @@ def dl():
         ydl_opts['format'] = msg
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([config2['url']])
+        ydl.download([config_temp['url']])
 
 
 # --------------------------------- 翻译界面 ---------------------------------
@@ -572,8 +609,92 @@ class translatewin(wx.Frame):
         self.res.SetValue(self.resText)
 
 
-# --------------------------------- 视频质量界面 ---------------------------------
+# --------------------------------- 视频列表界面 ---------------------------------
+class ChannelFrame(wx.Frame):
+    def __init__(self, parent, url):
+        wx.Frame.__init__(self, parent, -1, "近20个视频列表", size=(700, 400),
+                          style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
+        icon = wx.Icon(LOGO_PATH, wx.BITMAP_TYPE_ICO)
+        self.SetIcon(icon)
+        self.Center()
+        self.getlist(url)
+        self.grid = ChannelGrid(self)
+        self.Bind(wx.EVT_CLOSE, self.OnExit)
 
+    def getlist(self, channel_id):
+        # 如下是代理设置
+        proxy_info = ProxyInfo(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 1080)
+        http = Http(timeout=300, proxy_info=proxy_info)
+
+        # 构建youtube对象时增加http参数
+        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_DEVELOPER_KEY, http=http)
+
+        result = youtube.search().list(
+            part='snippet,id',
+            channelId=channel_id,
+            order='date',
+            maxResults=20
+        ).execute()
+
+        global channel_result
+        channel_result = result
+
+    def OnExit(self, event):
+        self.GetParent().set_channel_url(event)
+        self.Destroy()
+
+
+class ChannelGrid(gridlib.Grid):
+    def __init__(self, parent):
+        gridlib.Grid.__init__(self, parent)
+
+        count = 20
+        self.CreateGrid(count, 2)
+        self.SetRowLabelSize(30)
+        self.SetColSize(col=0, width=450)
+        self.SetColSize(col=1, width=185)
+
+        self.EnableEditing(False)
+        self.DisableColResize(False)
+        self.DisableRowResize(False)
+
+        self.SetColLabelValue(0, "标题")
+        self.SetColLabelValue(1, "日期")
+        self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_CENTER)
+        self.SetDefaultCellAlignment(wx.ALIGN_CENTER, wx.ALIGN_CENTER)
+
+        for i in range(count):
+            self.SetRowSize(row=i, height=50)
+
+            vtitle = channel_result.get('items')[i].get('snippet').get('title')
+            if len(vtitle) > 30:
+                vtitle_list = list(vtitle)
+                vtitle_list.insert(30, '\n')
+                vtitle = ''.join(vtitle_list)
+
+            self.SetCellValue(i, 0, vtitle)
+            self.SetCellValue(i, 1, channel_result.get('items')[i].get('snippet').get('publishedAt'))
+
+        self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick)
+
+    def OnCellLeftClick(self, evt):
+        row = "%d" % (evt.GetRow())
+        col = "%d" % (evt.GetCol())
+        i = int(row)
+        flag = int(col)
+
+        url = 'https://youtu.be/' + channel_result.get('items')[i].get('id').get('videoId')
+
+        if flag == 0:
+            config_temp['url'] = url
+            self.GetParent().OnExit(evt)
+        elif flag == 1:
+            win32api.ShellExecute(0, 'open', url, '', '', 1)
+
+        evt.Skip()
+
+
+# --------------------------------- 视频质量界面 ---------------------------------
 class QualityFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "视频格式", size=(505, 400), style=wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
@@ -592,7 +713,7 @@ class SimpleGrid(gridlib.Grid):
     def __init__(self, parent):
         gridlib.Grid.__init__(self, parent)
 
-        count = config2['count']
+        count = config_temp['count']
         self.CreateGrid(count, 5)
         self.SetRowLabelSize(30)
         self.SetColSize(col=2, width=100)
@@ -626,10 +747,10 @@ class SimpleGrid(gridlib.Grid):
 
         with open(TEMP_PATH, 'w') as c:
             if resolution[i] == 'audio only':
-                config2['audiocode'] = format_code[i]
+                config_temp['audiocode'] = format_code[i]
             else:
-                config2['vidoecode'] = format_code[i]
-            json.dump(config2, c, indent=4)
+                config_temp['vidoecode'] = format_code[i]
+            json.dump(config_temp, c, indent=4)
 
         evt.Skip()
 
