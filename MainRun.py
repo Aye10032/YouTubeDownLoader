@@ -26,7 +26,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V4.0.0'
+VERSION = 'V4.0.1'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -623,8 +623,13 @@ class ChannelFrame(wx.Frame):
 
     def getlist(self, channel_id):
         # 如下是代理设置
-        proxy_info = ProxyInfo(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 1080)
-        http = Http(timeout=300, proxy_info=proxy_info)
+        if config['useProxy']:
+            ipaddress = config['ipaddress'].split(':')[1][2:]
+            ipport = int(config['ipaddress'].split(':')[2])
+            proxy_info = ProxyInfo(socks.PROXY_TYPE_SOCKS5, ipaddress, ipport)
+            http = Http(timeout=300, proxy_info=proxy_info)
+        else:
+            http = Http(timeout=300)
 
         # 构建youtube对象时增加http参数
         youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_DEVELOPER_KEY, http=http)
