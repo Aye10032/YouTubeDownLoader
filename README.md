@@ -16,7 +16,8 @@ Windows系统；
 ## 使用方法
 
 将下载下来的exe文件放入一个新建文件夹中运行即可，第一次运行会在根目录下生成一些系统配置文件，之后正常运行即可。       
-使用介绍视频：[https://www.bilibili.com/video/av52651468/](https://www.bilibili.com/video/av52651468/)
+使用介绍视频：
+<iframe src="//player.bilibili.com/player.html?aid=840853014&bvid=BV1f54y1D7M7&cid=196176246&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 
 ## 界面
