@@ -42,6 +42,10 @@ Windows系统；
 - 最后一个按钮可以一键将简介区内容复制到剪贴板，方便投稿时使用。
 
 
+### 下载
+
+GitHub:[下载地址](https://github.com/Aye10032/YouTubeDownLoader/releases/latest)        
+Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoad/releases/V4.0.1)
 
 ### 引用
 
