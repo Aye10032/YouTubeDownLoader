@@ -5,7 +5,6 @@ import sys
 import threading
 import time
 
-import pywintypes
 import win32api
 from shutil import copy2
 
