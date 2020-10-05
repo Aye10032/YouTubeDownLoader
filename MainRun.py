@@ -910,9 +910,9 @@ class Logger(object):
 
 
 if __name__ == '__main__':
-    sys.stdout.isatty = lambda: False
-    sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
-    sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
+    # sys.stdout.isatty = lambda: False
+    # sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
+    # sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
     updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
