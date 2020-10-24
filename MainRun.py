@@ -99,7 +99,14 @@ channel_list = []
 for u in config['channellist']:
     channel_list.append(u['name'])
 
-print(channel_list)
+url = "http://api.aye10032.com/videos?has_done=0&need_trans=0"
+
+done_response = request("GET", url)
+
+done_list = []
+
+for id, element in enumerate(done_response.json()['data']):
+    done_list.append('NO.' + str(element['ID']) + ' ' + element['DESCRIPTION'] + '|' + str(id))
 
 
 class window(wx.Frame):
@@ -170,11 +177,11 @@ class window(wx.Frame):
         # --------------------------------- 源视频链接部分 ---------------------------------
 
         wx.StaticText(panel, -1, '视频链接：', (22, 110))
-        self.youtubeURL = wx.TextCtrl(panel, -1, '', (90, 105), (340, 23))
+        self.youtubeURL = wx.TextCtrl(panel, -1, '', pos=(90, 105), size=(340, 23))
 
         self.channel_list_btn = wx.ComboBox(panel, -1, '', pos=(435, 104), size=(105, 25), choices=channel_list,
                                             style=wx.CB_READONLY)
-        # self.channel_list_btn = wx.Button(panel, -1, '...', pos=(435, 104), size=(25, 25))
+
         self.Bind(wx.EVT_COMBOBOX, self.list_channel, self.channel_list_btn)
 
         self.startbtn = wx.Button(panel, -1, '下载视频', pos=(470, 136), size=(70, 25))
@@ -249,7 +256,7 @@ class window(wx.Frame):
                 choice_url = u['url']
                 break
         print('已选择' + choice_channel + '的频道(' + choice_url + ')')
-        frame5 = ChannelFrame(parent=frame,url=choice_url)
+        frame5 = ChannelFrame(parent=frame, url=choice_url)
         frame5.Show(True)
 
     def set_channel_url(self, event):
@@ -456,6 +463,12 @@ class window(wx.Frame):
                 self.OpenVideo.Enable(True)
                 self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
+    def addvideo(self, btn):
+        index = int(str(menuBar.FindItemById(btn.Id).GetItemLabel()).split('|')[-1])
+        choice_url = done_response.json()['data'][index]['URL']
+        # print(choice_url)
+        self.youtubeURL.SetValue(choice_url)
+
     # --------------------------------- 菜单栏部分 ---------------------------------
     def updateMenuBar(self):
         _menubar = wx.MenuBar()
@@ -467,6 +480,12 @@ class window(wx.Frame):
         file.AppendSubMenu(load, '加载')
         savefilebtn = file.Append(-1, '保存', '保存当前视频信息')
         _menubar.Append(file, '文件')
+        # 搬运列表
+        group_list = wx.Menu()
+        for url in done_list:
+            but_a = group_list.Append(-1, url)
+            self.Bind(wx.EVT_MENU, self.addvideo, but_a)
+        _menubar.Append(group_list, '搬运列表')
         # 其他部分
         first = wx.Menu()
         help = first.Append(wx.ID_NEW, '帮助', '软件使用帮助')
@@ -910,9 +929,9 @@ class Logger(object):
 
 
 if __name__ == '__main__':
-    # sys.stdout.isatty = lambda: False
-    # sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
-    # sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
+    sys.stdout.isatty = lambda: False
+    sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
+    sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
     updateFilelist()
     app = wx.App()
     frame = window(parent=None, id=-1)
