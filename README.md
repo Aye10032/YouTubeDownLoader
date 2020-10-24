@@ -17,7 +17,7 @@ Windows系统；
 
 将下载下来的exe文件放入一个新建文件夹中运行即可，第一次运行会在根目录下生成一些系统配置文件，之后正常运行即可。       
 使用介绍视频：     
-[![screenshot](screenshot.png)](https://www.bilibili.com/video/BV1f54y1D7M7/)
+[![screenshot](screenshot.png)](https://www.bilibili.com/video/BV1S541157ej/)
 
 
 ## 界面
@@ -45,7 +45,7 @@ Windows系统；
 ### 下载
 
 GitHub:[下载地址](https://github.com/Aye10032/YouTubeDownLoader/releases/latest)        
-Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v4.2.0)
+Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v4.3.0)
 
 ### 引用
 
