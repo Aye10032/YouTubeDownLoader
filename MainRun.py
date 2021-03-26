@@ -924,6 +924,12 @@ class Logger(object):
         self.log.write('[warning]' + message + '\n')
         self.log.flush()
 
+    def error(self, message):
+        self.terminal.write('[error]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[error]' + message + '\n')
+        self.log.flush()
+
     def isatty(self):
         pass
 
