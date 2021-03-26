@@ -25,7 +25,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V4.3.3'
+VERSION = 'V4.4.0'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -923,6 +923,9 @@ class Logger(object):
         self.terminal.flush()
         self.log.write('[warning]' + message + '\n')
         self.log.flush()
+
+    def isatty(self):
+        pass
 
     def flush(self):
         pass
