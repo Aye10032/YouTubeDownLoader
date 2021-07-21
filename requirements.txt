@@ -1,6 +1,6 @@
 pywin32-ctypes==0.2.0
 wxPython~=4.1.1
-youtube-dl==2021.03.25
+youtube-dl==2021.06.06
 
 httplib2==0.19.1
 pywin32==300

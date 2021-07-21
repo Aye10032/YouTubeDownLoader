@@ -25,7 +25,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V4.4.1'
+VERSION = 'V4.5.0'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -99,14 +99,14 @@ channel_list = []
 for u in config['channellist']:
     channel_list.append(u['name'])
 
-url = "http://api.aye10032.com/videos?has_done=0&need_trans=0"
+url = "http://api.aye10032.com:4991/getTODOVideo"
 
 done_response = request("GET", url)
 
 done_list = []
 
 for id, element in enumerate(done_response.json()['data']):
-    done_list.append('NO.' + str(element['ID']) + ' ' + element['DESCRIPTION'] + '|' + str(id))
+    done_list.append('NO.' + str(element['id']) + ' ' + element['description'] + '|' + str(id))
 
 
 class window(wx.Frame):
