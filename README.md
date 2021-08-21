@@ -35,6 +35,8 @@ Windows系统；
 
 点击 文件-加载 可以加载历史视频的标题、链接和简介信息。
 
+上方工具栏的搬运列表可以直接获取BOT中需求搬运的视频并进行下载。
+
 ### 简介框边功能按钮
 - 点击🔗按钮可以跳转到油管原网页。
 - 点击▶按钮会使用系统默认播放器播放视频。
@@ -45,7 +47,7 @@ Windows系统；
 ### 下载
 
 GitHub:[下载地址](https://github.com/Aye10032/YouTubeDownLoader/releases/latest)        
-Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v4.5.0)
+Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v4.5.1)
 
 ### 引用
 
