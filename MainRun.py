@@ -25,7 +25,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V4.5.0'
+VERSION = 'V4.5.1'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -150,9 +150,9 @@ class window(wx.Frame):
         wx.StaticText(panel, -1, '搬运者ID：', (22, 35))
         self.yourname = wx.TextCtrl(panel, -1, config['name'], (90, 30), (130, 23))
 
-        wx.StaticText(panel, -1, '下载线程：', (300, 35))
+        wx.StaticText(panel, -1, '下载线程：', (327, 35))
         listc = ['1', '2', '4', '6', '8', '16']
-        self.xiancheng = wx.ComboBox(panel, -1, value=config['xiancheng'], pos=(370, 30), size=(80, 23),
+        self.xiancheng = wx.ComboBox(panel, -1, value=config['xiancheng'], pos=(400, 30), size=(80, 23),
                                      choices=listc)
 
         # --------------------------------- 代理设置部分 ---------------------------------
@@ -465,7 +465,7 @@ class window(wx.Frame):
 
     def addvideo(self, btn):
         index = int(str(menuBar.FindItemById(btn.Id).GetItemLabel()).split('|')[-1])
-        choice_url = done_response.json()['data'][index]['URL']
+        choice_url = done_response.json()['data'][index]['url']
         # print(choice_url)
         self.youtubeURL.SetValue(choice_url)
 
