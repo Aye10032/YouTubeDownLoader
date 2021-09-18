@@ -4,8 +4,8 @@ import os
 import sys
 import threading
 import time
+import webbrowser
 
-import win32api
 from shutil import copy2
 
 from requests import request, exceptions
@@ -25,7 +25,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V4.5.1'
+VERSION = 'V4.6.0'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -371,12 +371,11 @@ class window(wx.Frame):
         frame3.Show(True)
 
     def openlink(self, event):
-        win32api.ShellExecute(0, 'open', self.youtubeURL.GetValue(), '', '', 1)
-        # webbrowser.open(self.youtubeURL.GetValue())
+        webbrowser.open(self.youtubeURL.GetValue())
 
     def openvideo(self, event):
         print('尝试打开 ' + self.basepath)
-        win32api.ShellExecute(0, 'open', self.basepath, '', '', 1)
+        os.startfile(self.basepath)
 
     def setGUI(self, title, link, sub):
         self.youtubeTitle.SetValue(title)
@@ -434,8 +433,9 @@ class window(wx.Frame):
 
     def loadmsg(self, self2):
         # 调用全局的变量menuBar
-        name = menuBar.FindItemById(self2.Id).Name
+        name = str(menuBar.FindItemById(self2.Id).GetItemLabel())
         msgpath = 'Download_Video/' + name + '/msg.json'
+        # print(msgpath)
         with open(msgpath, 'r') as msgjson:
             msg = json.load(msgjson)
 
@@ -464,6 +464,7 @@ class window(wx.Frame):
                 self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
     def addvideo(self, btn):
+        # print(menuBar.FindItemById(btn.Id).GetItemLabel())
         index = int(str(menuBar.FindItemById(btn.Id).GetItemLabel()).split('|')[-1])
         choice_url = done_response.json()['data'][index]['url']
         # print(choice_url)
@@ -712,7 +713,7 @@ class ChannelGrid(gridlib.Grid):
             config_temp['url'] = url
             self.GetParent().OnExit(evt)
         elif flag == 1:
-            win32api.ShellExecute(0, 'open', url, '', '', 1)
+            webbrowser.open(url)
 
         evt.Skip()
 
@@ -886,7 +887,8 @@ class updatewin(wx.Frame):
             self.Bind(wx.EVT_BUTTON, self.closewindow, buttoncancel)
 
     def openevt(self, event):
-        win32api.ShellExecute(0, 'open', self.link, '', '', 1)
+        # win32api.ShellExecute(0, 'open', self.link, '', '', 1)
+        webbrowser.open(self.link)
 
     def closewindow(self, event):
         self.Destroy()
