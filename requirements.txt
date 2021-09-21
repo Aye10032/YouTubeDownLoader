@@ -1,9 +1,6 @@
-pywin32-ctypes==0.2.0
-wxPython~=4.1.1
-youtube-dl==2021.06.06
-
-httplib2==0.19.1
-pywin32==301
-pyperclip==1.8.2
-google-api-python-client==2.2.0
 requests==2.25.1
+youtube_dl==2021.6.6
+pyperclip==1.8.2
+httplib2==0.19.1
+wxPython==4.1.1
+google_api_python_client==2.21.0
