@@ -1,5 +1,5 @@
 requests==2.25.1
-youtube_dl==2021.6.6
+youtube_dl==2021.12.17
 pyperclip==1.8.2
 httplib2==0.19.1
 wxPython==4.1.1
