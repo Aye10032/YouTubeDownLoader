@@ -560,14 +560,6 @@ def update_file_list():
 
 # --------------------------------- 下载视频&封面 ---------------------------------
 def dl():
-    if config['useProxy']:
-        ydl = YoutubeDL({
-            'proxy': config['ipaddress'],
-            'socket_timeout': 3000
-        })
-    else:
-        ydl = YoutubeDL()
-
     path = config_temp['dlpath']
     msg = str(config_temp['vidoecode']) + '+' + str(config_temp['audiocode'])
 
@@ -575,7 +567,7 @@ def dl():
         "writethumbnail": True,
         "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
         "external_downloader": ARIA2C,
-        'paths':{'home': path},
+        'paths': {'home': path},
         'outtmpl': {'default': '%(title)s.%(ext)s'},
         'writesubtitles': True,
         'writeautomaticsub': True,
@@ -588,6 +580,7 @@ def dl():
     logging.info('下载地址:' + path)
     if config['useProxy']:
         ydl_opts['proxy'] = config['ipaddress']
+        ydl_opts['socket_timeout']: 3000
 
     if config['videopro']:
         ydl_opts['format'] = msg
@@ -613,7 +606,7 @@ def format_selector(ctx):
     audio_ext = {'mp4': 'm4a', 'webm': 'webm'}[best_video['ext']]
     # vcodec='none' means there is no video
     best_audio = next(f for f in formats if (
-        f['acodec'] != 'none' and f['vcodec'] == 'none' and f['ext'] == audio_ext))
+            f['acodec'] != 'none' and f['vcodec'] == 'none' and f['ext'] == audio_ext))
 
     # These are the minimum required fields for a merged format
     yield {
@@ -623,6 +616,8 @@ def format_selector(ctx):
         # Must be + separated list of protocols
         'protocol': f'{best_video["protocol"]}+{best_audio["protocol"]}'
     }
+
+
 # --------------------------------- 翻译界面 ---------------------------------
 class translatewin(wx.Frame):
     originText = ''
@@ -983,9 +978,11 @@ class Logger(object):
     def flush(self):
         pass
 
+
 def my_hook(d):
     if d['status'] == 'finished':
         print('Done downloading, now post-processing ...')
+
 
 if __name__ == '__main__':
     sys.stdout.isatty = lambda: False
