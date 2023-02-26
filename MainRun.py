@@ -5,6 +5,8 @@ import sys
 import threading
 import time
 import webbrowser
+import logging
+import urllib3.exceptions
 
 from shutil import copy2
 
@@ -12,11 +14,13 @@ from requests import request, exceptions
 import pyperclip
 import wx
 import wx.grid as gridlib
-import youtube_dl
+from yt_dlp import YoutubeDL
+from yt_dlp.extractor.youtube import YoutubeIE
 from googleapiclient.discovery import build
 from httplib2 import socks, ProxyInfo, Http
 
 # --------------------------------- 资源文件位置设置 ---------------------------------
+
 basedir = ""
 if getattr(sys, 'frozen', False):
     # we are running in a |PyInstaller| bundle
@@ -101,12 +105,19 @@ for u in config['channellist']:
 
 url = "http://api.aye10032.com/getTODOVideo"
 
-done_response = request("GET", url)
+try:
+    done_response = request("GET", url)
 
-done_list = []
+    done_list = []
 
-for id, element in enumerate(done_response.json()['data']):
-    done_list.append('NO.' + str(element['id']) + ' ' + element['description'] + '|' + str(id))
+    for id, element in enumerate(done_response.json()['data']):
+        done_list.append('NO.' + str(element['id']) + ' ' + element['description'] + '|' + str(id))
+except ConnectionRefusedError:
+    logging.warning('获取视频列表错误')
+except urllib3.exceptions.NewConnectionError:
+    logging.warning('获取视频列表错误')
+except urllib3.exceptions.MaxRetryError:
+    logging.warning('获取视频列表错误')
 
 
 class window(wx.Frame):
@@ -143,7 +154,7 @@ class window(wx.Frame):
         t1 = wx.StaticText(panel, -1, '个人设置', (0, 5), (600, -1), wx.ALIGN_CENTER)
         t1.SetFont(font1)
 
-        self.Bind(wx.EVT_CLOSE, self.closewindow)
+        self.Bind(wx.EVT_CLOSE, self.close_window)
 
         # --------------------------------- 搬运者ID及线程设置部分 ---------------------------------
 
@@ -223,24 +234,24 @@ class window(wx.Frame):
 
         pic2 = wx.Image(COPY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.CopyLink = wx.BitmapButton(panel, -1, pic2, pos=(535, 430), size=(35, 35))
-        self.Bind(wx.EVT_ENTER_WINDOW, self.CopyMSG, self.CopyLink)
-        self.Bind(wx.EVT_BUTTON, self.Copy, self.CopyLink)
+        self.Bind(wx.EVT_ENTER_WINDOW, self.copy_msg, self.CopyLink)
+        self.Bind(wx.EVT_BUTTON, self.copy, self.CopyLink)
 
         pic3 = wx.Image(TRANSLATE_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.Translate = wx.BitmapButton(panel, -1, pic3, pos=(535, 480), size=(35, 35))
         self.Bind(wx.EVT_BUTTON, self.translate, self.Translate)
 
         self.OpenLink = wx.Button(panel, -1, '🔗', pos=(535, 600), size=(35, 35))
-        self.Bind(wx.EVT_BUTTON, self.openlink, self.OpenLink)
+        self.Bind(wx.EVT_BUTTON, self.open_link, self.OpenLink)
 
         self.statusbar = self.CreateStatusBar()
 
         pic4 = wx.Image(PLAY_PATH, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         self.OpenVideo = wx.BitmapButton(panel, -1, pic4, pos=(535, 550), size=(35, 35))
         self.OpenVideo.Enable(False)
-        self.Bind(wx.EVT_BUTTON, self.openvideo, self.OpenVideo)
+        self.Bind(wx.EVT_BUTTON, self.open_video, self.OpenVideo)
 
-        self.updateMenuBar()
+        self.update_menubar()
 
     def usePor(self, event):
         if self.usebtn.GetValue():
@@ -285,7 +296,7 @@ class window(wx.Frame):
             config['xiancheng'] = xiancheng
             json.dump(config, c, indent=4)
 
-    def savefileevt(self, event):
+    def save_file_evt(self, event):
         self.savefile()
 
     def savefile(self):
@@ -310,13 +321,13 @@ class window(wx.Frame):
             with open(msgpath, 'w') as msgwrite:
                 json.dump(msg, msgwrite, indent=4)
 
-        updateFilelist()
+        update_file_list()
 
     def view(self, event):
         with open(TEMP_PATH, 'w') as c:
             config_temp['url'] = self.youtubeURL.GetValue()
             json.dump(config_temp, c, indent=4)
-        self.updatemesage()
+        self.update_message()
         self.hasEdit = True
         frame3 = QualityFrame(parent=frame)
         frame3.Show(True)
@@ -330,7 +341,7 @@ class window(wx.Frame):
             box = wx.MessageDialog(None, '未填入视频链接！', '警告', wx.OK | wx.ICON_EXCLAMATION)
             box.ShowModal()
         else:
-            self.updatemesage()
+            self.update_message()
             self.Update()
         self.hasEdit = True
 
@@ -340,7 +351,7 @@ class window(wx.Frame):
             box.ShowModal()
         else:
             if not config['videopro']:
-                self.updatemesage()
+                self.update_message()
                 self.Update()
 
             print("Download Process Start")
@@ -350,7 +361,7 @@ class window(wx.Frame):
 
         self.hasEdit = True
 
-    def Copy(self, event):
+    def copy(self, event):
         msg = self.youtubesubmit.GetValue()
 
         if not os.path.exists(config_temp['dlpath']):
@@ -363,21 +374,21 @@ class window(wx.Frame):
 
         pyperclip.copy(msg)
 
-    def CopyMSG(self, event):
+    def copy_msg(self, event):
         self.statusbar.SetStatusText('复制简介信息')
 
     def translate(self, event):
         frame3 = translatewin(parent=frame, id=-1, titletext='翻译', text1='原文')
         frame3.Show(True)
 
-    def openlink(self, event):
+    def open_link(self, event):
         webbrowser.open(self.youtubeURL.GetValue())
 
-    def openvideo(self, event):
+    def open_video(self, event):
         print('尝试打开 ' + self.basepath)
         os.startfile(self.basepath)
 
-    def setGUI(self, title, link, sub):
+    def set_gui(self, title, link, sub):
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(sub)
@@ -390,18 +401,18 @@ class window(wx.Frame):
         frame1 = helpwin(parent=frame, id=-1, titletext='help', text1='软件帮助')
         frame1.Show(True)
 
-    def updateevt(self, event):
+    def update_evt(self, event):
         frame4 = updatewin(parent=frame, id=-1, titletext='update', text1='检查更新')
         frame4.Show(True)
 
-    def closewindow(self, event):
+    def close_window(self, event):
         self.savefile()
         self.Destroy()
 
     # ---------------------------------- 更新信息框 ----------------------------------
-    def updatemesage(self):
+    def update_message(self):
         self.uploader, self.title, self.thumbnail, self.description, self.upload_date \
-            = returnmesage(self.youtubeURL.GetValue())
+            = return_message(self.youtubeURL.GetValue())
 
         if self.upload_date[4] == '0' and self.upload_date[6] == '0':
             date = self.upload_date[0:4] + '年' + self.upload_date[5] + '月' + self.upload_date[7:8] + '日'
@@ -431,7 +442,7 @@ class window(wx.Frame):
 
     # --------------------------------- 加载视频信息 ---------------------------------
 
-    def loadmsg(self, self2):
+    def load_msg(self, self2):
         # 调用全局的变量menuBar
         name = str(menuBar.FindItemById(self2.Id).GetItemLabel())
         msgpath = 'Download_Video/' + name + '/msg.json'
@@ -439,12 +450,12 @@ class window(wx.Frame):
         with open(msgpath, 'r') as msgjson:
             msg = json.load(msgjson)
 
-        url = msg['origin']
+        _url = msg['origin']
         title = msg['title']
         link = msg['link']
         submit = msg['submit']
         self.basepath = 'Download_Video/' + name
-        self.youtubeURL.SetValue(url)
+        self.youtubeURL.SetValue(_url)
         self.youtubeTitle.SetValue(title)
         self.youtubeLink.SetValue(link)
         self.youtubesubmit.SetValue(submit)
@@ -463,7 +474,7 @@ class window(wx.Frame):
                 self.OpenVideo.Enable(True)
                 self.basepath = self.father_path + '\\' + self.basepath + '\\' + i
 
-    def addvideo(self, btn):
+    def add_video(self, btn):
         # print(menuBar.FindItemById(btn.Id).GetItemLabel())
         index = int(str(menuBar.FindItemById(btn.Id).GetItemLabel()).split('|')[-1])
         choice_url = done_response.json()['data'][index]['url']
@@ -471,13 +482,13 @@ class window(wx.Frame):
         self.youtubeURL.SetValue(choice_url)
 
     # --------------------------------- 菜单栏部分 ---------------------------------
-    def updateMenuBar(self):
+    def update_menubar(self):
         _menubar = wx.MenuBar()
         file = wx.Menu()
         load = wx.Menu()
         for i in filelist:
             but_1 = load.Append(-1, i)
-            self.Bind(wx.EVT_MENU, self.loadmsg, but_1)
+            self.Bind(wx.EVT_MENU, self.load_msg, but_1)
         file.AppendSubMenu(load, '加载')
         savefilebtn = file.Append(-1, '保存', '保存当前视频信息')
         _menubar.Append(file, '文件')
@@ -485,7 +496,7 @@ class window(wx.Frame):
         group_list = wx.Menu()
         for url in done_list:
             but_a = group_list.Append(-1, url)
-            self.Bind(wx.EVT_MENU, self.addvideo, but_a)
+            self.Bind(wx.EVT_MENU, self.add_video, but_a)
         _menubar.Append(group_list, '搬运列表')
         # 其他部分
         first = wx.Menu()
@@ -495,56 +506,51 @@ class window(wx.Frame):
         _menubar.Append(first, '其他')
         self.Bind(wx.EVT_MENU, self.help, help)
         self.Bind(wx.EVT_MENU, self.about, about)
-        self.Bind(wx.EVT_MENU, self.savefileevt, savefilebtn)
-        self.Bind(wx.EVT_MENU, self.updateevt, update)
+        self.Bind(wx.EVT_MENU, self.save_file_evt, savefilebtn)
+        self.Bind(wx.EVT_MENU, self.update_evt, update)
         self.SetMenuBar(_menubar)
 
 
 # --------------------------------- 更新信息 ---------------------------------
-def returnmesage(url):
-    ydl_opts = {}
+def return_message(_url):
+    ydl = YoutubeDL()
 
     if config['useProxy']:
-        ydl_opts = {
-            'proxy': config['ipaddress']
-        }
+        ydl.params['proxy'] = config['ipaddress']
 
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        print(ydl_opts)
-        youtubeext = youtube_dl.extractor.YoutubeIE
-        ydl.add_info_extractor(youtubeext)
+    ie = YoutubeIE
+    ydl.add_info_extractor(ie)
 
-        info_dict = ydl.extract_info(url, download=False, force_generic_extractor=True)
+    info_dict = ydl.extract_info(_url, download=False, force_generic_extractor=True)
 
-        uploader = info_dict.get("uploader")
-        title = info_dict.get('title')
-        thumbnail = info_dict.get('thumbnail')
-        description = info_dict.get('description')
+    uploader = info_dict.get("uploader")
+    title = info_dict.get('title')
+    thumbnail = info_dict.get('thumbnail')
+    description = info_dict.get('description')
 
-        if not (info_dict.get("upload_date") is None):
-            upload_date = info_dict.get("upload_date", None)
-        else:
-            upload_date = '00000000'
+    if not (info_dict.get("upload_date") is None):
+        upload_date = info_dict.get("upload_date", None)
+    else:
+        upload_date = '00000000'
 
-        formats = info_dict.get('formats')
-        file_count = len(formats)
+    formats = info_dict.get('formats')
+    file_count = len(formats)
 
-        with open(TEMP_PATH, 'w') as c:
-            config_temp['count'] = file_count
-            json.dump(config_temp, c, indent=4)
+    with open(TEMP_PATH, 'w') as c:
+        config_temp['count'] = file_count
+        json.dump(config_temp, c, indent=4)
 
-        for f in formats:
-            format_code.append(f.get('format_id'))
-            extension.append(f.get('ext'))
-            resolution.append(ydl.format_resolution(f))
-            format_note.append(f.get('format_note'))
-            file_size.append(f.get('filesize'))
+    for f in formats:
+        format_code.append(f.get('format_id'))
+        extension.append(f.get('ext'))
+        resolution.append(ydl.format_resolution(f))
+        format_note.append(f.get('format_note'))
+        file_size.append(f.get('filesize'))
 
-        return uploader, title, thumbnail, description, upload_date
+    return uploader, title, thumbnail, description, upload_date
 
 
-def updateFilelist():
-    filelistlist = []
+def update_file_list():
     for i in range(0, len(root_list)):
         path = os.path.join(rootdir, root_list[i])
         if not os.path.isfile(path):
@@ -555,27 +561,40 @@ def updateFilelist():
 
 # --------------------------------- 下载视频&封面 ---------------------------------
 def dl():
+    ydl = YoutubeDL()
     path = config_temp['downloadpath']
     msg = str(config_temp['vidoecode']) + '+' + str(config_temp['audiocode'])
-    ydl_opts = {
-        "writethumbnail": True,
-        "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
-        "external_downloader": ARIA2C,
-        'outtmpl': path,
-        'writesubtitles': True,
-        'writeautomaticsub': True,
-        'subtitlesformat': 'srt',
-        'subtitleslangs': ['zh-Hans', 'en'],
-        'logger': Logger(LOG_PATH + '/' + LOG_NAME + '.log')
-    }
+
+    # ydl_opts = {
+    #     "writethumbnail": True,
+    #     "external_downloader_args": ['--max-connection-per-server', config['xiancheng'], '--min-split-size', '1M'],
+    #     "external_downloader": ARIA2C,
+    #     'outtmpl': path,
+    #     'writesubtitles': True,
+    #     'writeautomaticsub': True,
+    #     'subtitlesformat': 'srt',
+    #     'subtitleslangs': ['zh-Hans', 'en'],
+    #     'logger': Logger(LOG_PATH + '/' + LOG_NAME + '.log')
+    # }
+    ydl.params['writethumbnail'] = True
+    ydl.params['external_downloader_args'] = ['--max-connection-per-server', config['xiancheng'], '--min-split-size',
+                                              '1M']
+    ydl.params['external_downloader'] = ARIA2C
+    ydl.params['outtmpl'] = path
+    ydl.params['writesubtitles'] = True
+    ydl.params['writeautomaticsub'] = True
+    ydl.params['subtitlesformat'] = 'srt'
+    ydl.params['subtitleslangs'] = ['zh-Hans', 'en']
+    ydl.params['logger'] = Logger(LOG_PATH + '/' + LOG_NAME + '.log')
+
     if config['useProxy']:
-        ydl_opts['proxy'] = config['ipaddress']
+        ydl.params['proxy'] = config['ipaddress']
+        ydl.params['socket_timeout'] = 3000
 
     if config['videopro']:
-        ydl_opts['format'] = msg
+        ydl.params['format'] = msg
 
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([config_temp['url']])
+    ydl.download([config_temp['url']])
 
 
 # --------------------------------- 翻译界面 ---------------------------------
@@ -943,7 +962,7 @@ if __name__ == '__main__':
     sys.stdout.isatty = lambda: False
     sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
     sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
-    updateFilelist()
+    update_file_list()
     app = wx.App()
     frame = window(parent=None, id=-1)
 

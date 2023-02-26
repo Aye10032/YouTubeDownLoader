@@ -1,6 +1,7 @@
 requests==2.28.2
-youtube_dl==2021.12.17
 pyperclip==1.8.2
 httplib2==0.21.0
 wxPython==4.2.0
 google_api_python_client==2.77.0
+
+urllib3~=1.26.4
