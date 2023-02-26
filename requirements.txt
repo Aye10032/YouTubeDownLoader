@@ -2,6 +2,6 @@ yt_dlp==2023.2.17
 wxPython==4.2.0
 httplib2==0.21.0
 pyperclip==1.8.2
-urllib3==1.26.4
+urllib3==1.26.5
 requests==2.28.2
 google_api_python_client==2.79.0
