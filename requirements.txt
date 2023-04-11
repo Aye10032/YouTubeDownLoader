@@ -1,7 +1,7 @@
-yt_dlp==2023.2.17
-wxPython==4.2.0
+google_api_python_client==2.84.0
 httplib2==0.21.0
 pyperclip==1.8.2
-urllib3==1.26.4
 requests==2.28.2
-google_api_python_client==2.79.0
+urllib3==1.26.15
+wxPython==4.2.0
+yt_dlp==2023.3.4

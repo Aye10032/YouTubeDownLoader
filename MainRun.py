@@ -29,7 +29,7 @@ else:
     # we are running in a normal Python environment
     basedir = os.path.dirname(__file__)
 
-VERSION = 'V5.0.0'
+VERSION = 'V5.1.0'
 RES_PATH = 'res'
 LOG_PATH = 'log'
 CONFIG_PATH = 'res/config.json'
@@ -65,12 +65,7 @@ if not os.path.exists(CONFIG_PATH):
         "multilanguage": True,
         "notimeline": False,
         "videopro": True,
-        "channellist": [
-            {
-                "name": "ilmango",
-                "url": "UCHSI8erNrN6hs3sUK6oONLA"
-            }
-        ]
+        "channellist": []
     }
     with open(CONFIG_PATH, 'w+') as conf:
         json.dump(default_config, conf, indent=4)
