@@ -47,7 +47,7 @@ Windows系统；
 ### 下载
 
 GitHub:[下载地址](https://github.com/Aye10032/YouTubeDownLoader/releases/latest)        
-Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v5.0.0)
+Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v5.1.0)
 
 ### 引用
 
