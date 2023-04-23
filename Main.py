@@ -1,22 +1,16 @@
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QGridLayout, QStackedWidget
 from qfluentwidgets import (NavigationInterface, NavigationItemPosition, NavigationWidget, MessageBox,
                             isDarkTheme, setTheme, Theme)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
+from Config import cfg, Language
 
-class Widget(QFrame):
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.layout = QHBoxLayout(self)
-        self.layout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
+VERSION = '6.0.0'
 
 
 class Window(FramelessWindow):
@@ -30,14 +24,18 @@ class Window(FramelessWindow):
         self.navigation_interface = NavigationInterface(self, showMenuButton=True, showReturnButton=False)
         self.stack_widget = QStackedWidget(self)  # 多窗口控件
 
-        self.search_interface = Widget('search_interface', self)
-        self.music_interface = Widget('music_interface', self)
-        self.video_interface = Widget('video_interface', self)
+        self.edit_interface = Widget('edit_interface', self)
+        self.local_video_interface = Widget('local_video_interface', self)
+        self.subscribe_interface = Widget('subscribe_interface', self)
+        self.todo_list_interface = Widget('todo_list_interface', self)
+        self.info_interface = Widget('info_interface', self)
         self.setting_interface = Widget('setting_interface', self)
 
-        self.stack_widget.addWidget(self.search_interface)
-        self.stack_widget.addWidget(self.music_interface)
-        self.stack_widget.addWidget(self.video_interface)
+        self.stack_widget.addWidget(self.edit_interface)
+        self.stack_widget.addWidget(self.local_video_interface)
+        self.stack_widget.addWidget(self.subscribe_interface)
+        self.stack_widget.addWidget(self.todo_list_interface)
+        self.stack_widget.addWidget(self.info_interface)
         self.stack_widget.addWidget(self.setting_interface)
 
         # initialize layout
@@ -56,17 +54,27 @@ class Window(FramelessWindow):
         self.h_box_layout.setStretchFactor(self.stack_widget, 1)  # 缩放因子
 
     def init_navigation(self):
-        self.navigation_interface.addItem(routeKey=self.search_interface.objectName(), icon=FIF.SEARCH, text='Search',
-                                          onClick=lambda: self.switch_to(self.search_interface))
-        self.navigation_interface.addItem(routeKey=self.music_interface.objectName(), icon=FIF.MUSIC, text='Music',
-                                          onClick=lambda: self.switch_to(self.music_interface))
-        self.navigation_interface.addItem(routeKey=self.video_interface.objectName(), icon=FIF.VIDEO, text='Video',
-                                          onClick=lambda: self.switch_to(self.video_interface))
+        self.navigation_interface.addItem(routeKey=self.edit_interface.objectName(), icon=FIF.EDIT,
+                                          text=self.tr('Edit'),
+                                          onClick=lambda: self.switch_to(self.edit_interface))
+        self.navigation_interface.addItem(routeKey=self.local_video_interface.objectName(), icon=FIF.HISTORY,
+                                          text=self.tr('Local Video'),
+                                          onClick=lambda: self.switch_to(self.local_video_interface))
+        self.navigation_interface.addItem(routeKey=self.subscribe_interface.objectName(), icon=FIF.RINGER,
+                                          text=self.tr('Subscription Information'),
+                                          onClick=lambda: self.switch_to(self.subscribe_interface))
+        self.navigation_interface.addItem(routeKey=self.todo_list_interface.objectName(), icon=FIF.FEEDBACK,
+                                          text=self.tr('TODO List'),
+                                          onClick=lambda: self.switch_to(self.todo_list_interface))
 
         self.navigation_interface.addSeparator()
 
+        self.navigation_interface.addItem(routeKey=self.info_interface.objectName(), icon=FIF.INFO,
+                                          text=self.tr('Info'),
+                                          onClick=lambda: self.switch_to(self.info_interface),
+                                          position=NavigationItemPosition.BOTTOM)
         self.navigation_interface.addItem(routeKey=self.setting_interface.objectName(), icon=FIF.SETTING,
-                                          text='Setting',
+                                          text=self.tr('Setting'),
                                           onClick=lambda: self.switch_to(self.setting_interface),
                                           position=NavigationItemPosition.BOTTOM)
 
@@ -76,7 +84,7 @@ class Window(FramelessWindow):
     def init_window(self):
         self.resize(1008, 700)
         self.setWindowIcon(QIcon('res/logo.ico'))
-        self.setWindowTitle('YoutubeDownloader')
+        self.setWindowTitle('YoutubeDownloader V' + VERSION)
         self.titleBar.setAttribute(Qt.WA_StyledBackground)  # 允许使用样式表定义背景
 
         desktop = QApplication.desktop().availableGeometry()
@@ -96,6 +104,22 @@ class Window(FramelessWindow):
         self.navigation_interface.setCurrentItem(widget.objectName())
 
 
+class Widget(QFrame):
+    def __init__(self, text: str, parent=None):
+        super().__init__(parent=parent)
+        self.label = QLabel(text, self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout = QHBoxLayout(self)
+        self.layout.addWidget(self.label, 1, Qt.AlignCenter)
+        self.setObjectName(text.replace(' ', '-'))
+
+
+class EditWidget(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.layout = QGridLayout(self)
+
+
 if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -103,6 +127,17 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+
+    translator = QTranslator()
+    language = cfg.get(cfg.language)
+
+    if language == Language.AUTO:
+        translator.load(QLocale.system(), "res/lang/")
+    elif language != Language.ENGLISH:
+        translator.load(f"res/lang/{language.value}.qm")
+
+    app.installTranslator(translator)
+
     w = Window()
     w.show()
     app.exec_()
