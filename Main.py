@@ -2,15 +2,15 @@ import sys
 
 from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QGridLayout, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QVBoxLayout, QGridLayout, QStackedWidget, \
+    QSplitter, QPlainTextEdit, QPushButton, QListWidget, QWidget
 from qfluentwidgets import (NavigationInterface, NavigationItemPosition, NavigationWidget, MessageBox,
-                            isDarkTheme, setTheme, Theme)
+                            isDarkTheme, setTheme, Theme, PopUpAniStackedWidget)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
-from Config import cfg, Language
-
-VERSION = '6.0.0'
+from Config import cfg, Language, VERSION
+from view.EditWidget import EditWidget
 
 
 class Window(FramelessWindow):
@@ -21,10 +21,11 @@ class Window(FramelessWindow):
         setTheme(Theme.LIGHT)
 
         self.h_box_layout = QHBoxLayout(self)
+        self.view = PopUpAniStackedWidget(self)
         self.navigation_interface = NavigationInterface(self, showMenuButton=True, showReturnButton=False)
         self.stack_widget = QStackedWidget(self)  # 多窗口控件
 
-        self.edit_interface = Widget('edit_interface', self)
+        self.edit_interface = EditWidget(self)
         self.local_video_interface = Widget('local_video_interface', self)
         self.subscribe_interface = Widget('subscribe_interface', self)
         self.todo_list_interface = Widget('todo_list_interface', self)
@@ -78,6 +79,8 @@ class Window(FramelessWindow):
                                           onClick=lambda: self.switch_to(self.setting_interface),
                                           position=NavigationItemPosition.BOTTOM)
 
+        self.navigation_interface.setExpandWidth(200)
+
         self.stack_widget.currentChanged.connect(self.on_current_interface_changed)
         self.stack_widget.setCurrentIndex(1)
 
@@ -94,7 +97,8 @@ class Window(FramelessWindow):
         self.set_qss()
 
     def set_qss(self):
-        pass
+        with open(f'res/qss/light/main.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
 
     def switch_to(self, widget):
         self.stack_widget.setCurrentWidget(widget)
@@ -112,12 +116,6 @@ class Widget(QFrame):
         self.layout = QHBoxLayout(self)
         self.layout.addWidget(self.label, 1, Qt.AlignCenter)
         self.setObjectName(text.replace(' ', '-'))
-
-
-class EditWidget(QFrame):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.layout = QGridLayout(self)
 
 
 if __name__ == '__main__':

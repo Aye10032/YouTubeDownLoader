@@ -2,6 +2,8 @@ from enum import Enum
 
 from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSerializer, QConfig
 
+VERSION = '6.0.0'
+
 
 class Language(Enum):
     """ Language enumeration """
