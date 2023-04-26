@@ -1,3 +1,15 @@
+QLabel#Title{
+    font: 24px 'Segoe UI', 'Microsoft YaHei';
+}
+
+QLabel#Text{
+    font: 14px 'Segoe UI', 'Microsoft YaHei';
+}
+
+LineEdit{
+border: 1px solid black;
+}
+
 EditWidget {
     border: 1px solid rgb(229, 229, 229);
     border-right: none;

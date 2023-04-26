@@ -81,8 +81,10 @@ class Window(FramelessWindow):
 
         self.navigation_interface.setExpandWidth(200)
 
+        # self.navigation_interface.setDefaultRouteKey(self.edit_interface.objectName())
+
         self.stack_widget.currentChanged.connect(self.on_current_interface_changed)
-        self.stack_widget.setCurrentIndex(1)
+        self.stack_widget.setCurrentIndex(0)
 
     def init_window(self):
         self.resize(1008, 700)
