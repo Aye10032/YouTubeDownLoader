@@ -30,13 +30,14 @@ class EditWidget(QFrame):
         self.video_title_label = QLabel(self.tr('video_title'), self)
         self.video_title_label.setObjectName('Text')
         self.video_title_input = LineEdit(self)
+        self.copy_title_btn = ToolButton(FIF.COPY, self)
 
         self.reprint_info_label = QLabel(self.tr('reprint_info'), self)
         self.reprint_info_label.setObjectName('Text')
         self.reprint_info_input = LineEdit(self)
+        self.copy_reprint_btn = ToolButton(FIF.COPY, self)
 
         self.video_description_input = TextEdit(self)
-        self.origin_video_description = TextEdit(self)
 
         self.play_btn = ToolButton(FIF.VIDEO, self)
         self.copy_btn = ToolButton(FIF.COPY, self)
@@ -55,15 +56,6 @@ class EditWidget(QFrame):
         self.main_layout.setRowStretch(6, 1)
         self.main_layout.setRowStretch(7, 1)
         self.main_layout.setRowStretch(8, 1)
-        # self.main_layout.setColumnStretch(0, 1)
-        # self.main_layout.setColumnStretch(1, 1)
-        # self.main_layout.setColumnStretch(2, 1)
-        # self.main_layout.setColumnStretch(3, 1)
-        # self.main_layout.setColumnStretch(4, 1)
-        # self.main_layout.setColumnStretch(5, 1)
-        # self.main_layout.setColumnStretch(6, 1)
-        # self.main_layout.setColumnStretch(7, 1)
-        # self.main_layout.setColumnStretch(8, 1)
 
         self.main_layout.addWidget(self.title_label, 0, 0, 1, 9, Qt.AlignCenter)
 
@@ -72,6 +64,7 @@ class EditWidget(QFrame):
         self.origin_link_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         layout_1.addWidget(self.origin_link_label, stretch=1)
         layout_1.addWidget(self.origin_link_input, stretch=6)
+        # print(self.origin_link_label.height(), self.origin_link_input.height())
         widget_1.setLayout(layout_1)
         self.main_layout.addWidget(widget_1, 1, 0, 1, 9)
 
@@ -93,20 +86,25 @@ class EditWidget(QFrame):
         layout_3 = QHBoxLayout()
         layout_3.addWidget(self.video_title_label, stretch=1)
         layout_3.addWidget(self.video_title_input, stretch=6)
+        layout_3.addWidget(self.copy_title_btn, stretch=1)
         widget_3.setLayout(layout_3)
         self.main_layout.addWidget(widget_3, 4, 0, 1, 9)
+        self.video_title_input.setText('【MC】【】')
 
         widget_4 = QWidget()
         layout_4 = QHBoxLayout()
         layout_4.addWidget(self.reprint_info_label, stretch=1)
         layout_4.addWidget(self.reprint_info_input, stretch=6)
+        layout_4.addWidget(self.copy_reprint_btn, stretch=1)
         widget_4.setLayout(layout_4)
         self.main_layout.addWidget(widget_4, 5, 0, 1, 9)
+        self.reprint_info_input.setText('转自 有能力请支持原作者')
 
         self.video_description_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.main_layout.addWidget(self.video_description_input, 6, 0, 3, 4)
-        self.origin_video_description.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.main_layout.addWidget(self.origin_video_description, 6, 5, 3, 4)
+        self.main_layout.addWidget(self.video_description_input, 6, 0, 3, 9)
+        self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
+        self.video_description_input.setText(
+            '作者：\r\n发布时间：\r\n搬运：\r\n视频摘要：\r\n原简介翻译：\r\n存档：\r\n其他外链：')
 
         self.main_layout.addWidget(self.play_btn, 9, 1, Qt.AlignHCenter)
         self.main_layout.addWidget(self.copy_btn, 9, 3, Qt.AlignHCenter)

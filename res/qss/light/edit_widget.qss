@@ -1,13 +1,20 @@
 QLabel#Title{
-    font: 24px 'Segoe UI', 'Microsoft YaHei';
+    font-size: 24px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
 QLabel#Text{
-    font: 14px 'Segoe UI', 'Microsoft YaHei';
+    font-size: 14px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
 LineEdit{
-border: 1px solid black;
+    border: 1px solid black;
+}
+
+TextEdit#desc{
+    font-size: 12px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
 EditWidget {
