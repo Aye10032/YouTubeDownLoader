@@ -5,21 +5,17 @@ from qfluentwidgets import FluentIcon as FIF
 
 
 class EditWidget(QFrame):
-    def __init__(self, parent=None):
+    def __init__(self, text: str, parent=None):
         super().__init__(parent)
         self.main_layout = QGridLayout(self)
         self.title_label = QLabel(self.tr('edit_title'), self)
-        self.title_label.setObjectName('Title')
 
         self.origin_link_label = QLabel(self.tr('origin_link'), self)
-        self.origin_link_label.setObjectName('Text')
         self.origin_link_input = LineEdit(self)
 
         self.auto_quality_label = QLabel(self.tr('auto_quality'), self)
-        self.auto_quality_label.setObjectName('Text')
         self.auto_quality_btn = SwitchButton()
         self.quality_label = QLabel(self.tr('quality'), self)
-        self.quality_label.setObjectName('Text')
         self.quality_input = LineEdit(self)
         self.get_quality_btn = ToolButton(FIF.SEARCH, self)
 
@@ -27,12 +23,10 @@ class EditWidget(QFrame):
         self.download_btn = PushButton(self.tr('download_video'), self, FIF.DOWNLOAD)
 
         self.video_title_label = QLabel(self.tr('video_title'), self)
-        self.video_title_label.setObjectName('Text')
         self.video_title_input = LineEdit(self)
         self.copy_title_btn = ToolButton(FIF.COPY, self)
 
         self.reprint_info_label = QLabel(self.tr('reprint_info'), self)
-        self.reprint_info_label.setObjectName('Text')
         self.reprint_info_input = LineEdit(self)
         self.copy_reprint_btn = ToolButton(FIF.COPY, self)
 
@@ -46,6 +40,7 @@ class EditWidget(QFrame):
         self.log_output = TextEdit(self)
 
         self.init_ui()
+        self.setObjectName(text)
 
     def init_ui(self):
         self.main_layout.setSpacing(0)
@@ -132,5 +127,12 @@ class EditWidget(QFrame):
         self.set_qss()
 
     def set_qss(self):
+        self.title_label.setObjectName('Title')
+        self.origin_link_label.setObjectName('Text')
+        self.auto_quality_label.setObjectName('Text')
+        self.quality_label.setObjectName('Text')
+        self.video_title_label.setObjectName('Text')
+        self.reprint_info_label.setObjectName('Text')
+
         with open(f'res/qss/light/edit_widget.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
