@@ -1,6 +1,6 @@
 from enum import Enum
 
-from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSerializer, QConfig
+from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSerializer, QConfig, ConfigItem
 
 VERSION = '6.0.0'
 
@@ -15,6 +15,9 @@ class Language(Enum):
 
 
 class Config(QConfig):
+    reprint_id = ConfigItem(
+        'VideoSetting', 'Reprint', ''
+    )
     language = OptionsConfigItem(
         "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), EnumSerializer(Language), restart=True)
 
