@@ -87,7 +87,7 @@ class Window(FramelessWindow):
 
     def init_window(self):
         self.resize(650, 750)
-        self.setWindowIcon(QIcon('res/logo.ico'))
+        self.setWindowIcon(QIcon('res/icons/logo.ico'))
         self.setWindowTitle('YoutubeDownloader V' + VERSION)
         self.titleBar.setAttribute(Qt.WA_StyledBackground)  # 允许使用样式表定义背景
 
