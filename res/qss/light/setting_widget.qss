@@ -1,17 +1,24 @@
-SettingWidget, #scroll_widget {
+SettingWidget{
+    border: 1px solid rgb(229, 229, 229);
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 10px;
     background-color: rgb(249, 249, 249);
 }
 
-QScrollArea {
+ScrollArea {
     background-color: rgb(249, 249, 249);
     border: none;
 }
 
+QWidget#ScrollWidget{
+    background-color: rgb(249, 249, 249);
+}
 
 /* 标签 */
-QLabel#settingLabel {
-    font: 33px 'Microsoft YaHei Light';
-    background-color: transparent;
+QLabel#Title{
+    font-size: 24px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
 
