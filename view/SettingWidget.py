@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QWidget, QVBoxLayout, QLabel, QFileDialog
 from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSettingCard, SwitchSettingCard, Dialog, \
-    ComboBoxSettingCard, InfoBar
+    ComboBoxSettingCard, InfoBar, CustomColorSettingCard, setThemeColor, OptionsSettingCard, setTheme, Theme
 from qfluentwidgets import FluentIcon as FIF
 
 from Config import cfg
@@ -59,6 +59,24 @@ class SettingWidget(QFrame):
 
         self.system_setting_group = SettingCardGroup(
             self.tr('System Setting'), self.scroll_widget)
+        self.theme_card = OptionsSettingCard(
+            cfg.themeMode,
+            FIF.BRUSH,
+            self.tr('Application theme'),
+            self.tr("Change the appearance of your application"),
+            texts=[
+                self.tr('Light'), self.tr('Dark'),
+                self.tr('Use system setting')
+            ],
+            parent=self.system_setting_group
+        )
+        self.theme_color_card=CustomColorSettingCard(
+            cfg.themeColor,
+            FIF.PALETTE,
+            self.tr('Theme color'),
+            self.tr('Change the theme color of you application'),
+            self.system_setting_group
+        )
         self.language_card = ComboBoxSettingCard(
             cfg.language,
             FIF.LANGUAGE,
@@ -81,6 +99,8 @@ class SettingWidget(QFrame):
         self.edit_setting_group.addSettingCard(self.thread_card)
         self.edit_setting_group.addSettingCard(self.download_folder_card)
 
+        self.system_setting_group.addSettingCard(self.theme_card)
+        self.system_setting_group.addSettingCard(self.theme_color_card)
         self.system_setting_group.addSettingCard(self.language_card)
 
         self.expand_layout.setSpacing(28)
@@ -108,6 +128,7 @@ class SettingWidget(QFrame):
 
     def connect_signal(self):
         cfg.appRestartSig.connect(self.show_restart_tooltip)
+        cfg.themeChanged.connect(self.on_theme_changed)
 
         self.reprint_id_card.clicked.connect(
             self.on_reprint_id_card_clicked
@@ -119,6 +140,8 @@ class SettingWidget(QFrame):
             self.on_proxy_card_clicked
         )
 
+        self.theme_color_card.colorChanged.connect(setThemeColor)
+
     def show_restart_tooltip(self):
         """ show restart tooltip """
         InfoBar.warning(
@@ -126,6 +149,14 @@ class SettingWidget(QFrame):
             self.tr('Configuration takes effect after restart'),
             parent=self.window()
         )
+
+    def on_theme_changed(self, theme: Theme):
+        """ theme changed slot """
+        # change the theme of qfluentwidgets
+        setTheme(theme)
+
+        # chang the theme of setting interface
+        self.set_qss()
 
     def on_reprint_id_card_clicked(self):
         w = TextDialog(self.tr('Nick Name'), self.tr('please input your nick name:'), cfg.get(cfg.reprint_id), self)
