@@ -2,8 +2,10 @@ from typing import Union
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLabel
-from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig
+from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout
+from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit
+from qfluentwidgets.components.dialog_box.dialog import Ui_MessageBox, Dialog
+from qframelesswindow import FramelessDialog
 
 
 class RangeSettingCard(SettingCard):
@@ -60,3 +62,27 @@ class RangeSettingCard(SettingCard):
         qconfig.set(self.configItem, value)
         self.valueLabel.setNum(value)
         self.valueLabel.adjustSize()
+
+
+class TextDialog(Dialog):
+    """ Dialog box """
+
+    yesSignal = pyqtSignal()
+    cancelSignal = pyqtSignal()
+
+    def __init__(self, title: str, content: str, default: str, parent=None):
+        super().__init__(title, content, parent=parent)
+        self.vBoxLayout.removeWidget(self.windowTitleLabel)
+        self.input_edit = LineEdit(self)
+        self.input_edit.setText(default)
+        self.main_widget = QWidget()
+        self.main_layout = QGridLayout()
+        self.main_layout.setSpacing(20)
+        self.main_layout.addWidget(self.titleLabel, 0, 0)
+        self.main_layout.addWidget(self.contentLabel, 1, 0)
+        self.main_layout.addWidget(self.input_edit, 2, 0)
+        self.titleLabel.setContentsMargins(10, 10, 5, 0)
+        self.contentLabel.setContentsMargins(10, 10, 5, 0)
+        self.input_edit.setContentsMargins(10, 0, 10, 0)
+        self.main_widget.setLayout(self.main_layout)
+        self.vBoxLayout.insertWidget(0, self.main_widget)

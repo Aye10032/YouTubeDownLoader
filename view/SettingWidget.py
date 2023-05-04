@@ -1,14 +1,15 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QFrame, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel
-from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSettingCard, SwitchSettingCard
+from PyQt5.QtWidgets import QFrame, QWidget, QVBoxLayout, QLabel, QFileDialog
+from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSettingCard, SwitchSettingCard, Dialog
 from qfluentwidgets import FluentIcon as FIF
 
 from Config import cfg
-from view.MySettingCard import RangeSettingCard
+from view.MyWidget import RangeSettingCard, TextDialog
 
 
 class SettingWidget(QFrame):
+
     def __init__(self, text: str, parent=None):
         super().__init__(parent=parent)
         self.layout = QVBoxLayout(self)
@@ -58,6 +59,7 @@ class SettingWidget(QFrame):
         self.setObjectName(text)
         self.init_layout()
         self.init_widget()
+        self.connect_signal()
 
     def init_layout(self):
         self.title_label.setAlignment(Qt.AlignCenter)
@@ -88,3 +90,29 @@ class SettingWidget(QFrame):
 
         with open(f'res/qss/light/setting_widget.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+    def connect_signal(self):
+        self.reprint_id_card.clicked.connect(
+            self.on_reprint_id_card_clicked
+        )
+        self.download_folder_card.clicked.connect(
+            self.on_download_folder_card_clicked)
+
+    def on_reprint_id_card_clicked(self):
+        w = TextDialog(self.tr('Nick Name'), self.tr('please input your nick name:'), cfg.get(cfg.reprint_id), self)
+        w.setTitleBarVisible(False)
+        if w.exec():
+            cfg.set(cfg.reprint_id, w.input_edit.text())
+            self.reprint_id_card.setContent(w.input_edit.text())
+        else:
+            print('Cancel button is pressed')
+
+    def on_download_folder_card_clicked(self):
+        folder = QFileDialog.getExistingDirectory(
+            self, self.tr("Choose folder"), "./")
+        if not folder or cfg.get(cfg.download_folder) == folder:
+            return
+
+        print(folder)
+        cfg.set(cfg.download_folder, folder)
+        self.download_folder_card.setContent(folder)
