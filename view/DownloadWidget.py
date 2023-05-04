@@ -2,31 +2,32 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit
 from qfluentwidgets import FluentIcon as FIF
+from Config import cfg
 
 
 class EditWidget(QFrame):
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
         self.main_layout = QGridLayout(self)
-        self.title_label = QLabel(self.tr('edit_title'), self)
+        self.title_label = QLabel(self.tr('Download Video'), self)
 
-        self.origin_link_label = QLabel(self.tr('origin_link'), self)
+        self.origin_link_label = QLabel(self.tr('Origin Link'), self)
         self.origin_link_input = LineEdit(self)
 
-        self.auto_quality_label = QLabel(self.tr('auto_quality'), self)
+        self.auto_quality_label = QLabel(self.tr('Auto Quality'), self)
         self.auto_quality_btn = SwitchButton()
-        self.quality_label = QLabel(self.tr('quality'), self)
+        self.quality_label = QLabel(self.tr('Quality'), self)
         self.quality_input = LineEdit(self)
         self.get_quality_btn = ToolButton(FIF.SEARCH, self)
 
-        self.get_info_btn = PushButton(self.tr('get_info'), self, FIF.MESSAGE)
-        self.download_btn = PushButton(self.tr('download_video'), self, FIF.DOWNLOAD)
+        self.get_info_btn = PushButton(self.tr('Get Info'), self, FIF.MESSAGE)
+        self.download_btn = PushButton(self.tr('Download Video'), self, FIF.DOWNLOAD)
 
-        self.video_title_label = QLabel(self.tr('video_title'), self)
+        self.video_title_label = QLabel(self.tr('Video Title'), self)
         self.video_title_input = LineEdit(self)
         self.copy_title_btn = ToolButton(FIF.COPY, self)
 
-        self.reprint_info_label = QLabel(self.tr('reprint_info'), self)
+        self.reprint_info_label = QLabel(self.tr('Reprinter Info'), self)
         self.reprint_info_input = LineEdit(self)
         self.copy_reprint_btn = ToolButton(FIF.COPY, self)
 
@@ -104,7 +105,13 @@ class EditWidget(QFrame):
         self.main_layout.addWidget(self.video_description_input, 6, 0, 3, 9)
         self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
         self.video_description_input.setText(
-            '作者：\r\n发布时间：\r\n搬运：\r\n视频摘要：\r\n原简介翻译：\r\n存档：\r\n其他外链：')
+            f'作者：\r\n'
+            f'发布时间：\r\n'
+            f'搬运：{cfg.get(cfg.reprint_id)}\r\n'
+            f'视频摘要：\r\n'
+            f'原简介翻译：\r\n'
+            f'存档：\r\n'
+            f'其他外链：')
 
         widget_5 = QWidget()
         layout_5 = QHBoxLayout()

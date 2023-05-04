@@ -10,7 +10,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
 from Config import cfg, Language, VERSION
-from view.EditWidget import EditWidget
+from view.DownloadWidget import EditWidget
 from view.SettingWidget import SettingWidget
 
 
