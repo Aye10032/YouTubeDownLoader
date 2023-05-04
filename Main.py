@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QVBoxLayout, QGridLayout, QStackedWidget, \
     QSplitter, QPlainTextEdit, QPushButton, QListWidget, QWidget
 from qfluentwidgets import (NavigationInterface, NavigationItemPosition, NavigationWidget, MessageBox,
-                            isDarkTheme, setTheme, Theme, PopUpAniStackedWidget)
+                            isDarkTheme, setTheme, Theme, PopUpAniStackedWidget, FluentTranslator)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
@@ -127,15 +127,14 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    translator = QTranslator()
-    language = cfg.get(cfg.language)
+    # internationalization
+    locale = cfg.get(cfg.language).value
+    fluentTranslator = FluentTranslator(locale)
+    settingTranslator = QTranslator()
+    settingTranslator.load(locale, '', '', 'res/lang')
 
-    if language == Language.AUTO:
-        translator.load(QLocale.system(), "res/lang/")
-    elif language != Language.ENGLISH:
-        translator.load(f"res/lang/{language.value}.qm")
-
-    app.installTranslator(translator)
+    app.installTranslator(fluentTranslator)
+    app.installTranslator(settingTranslator)
 
     w = Window()
     w.show()

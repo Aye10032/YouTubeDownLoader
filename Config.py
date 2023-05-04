@@ -10,10 +10,9 @@ VERSION = '6.0.0'
 class Language(Enum):
     """ Language enumeration """
 
-    CHINESE_SIMPLIFIED = "zh_CN"
-    CHINESE_TRADITIONAL = "hk"
-    ENGLISH = "en"
-    AUTO = "Auto"
+    CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
+    ENGLISH = QLocale(QLocale.English)
+    AUTO = QLocale()
 
 
 class LanguageSerializer(ConfigSerializer):
@@ -28,20 +27,20 @@ class LanguageSerializer(ConfigSerializer):
 
 class Config(QConfig):
     reprint_id = ConfigItem(
-        'VideoSetting', 'Reprint', 'Aye10032'
+        'DownloadSetting', 'Reprint', 'Aye10032'
     )
     proxy_enable = ConfigItem(
-        "VideoSetting", "EnableProxy", True, BoolValidator())
+        "DownloadSetting", "EnableProxy", True, BoolValidator())
     proxy = ConfigItem(
-        'VideoSetting', 'Proxy', 'http://127.0.0.1:1080'
+        'DownloadSetting', 'Proxy', 'http://127.0.0.1:1080'
     )
     thread = RangeConfigItem(
-        "VideoSetting", "Thread", 4, RangeValidator(1, 16))
+        "DownloadSetting", "Thread", 4, RangeValidator(1, 16))
     download_folder = ConfigItem(
-        "VideoSetting", "Download", "download", FolderValidator())
+        "DownloadSetting", "DownloadFolder", "download", FolderValidator())
 
     language = OptionsConfigItem(
-        "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
+        "System", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
 
 
 cfg = Config()
