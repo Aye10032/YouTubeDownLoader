@@ -204,6 +204,7 @@ class EditWidget(QFrame):
         self.folder_btn.clicked.connect(self.on_folder_btn_clicked)
         self.play_btn.clicked.connect(self.on_play_btn_clicked)
         self.link_btn.clicked.connect(self.on_link_btn_clicked)
+        self.copy_btn.clicked.connect(self.on_copy_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -363,10 +364,12 @@ class EditWidget(QFrame):
     def copy_title(self):
         clipboard = QGuiApplication.clipboard()
         clipboard.setText(self.video_title_input.text())
+        self.show_finish_tooltip(self.tr('the content of the title has been copied'), SUCCESS)
 
     def copy_reprint(self):
         clipboard = QGuiApplication.clipboard()
         clipboard.setText(self.reprint_info_input.text())
+        self.show_finish_tooltip(self.tr('the content of the reprint has been copied'), SUCCESS)
 
     def on_save_btn_clicked(self):
         if self._path == '':
@@ -420,6 +423,11 @@ class EditWidget(QFrame):
             return
 
         webbrowser.open(self.origin_link_input.text())
+
+    def on_copy_btn_clicked(self):
+        clipboard = QGuiApplication.clipboard()
+        clipboard.setText(self.video_description_input.toPlainText())
+        self.show_finish_tooltip(self.tr('the content of the description has been copied'), SUCCESS)
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
