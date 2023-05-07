@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import webbrowser
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QGuiApplication, QIcon
@@ -66,10 +67,9 @@ class EditWidget(QFrame):
 
         self.init_ui()
         self.setObjectName(text)
-
-    def init_ui(self):
         self.origin_link_input.setText('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
+    def init_ui(self):
         self.main_layout.setSpacing(0)
         self.main_layout.setContentsMargins(20, 5, 20, 5)
         for i in range(9):
@@ -90,6 +90,7 @@ class EditWidget(QFrame):
         layout_1.addWidget(self.origin_link_input, stretch=6)
         widget_1.setLayout(layout_1)
         self.main_layout.addWidget(widget_1, 1, 0, 1, 9)
+        self.origin_link_input.setText('')
 
         widget_2 = QWidget()
         layout_2 = QGridLayout()
@@ -202,6 +203,7 @@ class EditWidget(QFrame):
         self.save_btn.clicked.connect(self.on_save_btn_clicked)
         self.folder_btn.clicked.connect(self.on_folder_btn_clicked)
         self.play_btn.clicked.connect(self.on_play_btn_clicked)
+        self.link_btn.clicked.connect(self.on_link_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -411,6 +413,13 @@ class EditWidget(QFrame):
                     subprocess.Popen(['open', video_path])
                 else:
                     subprocess.Popen(['xdg-open', video_path])
+
+    def on_link_btn_clicked(self):
+        if self.origin_link_input.text() == '':
+            self.show_finish_tooltip(self.tr('you haven\'t entered a video link yet'), WARNING)
+            return
+
+        webbrowser.open(self.origin_link_input.text())
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
