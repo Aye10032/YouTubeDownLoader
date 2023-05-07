@@ -5,6 +5,12 @@ from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSer
     RangeConfigItem, RangeValidator, BoolValidator, ConfigSerializer, FolderValidator
 
 VERSION = '6.0.0'
+TEMP_PATH = 'res/temp.json'
+ARIA2C = 'aria2c.exe'
+
+INFO = 0
+SUCCESS = 1
+WARNING = 2
 
 
 class Language(Enum):
@@ -31,6 +37,7 @@ class Config(QConfig):
     )
     proxy_enable = ConfigItem(
         "DownloadSetting", "EnableProxy", True, BoolValidator())
+
     proxy = ConfigItem(
         'DownloadSetting', 'Proxy', 'http://127.0.0.1:1080'
     )
@@ -38,6 +45,8 @@ class Config(QConfig):
         "DownloadSetting", "Thread", 4, RangeValidator(1, 16))
     download_folder = ConfigItem(
         "DownloadSetting", "DownloadFolder", "download", FolderValidator())
+    auto_quality = ConfigItem(
+        "DownloadSetting", "AutoQuality", True, BoolValidator())
 
     language = OptionsConfigItem(
         "System", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
