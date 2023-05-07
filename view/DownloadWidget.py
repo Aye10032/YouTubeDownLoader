@@ -1,3 +1,5 @@
+import json
+
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout, QApplication
@@ -18,6 +20,7 @@ class EditWidget(QFrame):
     _description = ''
     _upload_date = ''
     _format_code, _extension, _resolution, _format_note, _file_size = [], [], [], [], []
+    _path = ''
 
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
@@ -186,10 +189,14 @@ class EditWidget(QFrame):
     def connect_signal(self):
         self.auto_quality_btn.checkedChanged.connect(self.auto_quality_btn_changed)
         self.get_quality_btn.clicked.connect(self.on_get_quality_btn_clicked)
+
         self.get_info_btn.clicked.connect(self.start_get_info)
         self.download_btn.clicked.connect(self.on_download_btn_clicked)
+
         self.copy_title_btn.clicked.connect(self.copy_title)
         self.copy_reprint_btn.clicked.connect(self.copy_reprint)
+
+        self.save_btn.clicked.connect(self.on_save_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -244,7 +251,7 @@ class EditWidget(QFrame):
             self.start_download()
 
     def start_download(self):
-        path = cfg.get(cfg.download_folder) + '/' + self.video_title_input.text(). \
+        self._path = cfg.get(cfg.download_folder) + '/' + self.video_title_input.text(). \
             replace(':', '').replace('.', '').replace('|', '').replace('\\', '').replace('/', '') \
             .replace('?', '').replace('\"', '')
 
@@ -253,7 +260,7 @@ class EditWidget(QFrame):
         ydl_opts = {
             "writethumbnail": True,
             'concurrent-fragments': cfg.get(cfg.thread),
-            'paths': {'home': path},
+            'paths': {'home': self._path},
             'output': {'default': '%(title)s.%(ext)s'},
             'writesubtitles': True,
             'writeautomaticsub': True,
@@ -352,6 +359,23 @@ class EditWidget(QFrame):
     def copy_reprint(self):
         clipboard = QGuiApplication.clipboard()
         clipboard.setText(self.reprint_info_input.text())
+
+    def on_save_btn_clicked(self):
+        if self._path == '':
+            self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
+            return
+
+        info = {
+            'link': self.origin_link_input.text(),
+            'title': self.video_title_input.text(),
+            'reprint': self.reprint_info_input.text(),
+            'description': self.video_description_input.toPlainText()
+        }
+
+        with open(f'{self._path}/data.json', 'w') as f:
+            json.dump(info, f)
+
+        self.show_finish_tooltip(self.tr('video information is saved'), SUCCESS)
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
