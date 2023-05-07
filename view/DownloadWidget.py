@@ -23,6 +23,7 @@ class EditWidget(QFrame):
     _upload_date = ''
     _format_code, _extension, _resolution, _format_note, _file_size = [], [], [], [], []
     _path = ''
+    _download = False
 
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
@@ -200,6 +201,7 @@ class EditWidget(QFrame):
 
         self.save_btn.clicked.connect(self.on_save_btn_clicked)
         self.folder_btn.clicked.connect(self.on_folder_btn_clicked)
+        self.play_btn.clicked.connect(self.on_play_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -333,6 +335,7 @@ class EditWidget(QFrame):
 
     def download_done(self):
         self.show_finish_tooltip(self.tr('download complete'), SUCCESS)
+        self._download = True
 
     def get_quality_done(self):
         format_info = [self._format_code, self._extension, self._resolution, self._format_note, self._file_size]
@@ -391,6 +394,23 @@ class EditWidget(QFrame):
             subprocess.Popen(['open', self._path])
         else:
             subprocess.Popen(['xdg-open', self._path])
+
+    def on_play_btn_clicked(self):
+        if not self._download:
+            self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
+            return
+
+        files = os.listdir(self._path)
+
+        for file in files:
+            if file.endswith('.mp4'):
+                video_path = os.path.join(self._path, file)
+                if os.name == 'nt':
+                    os.startfile(video_path)
+                elif os.name == 'darwin':
+                    subprocess.Popen(['open', video_path])
+                else:
+                    subprocess.Popen(['xdg-open', video_path])
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
