@@ -168,7 +168,7 @@ class EditWidget(QFrame):
         self.auto_quality_btn.checkedChanged.connect(self.auto_quality_btn_changed)
         self.get_quality_btn.clicked.connect(self.on_get_quality_btn_clicked)
         self.get_info_btn.clicked.connect(self.start_get_info)
-        self.download_btn.clicked.connect(self.start_download)
+        self.download_btn.clicked.connect(self.on_download_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -205,21 +205,33 @@ class EditWidget(QFrame):
         self.update_message_thread.finish_signal.connect(self.get_info_done)
         self.update_message_thread.start()
 
-    def start_download(self):
+    def on_download_btn_clicked(self):
         if not self.auto_quality_btn.isChecked() and self.quality_input.text() == '':
             self.show_finish_tooltip(self.tr('you should choose quality first'), WARNING)
             return
 
+        if self.video_title_input.text() == '【MC】【】':
+            if self.update_message_thread and self.update_message_thread.isRunning():
+                return
+
+            self.update_message_thread = UpdateMessage(self.origin_link_input.text())
+            self.update_message_thread.log_signal.connect(self.update_log)
+            self.update_message_thread.result_signal.connect(self.update_message)
+            self.update_message_thread.finish_signal.connect(self.start_download)
+            self.update_message_thread.start()
+        else:
+            self.start_download()
+
+    def start_download(self):
         path = cfg.get(cfg.download_folder) + '/' + self.video_title_input.text(). \
-            replace(':', '').replace('.', '').replace('|', '').replace('\\', '').replace('/', '')\
+            replace(':', '').replace('.', '').replace('|', '').replace('\\', '').replace('/', '') \
             .replace('?', '').replace('\"', '')
 
         quality = self.quality_input.text()
 
         ydl_opts = {
             "writethumbnail": True,
-            "downloader_args": ['--max-connection-per-server', cfg.get(cfg.thread), '--min-split-size', '1M'],
-            "downloader": ARIA2C,
+            'concurrent-fragments': cfg.get(cfg.thread),
             'paths': {'home': path},
             'output': {'default': '%(title)s.%(ext)s'},
             'writesubtitles': True,
