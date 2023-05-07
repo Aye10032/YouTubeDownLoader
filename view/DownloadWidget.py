@@ -6,7 +6,7 @@ from yt_dlp import YoutubeDL
 from yt_dlp.extractor.youtube import YoutubeIE
 
 from Config import cfg, INFO, SUCCESS, WARNING, ARIA2C
-from MyThread import UpdateMessage
+from MyThread import UpdateMessage, Download
 from view.MyWidget import TableDialog
 
 
@@ -20,6 +20,7 @@ class EditWidget(QFrame):
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
         self.update_message_thread = None
+        self.download_thread = None
 
         self.main_layout = QGridLayout(self)
         self.title_label = QLabel(self.tr('Download Video'), self)
@@ -185,26 +186,19 @@ class EditWidget(QFrame):
                 self.tr('auto quality is enabled, you can start downloading the video directly'), WARNING)
             return
 
-        self.update_message()
+        if self.update_message_thread and self.update_message_thread.isRunning():
+            return
 
-        format_info = [self._format_code, self._extension, self._resolution, self._format_note, self._file_size]
-        w = TableDialog(len(self._format_code), 5, format_info, self)
-        w.setTitleBarVisible(False)
-        if w.exec():
-            if w.audio_code != '':
-                self.quality_input.setText(f'{w.audio_code}+{w.video_code}')
-            else:
-                self.quality_input.setText(w.video_code)
-        else:
-            print('Cancel button is pressed')
-
-        self.show_finish_tooltip(self.tr('quality configure complete, now you can start download'), SUCCESS)
+        self.update_message_thread = UpdateMessage(self.origin_link_input.text())
+        self.update_message_thread.log_signal.connect(self.update_log)
+        self.update_message_thread.result_signal.connect(self.update_message)
+        self.update_message_thread.finish_signal.connect(self.get_quality_done)
+        self.update_message_thread.start()
 
     def start_get_info(self):
         if self.update_message_thread and self.update_message_thread.isRunning():
             return
 
-        print('start')
         self.update_message_thread = UpdateMessage(self.origin_link_input.text())
         self.update_message_thread.log_signal.connect(self.update_log)
         self.update_message_thread.result_signal.connect(self.update_message)
@@ -216,20 +210,22 @@ class EditWidget(QFrame):
             self.show_finish_tooltip(self.tr('you should choose quality first'), WARNING)
             return
 
-        path = cfg.get(cfg.download_folder)
+        path = cfg.get(cfg.download_folder) + '/' + self.video_title_input.text(). \
+            replace(':', '').replace('.', '').replace('|', '').replace('\\', '').replace('/', '')\
+            .replace('?', '').replace('\"', '')
+
         quality = self.quality_input.text()
 
         ydl_opts = {
             "writethumbnail": True,
-            "external_downloader_args": ['--max-connection-per-server', cfg.get(cfg.thread), '--min-split-size', '1M'],
-            "external_downloader": ARIA2C,
+            "downloader_args": ['--max-connection-per-server', cfg.get(cfg.thread), '--min-split-size', '1M'],
+            "downloader": ARIA2C,
             'paths': {'home': path},
-            'outtmpl': {'default': '%(title)s.%(ext)s'},
+            'output': {'default': '%(title)s.%(ext)s'},
             'writesubtitles': True,
             'writeautomaticsub': True,
             'subtitlesformat': 'vtt',
             'subtitleslangs': ['zh-Hans', 'en'],
-            'progress_hooks': [my_hook],
         }
 
         if cfg.get(cfg.proxy_enable):
@@ -237,14 +233,19 @@ class EditWidget(QFrame):
             ydl_opts['socket_timeout'] = 3000
 
         if cfg.get(cfg.auto_quality):
-            ydl_opts['format'] = 'bestvideo+bestaudio/best'
+            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]'
         else:
             ydl_opts['format'] = quality
 
         print(ydl_opts)
 
-        ydl = YoutubeDL(ydl_opts)
-        ydl.download(self.origin_link_input.text())
+        if self.download_thread and self.download_thread.isRunning():
+            return
+
+        self.download_thread = Download(self.origin_link_input.text(), ydl_opts)
+        self.download_thread.log_signal.connect(self.update_log)
+        self.download_thread.finish_signal.connect(self.download_done)
+        self.download_thread.start()
 
     def update_message(self, info_dict):
         self._uploader = info_dict.get('uploader')
@@ -287,6 +288,23 @@ class EditWidget(QFrame):
     def get_info_done(self):
         self.show_finish_tooltip(self.tr('description download complete'), SUCCESS)
 
+    def download_done(self):
+        self.show_finish_tooltip(self.tr('download complete'), SUCCESS)
+
+    def get_quality_done(self):
+        format_info = [self._format_code, self._extension, self._resolution, self._format_note, self._file_size]
+        w = TableDialog(len(self._format_code), 5, format_info, self)
+        w.setTitleBarVisible(False)
+        if w.exec():
+            if w.audio_code != '':
+                self.quality_input.setText(f'{w.audio_code}+{w.video_code}')
+            else:
+                self.quality_input.setText(w.video_code)
+
+            self.show_finish_tooltip(self.tr('quality configure complete, now you can start download'), SUCCESS)
+        else:
+            print('Cancel button is pressed')
+
     def show_finish_tooltip(self, text, tool_type: int):
         """ show restart tooltip """
         if tool_type == SUCCESS:
@@ -295,8 +313,5 @@ class EditWidget(QFrame):
             InfoBar.warning('', text, parent=self.window(), duration=5000)
 
     def update_log(self, log):
-        print(f'log: {log}')
-
-
-def my_hook(d):
-    print(d)
+        self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
+        # print('log: ' + log.get('status') + ' ' + log.get('_default_template'))

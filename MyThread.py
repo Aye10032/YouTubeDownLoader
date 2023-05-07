@@ -6,7 +6,7 @@ from Config import cfg, SUCCESS
 
 
 class UpdateMessage(QThread):
-    log_signal = pyqtSignal(str)
+    log_signal = pyqtSignal(dict)
     result_signal = pyqtSignal(dict)
     finish_signal = pyqtSignal()
 
@@ -27,7 +27,31 @@ class UpdateMessage(QThread):
 
         ie = YoutubeIE
         ydl.add_info_extractor(ie)
+        ydl.add_progress_hook(self.my_hook)
         info_dict = ydl.extract_info(self.url, download=False, force_generic_extractor=True)
 
         self.result_signal.emit(info_dict)
         self.finish_signal.emit()
+
+    def my_hook(self, d):
+        self.log_signal.emit(d)
+
+
+class Download(QThread):
+    log_signal = pyqtSignal(dict)
+    finish_signal = pyqtSignal()
+
+    def __init__(self, url, ydl_opts):
+        super().__init__()
+        self.url = url
+        self.ydl_opts = ydl_opts
+
+    def run(self):
+        ydl = YoutubeDL(self.ydl_opts)
+        ydl.add_progress_hook(self.my_hook)
+        ydl.download(self.url)
+
+        self.finish_signal.emit()
+
+    def my_hook(self, d):
+        self.log_signal.emit(d)
