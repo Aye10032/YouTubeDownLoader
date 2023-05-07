@@ -61,13 +61,16 @@ class Window(FramelessWindow):
                                           onClick=lambda: self.switch_to(self.edit_interface))
         self.navigation_interface.addItem(routeKey=self.local_video_interface.objectName(), icon=FIF.HISTORY,
                                           text=self.tr('Local Video'),
-                                          onClick=lambda: self.switch_to(self.local_video_interface))
+                                          onClick=lambda: self.switch_to(self.local_video_interface),
+                                          position=NavigationItemPosition.SCROLL)
         self.navigation_interface.addItem(routeKey=self.subscribe_interface.objectName(), icon=FIF.RINGER,
                                           text=self.tr('Subscription Information'),
-                                          onClick=lambda: self.switch_to(self.subscribe_interface))
+                                          onClick=lambda: self.switch_to(self.subscribe_interface),
+                                          position=NavigationItemPosition.SCROLL)
         self.navigation_interface.addItem(routeKey=self.todo_list_interface.objectName(), icon=FIF.FEEDBACK,
                                           text=self.tr('TODO List'),
-                                          onClick=lambda: self.switch_to(self.todo_list_interface))
+                                          onClick=lambda: self.switch_to(self.todo_list_interface),
+                                          position=NavigationItemPosition.SCROLL)
 
         self.navigation_interface.addSeparator()
 
