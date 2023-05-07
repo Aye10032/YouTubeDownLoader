@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QGuiApplication, QIcon
@@ -197,6 +199,7 @@ class EditWidget(QFrame):
         self.copy_reprint_btn.clicked.connect(self.copy_reprint)
 
         self.save_btn.clicked.connect(self.on_save_btn_clicked)
+        self.folder_btn.clicked.connect(self.on_folder_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -377,6 +380,17 @@ class EditWidget(QFrame):
 
         self.show_finish_tooltip(self.tr('video information is saved'), SUCCESS)
 
+    def on_folder_btn_clicked(self):
+        if self._path == '':
+            self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
+            return
+
+        if os.name == 'nt':
+            os.startfile(self._path)
+        elif os.name == 'darwin':
+            subprocess.Popen(['open', self._path])
+        else:
+            subprocess.Popen(['xdg-open', self._path])
+
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
-        # print('log: ' + log.get('status') + ' ' + log.get('_default_template'))
