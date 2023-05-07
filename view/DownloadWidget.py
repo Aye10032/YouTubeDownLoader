@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout, QApplication
-from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, Dialog
+from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, Dialog, ToolTipFilter, \
+    ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 from yt_dlp.extractor.youtube import YoutubeIE
@@ -47,10 +49,12 @@ class EditWidget(QFrame):
 
         self.video_description_input = TextEdit(self)
 
-        self.play_btn = ToolButton(FIF.VIDEO, self)
+        self.save_btn = ToolButton(FIF.SAVE, self)
+        self.play_btn = ToolButton(QIcon(f'res/icons/play.svg'), self)
         self.copy_btn = ToolButton(FIF.COPY, self)
-        self.link_btn = ToolButton(FIF.GLOBE, self)
+        self.link_btn = ToolButton(QIcon(f'res/icons/link.svg'), self)
         self.folder_btn = ToolButton(FIF.FOLDER, self)
+        self.upload_btn = ToolButton(FIF.SEND, self)
 
         self.log_output = TextEdit(self)
 
@@ -96,6 +100,7 @@ class EditWidget(QFrame):
         self.auto_quality_btn.setChecked(cfg.get(cfg.auto_quality))
         self.auto_quality_btn.setText(
             self.tr('On') if self.auto_quality_btn.isChecked() else self.tr('Off'))
+        self.quality_input.setReadOnly(cfg.get(cfg.auto_quality))
 
         self.main_layout.addWidget(self.get_info_btn, 3, 2, 1, 2, Qt.AlignHCenter)
         self.main_layout.addWidget(self.download_btn, 3, 5, 1, 2, Qt.AlignHCenter)
@@ -135,12 +140,26 @@ class EditWidget(QFrame):
         widget_5 = QWidget()
         layout_5 = QHBoxLayout()
         layout_5.setContentsMargins(0, 5, 0, 15)
-        layout_5.addWidget(self.play_btn, stretch=1)
-        layout_5.addWidget(self.copy_btn, stretch=1)
-        layout_5.addWidget(self.link_btn, stretch=1)
+        layout_5.addWidget(self.save_btn, stretch=1)
         layout_5.addWidget(self.folder_btn, stretch=1)
+        layout_5.addWidget(self.play_btn, stretch=1)
+        layout_5.addWidget(self.link_btn, stretch=1)
+        layout_5.addWidget(self.copy_btn, stretch=1)
+        layout_5.addWidget(self.upload_btn, stretch=1)
         widget_5.setLayout(layout_5)
         self.main_layout.addWidget(widget_5, 9, 0, 1, 9)
+        self.save_btn.setToolTip(self.tr('save download information'))
+        self.folder_btn.setToolTip(self.tr('open download folder'))
+        self.play_btn.setToolTip(self.tr('play download video'))
+        self.link_btn.setToolTip(self.tr('open youtube link'))
+        self.copy_btn.setToolTip(self.tr('copy description'))
+        self.upload_btn.setToolTip(self.tr('turn to upload page'))
+        self.save_btn.installEventFilter(ToolTipFilter(self.save_btn, 300, ToolTipPosition.TOP))
+        self.folder_btn.installEventFilter(ToolTipFilter(self.folder_btn, 300, ToolTipPosition.TOP))
+        self.play_btn.installEventFilter(ToolTipFilter(self.play_btn, 300, ToolTipPosition.TOP))
+        self.link_btn.installEventFilter(ToolTipFilter(self.link_btn, 300, ToolTipPosition.TOP))
+        self.copy_btn.installEventFilter(ToolTipFilter(self.copy_btn, 300, ToolTipPosition.TOP))
+        self.upload_btn.installEventFilter(ToolTipFilter(self.upload_btn, 300, ToolTipPosition.TOP))
 
         self.log_output.setFixedHeight(100)
         self.log_output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -169,6 +188,8 @@ class EditWidget(QFrame):
         self.get_quality_btn.clicked.connect(self.on_get_quality_btn_clicked)
         self.get_info_btn.clicked.connect(self.start_get_info)
         self.download_btn.clicked.connect(self.on_download_btn_clicked)
+        self.copy_title_btn.clicked.connect(self.copy_title)
+        self.copy_reprint_btn.clicked.connect(self.copy_reprint)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -323,6 +344,14 @@ class EditWidget(QFrame):
             InfoBar.success('', text, parent=self.window(), duration=5000)
         elif tool_type == WARNING:
             InfoBar.warning('', text, parent=self.window(), duration=5000)
+
+    def copy_title(self):
+        clipboard = QGuiApplication.clipboard()
+        clipboard.setText(self.video_title_input.text())
+
+    def copy_reprint(self):
+        clipboard = QGuiApplication.clipboard()
+        clipboard.setText(self.reprint_info_input.text())
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
