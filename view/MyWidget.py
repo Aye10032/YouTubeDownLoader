@@ -2,9 +2,9 @@ from typing import Union
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout
-from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit
-from qfluentwidgets.components.dialog_box.dialog import Ui_MessageBox, Dialog
+from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QTableWidgetItem
+from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit, TableWidget
+from qfluentwidgets.components.dialog_box.dialog import Ui_MessageBox, Dialog, MessageBox
 from qframelesswindow import FramelessDialog
 
 
@@ -86,3 +86,50 @@ class TextDialog(Dialog):
         self.input_edit.setContentsMargins(10, 0, 10, 0)
         self.main_widget.setLayout(self.main_layout)
         self.vBoxLayout.insertWidget(0, self.main_widget)
+
+
+class TableDialog(Dialog):
+    """ Dialog box """
+
+    yesSignal = pyqtSignal()
+    cancelSignal = pyqtSignal()
+    audio_code = ''
+    video_code = ''
+
+    def __init__(self, row: int, col: int, content: [], parent=None):
+        super().__init__('', '', parent=parent)
+        self.tableView = TableWidget(self)
+
+        self.tableView.setRowCount(row)
+        self.tableView.setColumnCount(col)
+
+        for i in range(row):
+            self.tableView.setItem(i, 0, QTableWidgetItem(content[0][i]))
+            self.tableView.setItem(i, 1, QTableWidgetItem(content[1][i]))
+            self.tableView.setItem(i, 2, QTableWidgetItem(content[2][i]))
+            self.tableView.setItem(i, 3, QTableWidgetItem(content[3][i]))
+            self.tableView.setItem(i, 4, QTableWidgetItem('None' if content[4][i] is None else str(content[4][i])))
+
+        self.init_ui()
+
+    def init_ui(self):
+        self.vBoxLayout.removeWidget(self.contentLabel)
+        self.vBoxLayout.removeItem(self.textLayout)
+
+        self.tableView.setWordWrap(False)
+        self.tableView.verticalHeader().hide()
+        self.tableView.setHorizontalHeaderLabels(['代号', '格式', '描述', '编码信息', '文件大小'])
+        self.tableView.resizeColumnsToContents()
+
+        self.vBoxLayout.insertWidget(0, self.tableView)
+
+        self.setFixedSize(450, 400)
+
+        self.tableView.itemClicked.connect(self.on_item_clicked)
+
+    def on_item_clicked(self, item: QTableWidgetItem):
+        row = item.row()
+        if self.tableView.item(row, 2).text() == 'audio only':
+            self.audio_code = self.tableView.item(row, 0).text()
+        else:
+            self.video_code = self.tableView.item(row, 0).text()
