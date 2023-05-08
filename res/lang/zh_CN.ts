@@ -4,42 +4,42 @@
 <context>
     <name>EditWidget</name>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="12"/>
+        <location filename="../../view/DownloadInterface.py" line="12"/>
         <source>edit_title</source>
         <translation>视频下载</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="15"/>
+        <location filename="../../view/DownloadInterface.py" line="15"/>
         <source>origin_link</source>
         <translation>视频链接</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="19"/>
+        <location filename="../../view/DownloadInterface.py" line="19"/>
         <source>auto_quality</source>
         <translation>默认质量</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="22"/>
+        <location filename="../../view/DownloadInterface.py" line="22"/>
         <source>quality</source>
         <translation>视频质量</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="27"/>
+        <location filename="../../view/DownloadInterface.py" line="27"/>
         <source>get_info</source>
         <translation>下载简介</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="28"/>
+        <location filename="../../view/DownloadInterface.py" line="28"/>
         <source>download_video</source>
         <translation>下载视频</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="30"/>
+        <location filename="../../view/DownloadInterface.py" line="30"/>
         <source>video_title</source>
         <translation>标题</translation>
     </message>
     <message>
-        <location filename="../../view/DownloadWidget.py" line="34"/>
+        <location filename="../../view/DownloadInterface.py" line="34"/>
         <source>reprint_info</source>
         <translation>视频来源</translation>
     </message>

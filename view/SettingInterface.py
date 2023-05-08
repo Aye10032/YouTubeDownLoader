@@ -9,7 +9,7 @@ from Config import cfg
 from view.MyWidget import RangeSettingCard, TextDialog
 
 
-class SettingWidget(QFrame):
+class SettingInterface(QFrame):
 
     def __init__(self, text: str, parent=None):
         super().__init__(parent=parent)

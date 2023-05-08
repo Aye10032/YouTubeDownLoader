@@ -17,7 +17,7 @@ from MyThread import UpdateMessage, Download
 from view.MyWidget import TableDialog
 
 
-class EditWidget(QFrame):
+class DownloadInterafce(QFrame):
     _uploader = ''
     _title = ''
     _description = ''

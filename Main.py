@@ -10,8 +10,8 @@ from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
 from Config import cfg, Language, VERSION
-from view.DownloadWidget import EditWidget
-from view.SettingWidget import SettingWidget
+from view.DownloadInterface import DownloadInterafce
+from view.SettingInterface import SettingInterface
 
 
 class Window(FramelessWindow):
@@ -26,12 +26,12 @@ class Window(FramelessWindow):
         self.navigation_interface = NavigationInterface(self, showMenuButton=True, showReturnButton=False)
         self.stack_widget = QStackedWidget(self)  # 多窗口控件
 
-        self.edit_interface = EditWidget('edit_interface', self)
+        self.edit_interface = DownloadInterafce('edit_interface', self)
         self.local_video_interface = Widget('local_video_interface', self)
         self.subscribe_interface = Widget('subscribe_interface', self)
         self.todo_list_interface = Widget('todo_list_interface', self)
         self.info_interface = Widget('info_interface', self)
-        self.setting_interface = SettingWidget('setting_interface', self)
+        self.setting_interface = SettingInterface('setting_interface', self)
 
         self.stack_widget.addWidget(self.edit_interface)
         self.stack_widget.addWidget(self.local_video_interface)
