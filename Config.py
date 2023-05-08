@@ -5,7 +5,7 @@ from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSer
     RangeConfigItem, RangeValidator, BoolValidator, ConfigSerializer, FolderValidator
 
 VERSION = '6.0.0'
-TEMP_PATH = 'res/temp.json'
+TEMP_PATH = 'config/temp.json'
 ARIA2C = 'aria2c.exe'
 
 INFO = 0
@@ -53,4 +53,4 @@ class Config(QConfig):
 
 
 cfg = Config()
-qconfig.load('res/config.json', cfg)
+qconfig.load('config/config.json', cfg)
