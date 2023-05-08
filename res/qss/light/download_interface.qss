@@ -17,7 +17,7 @@ TextEdit#desc{
     font-family: 'Segoe UI', 'Microsoft YaHei';
 }
 
-EditWidget {
+DownloadInterface {
     border: 1px solid rgb(229, 229, 229);
     border-right: none;
     border-bottom: none;

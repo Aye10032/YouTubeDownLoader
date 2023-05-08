@@ -17,7 +17,7 @@ from MyThread import UpdateMessage, Download
 from view.MyWidget import TableDialog
 
 
-class DownloadInterafce(QFrame):
+class DownloadInterface(QFrame):
     _uploader = ''
     _title = ''
     _description = ''
@@ -187,7 +187,7 @@ class DownloadInterafce(QFrame):
         self.video_title_label.setObjectName('Text')
         self.reprint_info_label.setObjectName('Text')
 
-        with open(f'res/qss/light/edit_widget.qss', encoding='utf-8') as f:
+        with open(f'res/qss/light/download_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def connect_signal(self):
