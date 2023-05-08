@@ -32,7 +32,7 @@ class DownloadInterface(QFrame):
         self.download_thread = None
 
         self.main_layout = QGridLayout(self)
-        self.title_label = QLabel(self.tr('Download Video'), self)
+        self.title_label = QLabel(self.tr('Video Download'), self)
 
         self.origin_link_label = QLabel(self.tr('Origin Link'), self)
         self.origin_link_input = LineEdit(self)

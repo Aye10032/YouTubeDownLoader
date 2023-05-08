@@ -27,14 +27,14 @@ class Window(FramelessWindow):
         self.navigation_interface = NavigationInterface(self, showMenuButton=True, showReturnButton=False)
         self.stack_widget = QStackedWidget(self)  # 多窗口控件
 
-        self.edit_interface = DownloadInterface('edit_interface', self)
+        self.download_interface = DownloadInterface('edit_interface', self)
         self.local_video_interface = LocalVideoInterface('local_video_interface', self)
         self.subscribe_interface = Widget('subscribe_interface', self)
         self.todo_list_interface = Widget('todo_list_interface', self)
         self.info_interface = Widget('info_interface', self)
         self.setting_interface = SettingInterface('setting_interface', self)
 
-        self.stack_widget.addWidget(self.edit_interface)
+        self.stack_widget.addWidget(self.download_interface)
         self.stack_widget.addWidget(self.local_video_interface)
         self.stack_widget.addWidget(self.subscribe_interface)
         self.stack_widget.addWidget(self.todo_list_interface)
@@ -57,9 +57,9 @@ class Window(FramelessWindow):
         self.h_box_layout.setStretchFactor(self.stack_widget, 1)  # 缩放因子
 
     def init_navigation(self):
-        self.navigation_interface.addItem(routeKey=self.edit_interface.objectName(), icon=FIF.EDIT,
-                                          text=self.tr('Edit'),
-                                          onClick=lambda: self.switch_to(self.edit_interface))
+        self.navigation_interface.addItem(routeKey=self.download_interface.objectName(), icon=FIF.EDIT,
+                                          text=self.tr('Download'),
+                                          onClick=lambda: self.switch_to(self.download_interface))
         self.navigation_interface.addItem(routeKey=self.local_video_interface.objectName(), icon=FIF.HISTORY,
                                           text=self.tr('Local Video'),
                                           onClick=lambda: self.switch_to(self.local_video_interface),
