@@ -337,6 +337,24 @@ class DownloadInterface(QFrame):
         self.show_finish_tooltip(self.tr('description download complete'), SUCCESS)
 
     def download_done(self):
+        files = os.listdir(self._path)
+
+        for file in files:
+            if file.endswith('.jpg') or file.endswith('.webp'):
+                old_path = os.path.join(self._path, file)
+                new_path = os.path.join(self._path, 'cover{}'.format(os.path.splitext(file)[1]))
+                os.rename(old_path, new_path)
+
+        info = {
+            'link': self.origin_link_input.text(),
+            'title': self.video_title_input.text(),
+            'reprint': self.reprint_info_input.text(),
+            'description': self.video_description_input.toPlainText()
+        }
+
+        with open(f'{self._path}/data.json', 'w') as f:
+            json.dump(info, f)
+
         self.show_finish_tooltip(self.tr('download complete'), SUCCESS)
         self._download = True
 
