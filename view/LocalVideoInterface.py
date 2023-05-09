@@ -1,6 +1,13 @@
+import json
+import os
+
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from qfluentwidgets import ScrollArea, ExpandLayout
+
+from Config import cfg
+from view.MyWidget import VideoCard, VideoCardView
 
 
 class LocalVideoInterface(QFrame):
@@ -11,6 +18,7 @@ class LocalVideoInterface(QFrame):
         self.scroll_area = ScrollArea(self)
         self.scroll_widget = QWidget(self)
         self.expand_layout = ExpandLayout(self.scroll_widget)
+        self.video_card_view = VideoCardView('', self.scroll_widget)
 
         self.title_label = QLabel(self.tr("Download List"), self)
 
@@ -22,10 +30,33 @@ class LocalVideoInterface(QFrame):
     def init_layout(self):
         self.title_label.setAlignment(Qt.AlignCenter)
 
+        downloads = os.listdir(cfg.get(cfg.download_folder))
+
+        index = 0
+        for video_folder in downloads:
+            video_path = os.path.join(cfg.get(cfg.download_folder), video_folder)
+            if os.path.isdir(video_path):
+                data_file = os.path.join(video_path, 'data.json')
+                if os.path.exists(data_file) and os.path.isfile(data_file):
+                    with open(data_file, 'r') as f:
+                        data_contents = json.loads(f.read())
+                        print(data_contents)
+                    cover_files = [os.path.join(video_path, 'cover' + ext) for ext in ['.jpg', '.webp']]
+                    for cover_file in cover_files:
+                        if os.path.exists(cover_file) and os.path.isfile(cover_file):
+                            print('Cover file found at: ' + cover_file)
+                            image = QPixmap(cover_file)
+                            index += 1
+                            video_card = VideoCard(image, data_contents['title'], video_path,
+                                                   f'video_card{index}', index)
+                            self.video_card_view.add_video_card(video_card)
+                            break
+                else:
+                    continue
+
         self.expand_layout.setSpacing(28)
         self.expand_layout.setContentsMargins(20, 10, 20, 0)
-        # self.expand_layout.addWidget(self.edit_setting_group)
-        # self.expand_layout.addWidget(self.system_setting_group)
+        self.expand_layout.addWidget(self.video_card_view)
 
     def init_widget(self):
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -47,5 +78,3 @@ class LocalVideoInterface(QFrame):
 
     def connect_signal(self):
         pass
-
-

@@ -1,9 +1,11 @@
 from typing import Union
 
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QTableWidgetItem
-from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit, TableWidget
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QTableWidgetItem, QFrame, \
+    QHBoxLayout
+from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit, TableWidget, \
+    FlowLayout, TextWrap, PixmapLabel, ExpandLayout
 from qfluentwidgets.components.dialog_box.dialog import Ui_MessageBox, Dialog, MessageBox
 from qframelesswindow import FramelessDialog
 
@@ -133,3 +135,86 @@ class TableDialog(Dialog):
             self.audio_code = self.tableView.item(row, 0).text()
         else:
             self.video_code = self.tableView.item(row, 0).text()
+
+
+class VideoCard(QFrame):
+    def __init__(self, image: QPixmap, title, content, route_key, index, parent=None):
+        super().__init__(parent=parent)
+        self.index = index
+        self.route_key = route_key
+
+        self.image_widget = PixmapLabel(self)
+        self.image_widget.setPixmap(image.scaled(
+            128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        ))
+        self.title_label = QLabel(title, self)
+        self.content_label = QLabel(TextWrap.wrap(content, 45, False)[0], self)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.vBoxLayout = QVBoxLayout()
+
+        self.setFixedHeight(90)
+        self.hBoxLayout.setSpacing(28)
+        self.hBoxLayout.setContentsMargins(20, 0, 0, 0)
+        self.vBoxLayout.setSpacing(2)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
+
+        self.hBoxLayout.setAlignment(Qt.AlignVCenter)
+        self.hBoxLayout.addWidget(self.image_widget)
+        self.hBoxLayout.addLayout(self.vBoxLayout)
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.title_label)
+        self.vBoxLayout.addWidget(self.content_label)
+        self.vBoxLayout.addStretch(1)
+
+        self.set_qss()
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+        print(self.route_key)
+        # signalBus.switchToSampleCard.emit(self.routekey, self.index)
+
+    def set_qss(self):
+        self.title_label.setObjectName('titleLabel')
+        self.content_label.setObjectName('contentLabel')
+
+        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
+
+
+class VideoCardView(QWidget):
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent=parent)
+        self.titleLabel = QLabel(title, self)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.cardLayout = ExpandLayout()
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.vBoxLayout.setSpacing(0)
+        self.cardLayout.setContentsMargins(0, 0, 0, 0)
+        self.cardLayout.setSpacing(2)
+
+        if not title == '':
+            self.vBoxLayout.addWidget(self.titleLabel)
+        self.vBoxLayout.addSpacing(12)
+        self.vBoxLayout.addLayout(self.cardLayout, 1)
+
+        self.titleLabel.adjustSize()
+        self.set_qss()
+
+    def add_video_card(self, card: QWidget):
+        card.setParent(self)
+        self.cardLayout.addWidget(card)
+        self.adjustSize()
+
+    def adjustSize(self):
+        h = self.cardLayout.heightForWidth(self.width()) + 46
+        return self.resize(self.width(), h)
+
+    def set_qss(self):
+        self.titleLabel.setObjectName('viewTitleLabel')
+
+        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
