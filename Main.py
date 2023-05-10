@@ -1,15 +1,14 @@
 import sys
 
-from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtCore import Qt, QTranslator
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QVBoxLayout, QGridLayout, QStackedWidget, \
-    QSplitter, QPlainTextEdit, QPushButton, QListWidget, QWidget
-from qfluentwidgets import (NavigationInterface, NavigationItemPosition, NavigationWidget, MessageBox,
-                            isDarkTheme, setTheme, Theme, PopUpAniStackedWidget, FluentTranslator)
+from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QStackedWidget
+from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setTheme, Theme, PopUpAniStackedWidget, FluentTranslator)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
-from Config import cfg, Language, VERSION
+from common.Config import cfg, VERSION
+from common.SignalBus import signal_bus
 from view.DownloadInterface import DownloadInterface
 from view.LocalVideoInterface import LocalVideoInterface
 from view.SettingInterface import SettingInterface
@@ -48,6 +47,7 @@ class Window(FramelessWindow):
         self.init_navigation()
 
         self.init_window()
+        self.connect_signal()
 
     def init_layout(self):
         self.h_box_layout.setSpacing(0)
@@ -101,9 +101,16 @@ class Window(FramelessWindow):
 
         self.set_qss()
 
+    def connect_signal(self):
+        signal_bus.switch2_download_signal.connect(self.local2_download)
+
     def set_qss(self):
         with open(f'res/qss/light/main.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+    def local2_download(self, path):
+        self.download_interface.update_ui(path)
+        self.switch_to(self.download_interface)
 
     def switch_to(self, widget):
         self.stack_widget.setCurrentWidget(widget)

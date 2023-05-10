@@ -3,17 +3,16 @@ import os
 import subprocess
 import webbrowser
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QGuiApplication, QIcon
-from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout, QApplication
-from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, Dialog, ToolTipFilter, \
+from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
+from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, ToolTipFilter, \
     ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
-from yt_dlp.extractor.youtube import YoutubeIE
 
-from Config import cfg, INFO, SUCCESS, WARNING, ARIA2C
-from MyThread import UpdateMessage, Download
+from common.Config import cfg, SUCCESS, WARNING
+from common.MyThread import UpdateMessage, Download
 from view.MyWidget import TableDialog
 
 
@@ -178,6 +177,16 @@ class DownloadInterface(QFrame):
 
         self.set_qss()
         self.connect_signal()
+
+    def update_ui(self, path):
+        self._path = path
+        data_file = os.path.join(path, 'data.json')
+        with open(data_file, 'r') as f:
+            data_contents = json.loads(f.read())
+            self.origin_link_input.setText(data_contents['link'])
+            self.video_title_input.setText(data_contents['title'])
+            self.reprint_info_input.setText(data_contents['reprint'])
+            self.video_description_input.setText(data_contents['description'])
 
     def set_qss(self):
         self.title_label.setObjectName('Title')

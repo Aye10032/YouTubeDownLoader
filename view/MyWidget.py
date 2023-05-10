@@ -2,12 +2,13 @@ from typing import Union
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QTableWidgetItem, QFrame, \
+from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QGridLayout, QTableWidgetItem, QFrame, \
     QHBoxLayout
-from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, FluentStyleSheet, LineEdit, TableWidget, \
-    FlowLayout, TextWrap, PixmapLabel, ExpandLayout
-from qfluentwidgets.components.dialog_box.dialog import Ui_MessageBox, Dialog, MessageBox
-from qframelesswindow import FramelessDialog
+from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, LineEdit, TableWidget, \
+    TextWrap, PixmapLabel, ExpandLayout
+from qfluentwidgets.components.dialog_box.dialog import Dialog
+
+from common.SignalBus import signal_bus
 
 
 class RangeSettingCard(SettingCard):
@@ -142,6 +143,7 @@ class VideoCard(QFrame):
         super().__init__(parent=parent)
         self.index = index
         self.route_key = route_key
+        self.path = content
 
         self.image_widget = PixmapLabel(self)
         self.image_widget.setPixmap(image.scaled(
@@ -172,8 +174,7 @@ class VideoCard(QFrame):
 
     def mouseReleaseEvent(self, e):
         super().mouseReleaseEvent(e)
-        print(self.route_key)
-        # signalBus.switchToSampleCard.emit(self.routekey, self.index)
+        signal_bus.switch2_download_signal.emit(self.path)
 
     def set_qss(self):
         self.title_label.setObjectName('titleLabel')
@@ -194,11 +195,11 @@ class VideoCardView(QWidget):
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.vBoxLayout.setSpacing(0)
         self.cardLayout.setContentsMargins(0, 0, 0, 0)
-        self.cardLayout.setSpacing(2)
+        self.cardLayout.setSpacing(5)
 
         if not title == '':
             self.vBoxLayout.addWidget(self.titleLabel)
-        self.vBoxLayout.addSpacing(12)
+            self.vBoxLayout.addSpacing(12)
         self.vBoxLayout.addLayout(self.cardLayout, 1)
 
         self.titleLabel.adjustSize()
