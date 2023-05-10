@@ -2,7 +2,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from yt_dlp import YoutubeDL
 from yt_dlp.extractor.youtube import YoutubeIE
 
-from Config import cfg, SUCCESS
+from common.Config import cfg
 
 
 class UpdateMessage(QThread):
