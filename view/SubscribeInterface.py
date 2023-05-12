@@ -1,9 +1,15 @@
-from PyQt5.QtCore import Qt
+from datetime import datetime
+
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QNetworkProxy
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
+from googleapiclient.discovery import build
+from httplib2 import ProxyInfo, socks, Http
 from qfluentwidgets import ScrollArea, ExpandLayout
 
-from common.Config import cfg
-from common.MyWidget import VideoCardView
+from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION
+from common.MyWidget import VideoCardView, VideoCard, TextCard
 
 
 class SubscribeInterface(QFrame):
@@ -28,29 +34,18 @@ class SubscribeInterface(QFrame):
             video_card_view = VideoCardView(channel['name'], self.scroll_widget)
             channel_id = channel['channel_id']
 
-        # index = 0
-        # for video_folder in downloads:
-        #     video_path = os.path.join(cfg.get(cfg.download_folder), video_folder)
-        #     if os.path.isdir(video_path):
-        #         data_file = os.path.join(video_path, 'data.json')
-        #         if os.path.exists(data_file) and os.path.isfile(data_file):
-        #             with open(data_file, 'r') as f:
-        #                 data_contents = json.loads(f.read())
-        #             cover_files = [os.path.join(video_path, 'cover' + ext) for ext in ['.jpg', '.webp']]
-        #             for cover_file in cover_files:
-        #                 if os.path.exists(cover_file) and os.path.isfile(cover_file):
-        #                     image = QPixmap(cover_file)
-        #                     index += 1
-        #                     video_card = VideoCard(image, data_contents['title'], os.path.abspath(video_path),
-        #                                            f'video_card{index}', index)
-        #                     self.video_card_view.add_video_card(video_card)
-        #                     break
-        #         else:
-        #             continue
+            videos = get_channel_info(channel_id)
+            for video in videos:
+                url = 'https://youtu.be/' + video['id']['videoId']
+                title = video['snippet']['title']
+                upload_date = str_local_time(video['snippet']['publishedAt'])
+                video_card = TextCard(title, upload_date, url, video['id']['videoId'], video_card_view)
+                video_card_view.add_video_card(video_card)
+
+            self.expand_layout.addWidget(video_card_view)
 
         self.expand_layout.setSpacing(28)
         self.expand_layout.setContentsMargins(20, 10, 20, 0)
-        self.expand_layout.addWidget(self.video_card_view)
 
     def init_widget(self):
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -67,5 +62,61 @@ class SubscribeInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/local_video_interface.qss', encoding='utf-8') as f:
+        with open(f'res/qss/light/subscribe_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+
+def get_channel_info(channel_id: str):
+    if cfg.get(cfg.proxy_enable):
+        ipaddress = cfg.get(cfg.proxy).split(':')[1][2:]
+        ipport = int(cfg.get(cfg.proxy).split(':')[2])
+        proxy_info = ProxyInfo(socks.PROXY_TYPE_HTTP, ipaddress, ipport)
+        http = Http(timeout=300, proxy_info=proxy_info)
+    else:
+        http = Http(timeout=300)
+
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=cfg.get(cfg.api_token), http=http)
+
+    result = youtube.search().list(
+        part='snippet,id',
+        channelId=channel_id,
+        order='date',
+        maxResults=8
+    ).execute()
+
+    return result['items']
+
+
+def str_local_time(utc_time_str: str):
+    utc_time = datetime.fromisoformat(utc_time_str.replace("Z", "+00:00"))
+    local_time = utc_time.astimezone()
+
+    return local_time.strftime('%Y年%m月%d日 %H:%M')
+
+
+def load_pixmap_from_url(url):
+    manager = QNetworkAccessManager()
+    print(f'try to download {url}')
+
+    if cfg.get(cfg.proxy_enable):
+        proxy = QNetworkProxy()
+        proxy.setType(QNetworkProxy.HttpProxy)
+        proxy.setHostName(cfg.get(cfg.proxy).split(':')[1][2:])
+        proxy.setPort(int(cfg.get(cfg.proxy).split(':')[2]))
+        manager.setProxy(proxy)
+
+    request = QNetworkRequest(QUrl(url))
+
+    reply = manager.get(request)
+
+    while not reply.isFinished():
+        pass
+
+    if reply.error() != QNetworkReply.NoError:
+        print(f"Error loading image {url}")
+        return None
+
+    pixmap = QPixmap()
+    pixmap.loadFromData(reply.readAll())
+
+    return pixmap

@@ -12,6 +12,7 @@ from common.SignalBus import signal_bus
 from view.DownloadInterface import DownloadInterface
 from view.LocalVideoInterface import LocalVideoInterface
 from view.SettingInterface import SettingInterface
+from view.SubscribeInterface import SubscribeInterface
 
 
 class Window(FramelessWindow):
@@ -28,7 +29,7 @@ class Window(FramelessWindow):
 
         self.download_interface = DownloadInterface('edit_interface', self)
         self.local_video_interface = LocalVideoInterface('local_video_interface', self)
-        self.subscribe_interface = Widget('subscribe_interface', self)
+        self.subscribe_interface = SubscribeInterface('subscribe_interface', self)
         self.todo_list_interface = Widget('todo_list_interface', self)
         self.info_interface = Widget('info_interface', self)
         self.setting_interface = SettingInterface('setting_interface', self)
@@ -103,6 +104,7 @@ class Window(FramelessWindow):
 
     def connect_signal(self):
         signal_bus.switch2_download_signal.connect(self.local2_download)
+        signal_bus.url2_download_signal.connect(self.url2_download)
 
     def set_qss(self):
         with open(f'res/qss/light/main.qss', encoding='utf-8') as f:
@@ -110,6 +112,10 @@ class Window(FramelessWindow):
 
     def local2_download(self, path):
         self.download_interface.update_ui(path)
+        self.switch_to(self.download_interface)
+
+    def url2_download(self, url):
+        self.download_interface.set_url(url)
         self.switch_to(self.download_interface)
 
     def switch_to(self, widget):

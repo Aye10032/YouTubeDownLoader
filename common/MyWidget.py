@@ -185,6 +185,50 @@ class VideoCard(QFrame):
             self.setStyleSheet(f.read())
 
 
+class TextCard(QFrame):
+    def __init__(self, title: str, upload_date: str, url: str, route_key, parent=None):
+        super().__init__(parent=parent)
+        self.route_key = route_key
+        self.title = title
+        self.upload_date = upload_date
+        self.url = url
+
+        # self.title_label = QLabel(TextWrap.wrap(self.title, 70, False)[0], self)
+        self.title_label = QLabel(self.title, self)
+        self.upload_date_label = QLabel(self.upload_date, self)
+        self.url_label = QLabel(self.url, self)
+
+        self.vBoxLayout = QVBoxLayout(self)
+
+        self.setFixedHeight(75)
+        # self.setFixedWidth(500)
+        self.vBoxLayout.setSpacing(2)
+        self.vBoxLayout.setContentsMargins(10, 0, 10, 0)
+        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
+
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.title_label)
+        self.vBoxLayout.addWidget(self.url_label)
+        self.vBoxLayout.addWidget(self.upload_date_label)
+        self.upload_date_label.setAlignment(Qt.AlignRight)
+        self.upload_date_label.setContentsMargins(10, 0, 30, 0)
+        self.vBoxLayout.addStretch(1)
+
+        self.set_qss()
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+        signal_bus.url2_download_signal.emit(self.url)
+
+    def set_qss(self):
+        self.title_label.setObjectName('titleLabel')
+        self.url_label.setObjectName('contentLabel')
+        self.upload_date_label.setObjectName('contentLabel')
+
+        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
+
+
 class VideoCardView(QWidget):
     def __init__(self, title: str, parent=None):
         super().__init__(parent=parent)

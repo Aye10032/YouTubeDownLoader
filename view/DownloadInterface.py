@@ -89,7 +89,6 @@ class DownloadInterface(QFrame):
         layout_1.addWidget(self.origin_link_input, stretch=6)
         widget_1.setLayout(layout_1)
         self.main_layout.addWidget(widget_1, 1, 0, 1, 9)
-        self.origin_link_input.setText('')
 
         widget_2 = QWidget()
         layout_2 = QGridLayout()
@@ -119,7 +118,6 @@ class DownloadInterface(QFrame):
         layout_3.addWidget(self.copy_title_btn, stretch=1)
         widget_3.setLayout(layout_3)
         self.main_layout.addWidget(widget_3, 4, 0, 1, 9)
-        self.video_title_input.setText('【MC】【】')
 
         widget_4 = QWidget()
         layout_4 = QHBoxLayout()
@@ -129,19 +127,10 @@ class DownloadInterface(QFrame):
         layout_4.addWidget(self.copy_reprint_btn, stretch=1)
         widget_4.setLayout(layout_4)
         self.main_layout.addWidget(widget_4, 5, 0, 1, 9)
-        self.reprint_info_input.setText('转自 有能力请支持原作者')
 
         self.video_description_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.main_layout.addWidget(self.video_description_input, 6, 0, 3, 9)
         self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
-        self.video_description_input.setText(
-            f'作者：\r\n'
-            f'发布时间：\r\n'
-            f'搬运：{cfg.get(cfg.reprint_id)}\r\n'
-            f'视频摘要：\r\n'
-            f'原简介翻译：\r\n'
-            f'存档：\r\n'
-            f'其他外链：')
 
         widget_5 = QWidget()
         layout_5 = QHBoxLayout()
@@ -175,8 +164,22 @@ class DownloadInterface(QFrame):
 
         self.setLayout(self.main_layout)
 
+        self.init_text()
         self.set_qss()
         self.connect_signal()
+
+    def init_text(self):
+        self.origin_link_input.setText('')
+        self.video_title_input.setText('【MC】【】')
+        self.reprint_info_input.setText('转自 有能力请支持原作者')
+        self.video_description_input.setText(
+            f'作者：\r\n'
+            f'发布时间：\r\n'
+            f'搬运：{cfg.get(cfg.reprint_id)}\r\n'
+            f'视频摘要：\r\n'
+            f'原简介翻译：\r\n'
+            f'存档：\r\n'
+            f'其他外链：')
 
     def update_ui(self, path):
         self._path = path
@@ -187,6 +190,10 @@ class DownloadInterface(QFrame):
             self.video_title_input.setText(data_contents['title'])
             self.reprint_info_input.setText(data_contents['reprint'])
             self.video_description_input.setText(data_contents['description'])
+
+    def set_url(self, url):
+        self.init_text()
+        self.origin_link_input.setText(url)
 
     def set_qss(self):
         self.title_label.setObjectName('Title')
