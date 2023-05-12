@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from qfluentwidgets import ScrollArea, ExpandLayout
 
 from common.Config import cfg
-from view.MyWidget import VideoCard, VideoCardView
+from common.MyWidget import VideoCard, VideoCardView
 
 
 class LocalVideoInterface(QFrame):

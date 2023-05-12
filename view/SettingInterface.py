@@ -6,7 +6,7 @@ from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSetti
 from qfluentwidgets import FluentIcon as FIF
 
 from common.Config import cfg
-from view.MyWidget import RangeSettingCard, TextDialog
+from common.MyWidget import RangeSettingCard, TextDialog, DistListSettingCard
 
 
 class SettingInterface(QFrame):
@@ -21,7 +21,8 @@ class SettingInterface(QFrame):
         self.title_label = QLabel(self.tr("Settings"), self)
 
         self.edit_setting_group = SettingCardGroup(
-            self.tr('Download Setting'), self.scroll_widget)
+            self.tr('Download Setting'), self.scroll_widget
+        )
         self.reprint_id_card = PushSettingCard(
             self.tr('Edit'),
             FIF.DOWNLOAD,
@@ -57,8 +58,25 @@ class SettingInterface(QFrame):
             self.edit_setting_group
         )
 
+        self.advanced_setting_group = SettingCardGroup(
+            self.tr('Advanced setting'), self.scroll_widget
+        )
+        self.google_api_card = PushSettingCard(
+            self.tr('Edit'),
+            QIcon('res/icons/key.svg'),
+            self.tr('Google Api Token'),
+            cfg.get(cfg.api_token),
+            self.edit_setting_group
+        )
+        self.subscribe_channel_card = DistListSettingCard(
+            cfg.subscribe_channels,
+            self.tr("Subscribe Channels"),
+            parent=self.advanced_setting_group
+        )
+
         self.system_setting_group = SettingCardGroup(
-            self.tr('System Setting'), self.scroll_widget)
+            self.tr('System Setting'), self.scroll_widget
+        )
         self.theme_card = OptionsSettingCard(
             cfg.themeMode,
             FIF.BRUSH,
@@ -99,6 +117,9 @@ class SettingInterface(QFrame):
         self.edit_setting_group.addSettingCard(self.thread_card)
         self.edit_setting_group.addSettingCard(self.download_folder_card)
 
+        self.advanced_setting_group.addSettingCard(self.google_api_card)
+        self.advanced_setting_group.addSettingCard(self.subscribe_channel_card)
+
         self.system_setting_group.addSettingCard(self.theme_card)
         self.system_setting_group.addSettingCard(self.theme_color_card)
         self.system_setting_group.addSettingCard(self.language_card)
@@ -106,6 +127,7 @@ class SettingInterface(QFrame):
         self.expand_layout.setSpacing(28)
         self.expand_layout.setContentsMargins(20, 10, 20, 0)
         self.expand_layout.addWidget(self.edit_setting_group)
+        self.expand_layout.addWidget(self.advanced_setting_group)
         self.expand_layout.addWidget(self.system_setting_group)
 
     def init_widget(self):

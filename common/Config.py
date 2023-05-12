@@ -48,6 +48,12 @@ class Config(QConfig):
     auto_quality = ConfigItem(
         "DownloadSetting", "AutoQuality", True, BoolValidator())
 
+    api_token = ConfigItem(
+        "AdvancedSetting", "ApiToken", ""
+    )
+    subscribe_channels = ConfigItem(
+        "Folders", "LocalMusic", [])
+
     language = OptionsConfigItem(
         "System", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
 

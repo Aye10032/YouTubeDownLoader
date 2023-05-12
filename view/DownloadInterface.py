@@ -13,7 +13,7 @@ from yt_dlp import YoutubeDL
 
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
-from view.MyWidget import TableDialog
+from common.MyWidget import TableDialog
 
 
 class DownloadInterface(QFrame):
