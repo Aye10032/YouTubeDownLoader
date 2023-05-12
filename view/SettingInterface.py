@@ -65,7 +65,7 @@ class SettingInterface(QFrame):
             self.tr('Edit'),
             QIcon('res/icons/key.svg'),
             self.tr('Google Api Token'),
-            cfg.get(cfg.api_token),
+            str_encryption(cfg.get(cfg.api_token)),
             self.edit_setting_group
         )
         self.subscribe_channel_card = DistListSettingCard(
@@ -88,7 +88,7 @@ class SettingInterface(QFrame):
             ],
             parent=self.system_setting_group
         )
-        self.theme_color_card=CustomColorSettingCard(
+        self.theme_color_card = CustomColorSettingCard(
             cfg.themeColor,
             FIF.PALETTE,
             self.tr('Theme color'),
@@ -162,6 +162,10 @@ class SettingInterface(QFrame):
             self.on_proxy_card_clicked
         )
 
+        self.google_api_card.clicked.connect(
+            self.on_google_api_card_clicked
+        )
+
         self.theme_color_card.colorChanged.connect(setThemeColor)
 
     def show_restart_tooltip(self):
@@ -198,6 +202,19 @@ class SettingInterface(QFrame):
         else:
             print('Cancel button is pressed')
 
+    def on_google_api_card_clicked(self):
+        w = TextDialog(
+            self.tr('API Token Setting'),
+            self.tr('set your google develop token:'),
+            cfg.get(cfg.api_token), self
+        )
+        w.setTitleBarVisible(False)
+        if w.exec():
+            cfg.set(cfg.api_token, w.input_edit.text())
+            self.google_api_card.setContent(str_encryption(w.input_edit.text()))
+        else:
+            print('Cancel button is pressed')
+
     def on_download_folder_card_clicked(self):
         folder = QFileDialog.getExistingDirectory(
             self, self.tr("Choose folder"), "./")
@@ -207,3 +224,10 @@ class SettingInterface(QFrame):
         print(folder)
         cfg.set(cfg.download_folder, folder)
         self.download_folder_card.setContent(folder)
+
+
+def str_encryption(text: str):
+    if len(text) == 0:
+        return ''
+    else:
+        return text[:3] + "***" + text[-3:]

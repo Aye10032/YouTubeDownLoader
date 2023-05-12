@@ -52,7 +52,7 @@ class Config(QConfig):
         "AdvancedSetting", "ApiToken", ""
     )
     subscribe_channels = ConfigItem(
-        "Folders", "LocalMusic", [])
+        "AdvancedSetting", "SubscribeChannels", [])
 
     language = OptionsConfigItem(
         "System", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
