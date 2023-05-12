@@ -103,7 +103,7 @@ class Window(FramelessWindow):
         self.set_qss()
 
     def connect_signal(self):
-        signal_bus.switch2_download_signal.connect(self.local2_download)
+        signal_bus.path2_download_signal.connect(self.local2_download)
         signal_bus.url2_download_signal.connect(self.url2_download)
 
     def set_qss(self):

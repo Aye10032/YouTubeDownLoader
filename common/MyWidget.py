@@ -175,7 +175,7 @@ class VideoCard(QFrame):
 
     def mouseReleaseEvent(self, e):
         super().mouseReleaseEvent(e)
-        signal_bus.switch2_download_signal.emit(self.path)
+        signal_bus.path2_download_signal.emit(self.path)
 
     def set_qss(self):
         self.title_label.setObjectName('titleLabel')
