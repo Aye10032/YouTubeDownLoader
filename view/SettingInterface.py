@@ -66,12 +66,19 @@ class SettingInterface(QFrame):
             QIcon('res/icons/key.svg'),
             self.tr('Google Api Token'),
             str_encryption(cfg.get(cfg.api_token)),
-            self.edit_setting_group
+            self.advanced_setting_group
         )
         self.subscribe_channel_card = DistListSettingCard(
             cfg.subscribe_channels,
             self.tr("Subscribe Channels"),
             parent=self.advanced_setting_group
+        )
+        self.api_server_card = PushSettingCard(
+            self.tr('Edit'),
+            QIcon('res/icons/server.svg'),
+            self.tr('Api Server'),
+            cfg.get(cfg.api_server),
+            self.advanced_setting_group
         )
 
         self.system_setting_group = SettingCardGroup(
@@ -119,6 +126,7 @@ class SettingInterface(QFrame):
 
         self.advanced_setting_group.addSettingCard(self.google_api_card)
         self.advanced_setting_group.addSettingCard(self.subscribe_channel_card)
+        self.advanced_setting_group.addSettingCard(self.api_server_card)
 
         self.system_setting_group.addSettingCard(self.theme_card)
         self.system_setting_group.addSettingCard(self.theme_color_card)
@@ -164,6 +172,9 @@ class SettingInterface(QFrame):
 
         self.google_api_card.clicked.connect(
             self.on_google_api_card_clicked
+        )
+        self.api_server_card.clicked.connect(
+            self.on_api_server_card_clicked
         )
 
         self.theme_color_card.colorChanged.connect(setThemeColor)
@@ -212,6 +223,15 @@ class SettingInterface(QFrame):
         if w.exec():
             cfg.set(cfg.api_token, w.input_edit.text())
             self.google_api_card.setContent(str_encryption(w.input_edit.text()))
+        else:
+            print('Cancel button is pressed')
+
+    def on_api_server_card_clicked(self):
+        w = TextDialog(self.tr('API Server'), self.tr('manual your server address:'), cfg.get(cfg.api_server), self)
+        w.setTitleBarVisible(False)
+        if w.exec():
+            cfg.set(cfg.api_server, w.input_edit.text())
+            self.api_server_card.setContent(w.input_edit.text())
         else:
             print('Cancel button is pressed')
 

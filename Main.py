@@ -14,6 +14,7 @@ from view.DownloadInterface import DownloadInterface
 from view.LocalVideoInterface import LocalVideoInterface
 from view.SettingInterface import SettingInterface
 from view.SubscribeInterface import SubscribeInterface
+from view.TodoListInterface import TodoListInterface
 
 
 class Window(FramelessWindow):
@@ -31,7 +32,7 @@ class Window(FramelessWindow):
         self.download_interface = DownloadInterface('edit_interface', self)
         self.local_video_interface = LocalVideoInterface('local_video_interface', self)
         self.subscribe_interface = SubscribeInterface('subscribe_interface', self)
-        self.todo_list_interface = Widget('todo_list_interface', self)
+        self.todo_list_interface = TodoListInterface('todo_list_interface', self)
         self.info_interface = Widget('info_interface', self)
         self.setting_interface = SettingInterface('setting_interface', self)
 

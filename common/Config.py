@@ -55,6 +55,9 @@ class Config(QConfig):
     )
     subscribe_channels = ConfigItem(
         "AdvancedSetting", "SubscribeChannels", [])
+    api_server = ConfigItem(
+        "AdvancedSetting", "ApiServer", "", restart=True
+    )
 
     language = OptionsConfigItem(
         "System", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
