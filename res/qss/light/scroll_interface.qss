@@ -1,4 +1,4 @@
-LocalVideoInterface,SettingInterface,SubscribeInterface,TodoListInterface{
+LocalVideoInterface,SettingInterface,SubscribeInterface,TodoListInterface,InfoInterface{
     border: 1px solid rgb(229, 229, 229);
     border-right: none;
     border-bottom: none;

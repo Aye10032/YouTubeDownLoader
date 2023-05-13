@@ -8,6 +8,7 @@ from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSer
 VERSION = '6.0.0'
 TEMP_PATH = 'config/temp.json'
 ARIA2C = 'aria2c.exe'
+LICENCE_PATH = 'res/LICENCE.html'
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
