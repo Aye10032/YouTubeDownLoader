@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 from PyQt5.QtCore import QLocale
@@ -9,6 +10,9 @@ TEMP_PATH = 'config/temp.json'
 ARIA2C = 'aria2c.exe'
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
+
+LOG_PATH = 'log'
+LOG_NAME = time.strftime("%Y-%m-%d", time.localtime())
 
 INFO = 0
 SUCCESS = 1

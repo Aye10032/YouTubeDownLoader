@@ -1,3 +1,4 @@
+import os
 import sys
 
 from PyQt5.QtCore import Qt, QTranslator
@@ -8,7 +9,7 @@ from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setThem
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
-from common.Config import cfg, VERSION
+from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME
 from common.SignalBus import signal_bus
 from view.DownloadInterface import DownloadInterface
 from view.LocalVideoInterface import LocalVideoInterface
@@ -162,7 +163,50 @@ class Widget(QFrame):
         self.setObjectName(text.replace(' ', '-'))
 
 
+class Logger(object):
+    def __init__(self, filename='default.log', stream=sys.stdout):
+        self.terminal = stream
+        self.log = open(filename, 'a', encoding='utf-8')
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.terminal.flush()
+        self.log.write(message)
+        self.log.flush()
+
+    def debug(self, message):
+        self.terminal.write('[debug]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[debug]' + message + '\n')
+        self.log.flush()
+
+    def warning(self, message):
+        self.terminal.write('[warning]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[warning]' + message + '\n')
+        self.log.flush()
+
+    def error(self, message):
+        self.terminal.write('[error]' + message + '\n')
+        self.terminal.flush()
+        self.log.write('[error]' + message + '\n')
+        self.log.flush()
+
+    def isatty(self):
+        pass
+
+    def flush(self):
+        pass
+
+
 if __name__ == '__main__':
+    if not os.path.exists(LOG_PATH):
+        os.makedirs(LOG_PATH)
+
+    sys.stdout.isatty = lambda: False
+    sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
+    sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
+
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
