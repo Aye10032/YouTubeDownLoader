@@ -29,20 +29,21 @@ class SubscribeInterface(QFrame):
     def init_layout(self):
         self.title_label.setAlignment(Qt.AlignCenter)
 
-        channels = cfg.get(cfg.subscribe_channels)
-        for channel in channels:
-            video_card_view = VideoCardView(channel['name'], self.scroll_widget)
-            channel_id = channel['channel_id']
+        if not cfg.get(cfg.api_token) == '':
+            channels = cfg.get(cfg.subscribe_channels)
+            for channel in channels:
+                video_card_view = VideoCardView(channel['name'], self.scroll_widget)
+                channel_id = channel['channel_id']
 
-            videos = get_channel_info(channel_id)
-            for video in videos:
-                url = 'https://youtu.be/' + video['id']['videoId']
-                title = video['snippet']['title']
-                upload_date = str_local_time(video['snippet']['publishedAt'])
-                video_card = TextCard(title, upload_date, url, video['id']['videoId'], video_card_view)
-                video_card_view.add_video_card(video_card)
+                videos = get_channel_info(channel_id)
+                for video in videos:
+                    url = 'https://youtu.be/' + video['id']['videoId']
+                    title = video['snippet']['title']
+                    upload_date = str_local_time(video['snippet']['publishedAt'])
+                    video_card = TextCard(title, upload_date, url, video['id']['videoId'], video_card_view)
+                    video_card_view.add_video_card(video_card)
 
-            self.expand_layout.addWidget(video_card_view)
+                self.expand_layout.addWidget(video_card_view)
 
         self.expand_layout.setSpacing(28)
         self.expand_layout.setContentsMargins(20, 10, 20, 0)

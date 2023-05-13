@@ -3,7 +3,8 @@ import sys
 from PyQt5.QtCore import Qt, QTranslator
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QStackedWidget
-from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setTheme, Theme, PopUpAniStackedWidget, FluentTranslator)
+from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setTheme, Theme, PopUpAniStackedWidget,
+                            FluentTranslator, Dialog)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
@@ -67,7 +68,7 @@ class Window(FramelessWindow):
                                           position=NavigationItemPosition.SCROLL)
         self.navigation_interface.addItem(routeKey=self.subscribe_interface.objectName(), icon=FIF.RINGER,
                                           text=self.tr('Subscription Information'),
-                                          onClick=lambda: self.switch_to(self.subscribe_interface),
+                                          onClick=self.switch_to_subscribe,
                                           position=NavigationItemPosition.SCROLL)
         self.navigation_interface.addItem(routeKey=self.todo_list_interface.objectName(), icon=FIF.FEEDBACK,
                                           text=self.tr('TODO List'),
@@ -120,6 +121,18 @@ class Window(FramelessWindow):
 
     def switch_to(self, widget):
         self.stack_widget.setCurrentWidget(widget)
+
+    def switch_to_subscribe(self):
+        if cfg.get(cfg.api_token) == '':
+            dialog = Dialog(
+                self.tr('No API Token!'),
+                self.tr('You haven\'t set your token yet, please go to the settings screen to set it first'),
+                self.window())
+            dialog.setTitleBarVisible(False)
+            if dialog.exec():
+                self.switch_to(self.setting_interface)
+        else:
+            self.switch_to(self.subscribe_interface)
 
     def on_current_interface_changed(self, index):
         widget = self.stack_widget.widget(index)

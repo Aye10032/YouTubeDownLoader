@@ -51,7 +51,7 @@ class Config(QConfig):
         "DownloadSetting", "AutoQuality", True, BoolValidator())
 
     api_token = ConfigItem(
-        "AdvancedSetting", "ApiToken", ""
+        "AdvancedSetting", "ApiToken", "", restart=True
     )
     subscribe_channels = ConfigItem(
         "AdvancedSetting", "SubscribeChannels", [])
