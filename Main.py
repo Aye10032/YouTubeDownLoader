@@ -73,7 +73,7 @@ class Window(FramelessWindow):
                                           position=NavigationItemPosition.SCROLL)
         self.navigation_interface.addItem(routeKey=self.todo_list_interface.objectName(), icon=FIF.FEEDBACK,
                                           text=self.tr('TODO List'),
-                                          onClick=lambda: self.switch_to(self.todo_list_interface),
+                                          onClick=self.switch_to_todo,
                                           position=NavigationItemPosition.SCROLL)
 
         self.navigation_interface.addSeparator()
@@ -134,6 +134,18 @@ class Window(FramelessWindow):
                 self.switch_to(self.setting_interface)
         else:
             self.switch_to(self.subscribe_interface)
+
+    def switch_to_todo(self):
+        if cfg.get(cfg.api_server) == '':
+            dialog = Dialog(
+                self.tr('No API Server!'),
+                self.tr('You haven\'t set api server yet, please go to the settings screen to set it first'),
+                self.window())
+            dialog.setTitleBarVisible(False)
+            if dialog.exec():
+                self.switch_to(self.setting_interface)
+        else:
+            self.switch_to(self.todo_list_interface)
 
     def on_current_interface_changed(self, index):
         widget = self.stack_widget.widget(index)
