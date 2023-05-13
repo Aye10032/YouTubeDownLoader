@@ -153,7 +153,7 @@ class SettingInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/setting_interface.qss', encoding='utf-8') as f:
+        with open(f'res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def connect_signal(self):
