@@ -40,15 +40,13 @@ class LocalVideoInterface(QFrame):
                 if os.path.exists(data_file) and os.path.isfile(data_file):
                     with open(data_file, 'r') as f:
                         data_contents = json.loads(f.read())
-                    cover_files = [os.path.join(video_path, 'cover' + ext) for ext in ['.jpg', '.webp']]
-                    for cover_file in cover_files:
-                        if os.path.exists(cover_file) and os.path.isfile(cover_file):
-                            image = QPixmap(cover_file)
-                            index += 1
-                            video_card = VideoCard(image, data_contents['title'], os.path.abspath(video_path),
-                                                   f'video_card{index}', index)
-                            self.video_card_view.add_video_card(video_card)
-                            break
+                    cover_file = os.path.join(video_path, 'cover.jpg')
+                    if os.path.exists(cover_file) and os.path.isfile(cover_file):
+                        image = QPixmap(cover_file)
+                        index += 1
+                        video_card = VideoCard(image, data_contents['title'], os.path.abspath(video_path),
+                                               f'video_card{index}', index)
+                        self.video_card_view.add_video_card(video_card)
                 else:
                     continue
 

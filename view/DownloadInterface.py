@@ -3,6 +3,7 @@ import os
 import subprocess
 import webbrowser
 
+from PIL import Image
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
@@ -66,7 +67,6 @@ class DownloadInterface(QFrame):
 
         self.init_ui()
         self.setObjectName(text)
-        self.origin_link_input.setText('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
     def init_ui(self):
         self.main_layout.setSpacing(0)
@@ -356,10 +356,15 @@ class DownloadInterface(QFrame):
         files = os.listdir(self._path)
 
         for file in files:
-            if file.endswith('.jpg') or file.endswith('.webp'):
+            if file.endswith('.jpg'):
                 old_path = os.path.join(self._path, file)
                 new_path = os.path.join(self._path, 'cover{}'.format(os.path.splitext(file)[1]))
                 os.rename(old_path, new_path)
+            elif file.endswith('.webp'):
+                old_path = os.path.join(self._path, file)
+                new_path = os.path.join(self._path, 'cover.jpg')
+                with Image.open(old_path) as im:
+                    im.convert('RGB').save(new_path, 'JPEG')
 
         info = {
             'link': self.origin_link_input.text(),
