@@ -729,10 +729,6 @@ class Data:
     dtime: Any = None
     open_subtitle: InitVar[bool] = False
 
-    # interactive: int = 0
-    # no_reprint: int 1
-    # open_elec: int 1
-
     def __post_init__(self, open_subtitle):
         self.subtitle = {"open": int(open_subtitle), "lan": ""}
         if self.dtime and self.dtime - int(time.time()) <= 14400:
