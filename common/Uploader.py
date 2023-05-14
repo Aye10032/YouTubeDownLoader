@@ -26,6 +26,8 @@ import xml.etree.ElementTree as ET
 
 from requests.adapters import HTTPAdapter, Retry
 
+from common.SignalBus import signal_bus
+
 
 class UploadBase:
     def __init__(self, principal, data, persistence_path=None, postprocessor=None):
@@ -199,6 +201,7 @@ class BiliBili:
         self.persistence_path = persistence_path
         if os.path.isfile(persistence_path):
             print('使用持久化内容上传')
+            signal_bus.log_signal.emit('使用持久化内容上传')
             self.load()
         if user.get('cookies'):
             self.cookies = user['cookies']
@@ -211,6 +214,7 @@ class BiliBili:
                 self.login_by_cookies(self.cookies)
             except:
                 print('[error] login error')
+                signal_bus.log_signal.emit('[error] login error')
                 self.login_by_password(**self.account)
         else:
             self.login_by_password(**self.account)
@@ -345,7 +349,7 @@ class BiliBili:
         auto_os['cost'] = min_cost
         return auto_os
 
-    def upload_file(self, filepath: str, part_name: str,  lines='AUTO', tasks=3):
+    def upload_file(self, filepath: str, part_name: str, lines='AUTO', tasks=3):
         """上传本地视频文件,返回视频信息dict
         b站目前支持4种上传线路upos, kodo, gcs, bos
         gcs: {"os":"gcs","query":"bucket=bvcupcdngcsus&probe_version=20221109",
@@ -380,7 +384,8 @@ class BiliBili:
                                  "probe_url": ""}
             else:
                 self._auto_os = self.probe()
-            print(f"[info] 线路选择 => {self._auto_os['os']}: {self._auto_os['query']}. time: {self._auto_os.get('cost')}")
+            print(
+                f"[info] 线路选择 => {self._auto_os['os']}: {self._auto_os['query']}. time: {self._auto_os.get('cost')}")
         if self._auto_os['os'] == 'upos':
             upload = self.upos
         elif self._auto_os['os'] == 'cos':
@@ -391,8 +396,10 @@ class BiliBili:
             upload = self.kodo
         else:
             print(f"[error] NoSearch:{self._auto_os['os']}")
+            signal_bus.log_signal.emit(f"[error] NoSearch:{self._auto_os['os']}")
             raise NotImplementedError(self._auto_os['os'])
         print(f"[info] os: {self._auto_os['os']}")
+        signal_bus.log_signal.emit(f"[info] os: {self._auto_os['os']}")
         total_size = os.path.getsize(filepath)
         with open(filepath, 'rb') as f:
             query = {
@@ -407,7 +414,6 @@ class BiliBili:
             ret = self.__session.get(
                 f"https://member.bilibili.com/preupload?{self._auto_os['query']}", params=query,
                 timeout=5)
-            # print(ret.json())
             return asyncio.run(upload(f, part_name, total_size, ret.json(), tasks=tasks))
 
     async def cos(self, file, name, total_size, ret, chunk_size=10485760, tasks=3, internal=False):
@@ -470,6 +476,7 @@ class BiliBili:
             except IOError:
                 ii += 1
                 print("[info] 请求合并分片出现问题，尝试重连，次数：" + str(ii))
+                signal_bus.log_signal.emit("[info] 请求合并分片出现问题，尝试重连，次数：" + str(ii))
                 time.sleep(15)
         ii = 0
         while ii <= 3:
@@ -477,11 +484,14 @@ class BiliBili:
                 res = self.__session.post("https:" + ret["fetch_url"], headers=fetch_headers, timeout=15).json()
                 if res.get('OK') == 1:
                     print(f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s. {res}')
+                    signal_bus.log_signal.emit(
+                        f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s. {res}')
                     return {"title": splitext(filename)[0], "filename": ret["bili_filename"], "desc": ""}
                 raise IOError(res)
             except IOError:
                 ii += 1
                 print("[info] 上传出现问题，尝试重连，次数：" + str(ii))
+                signal_bus.log_signal.emit("[info] 上传出现问题，尝试重连，次数：" + str(ii))
                 time.sleep(15)
 
     async def kodo(self, file, name, total_size, ret, chunk_size=4194304, tasks=3):
@@ -514,6 +524,7 @@ class BiliBili:
         cost = time.perf_counter() - start
 
         print(f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s')
+        signal_bus.log_signal.emit(f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s')
         parts.sort(key=lambda x: x['index'])
         self.__session.post(f"{endpoint}/mkfile/{total_size}/key/{base64.urlsafe_b64encode(key.encode()).decode()}",
                             data=','.join(map(lambda x: x['ctx'], parts)), headers=headers, timeout=10)
@@ -547,6 +558,8 @@ class BiliBili:
                 parts.append({"partNumber": params['chunk'] + 1, "eTag": "etag"})
                 sys.stdout.write(f"\r{params['end'] / 1000 / 1000 / end:.2f}MB/s "
                                  f"=> {params['partNumber'] / chunks:.1%}")
+                signal_bus.log_signal.emit(f"\r{params['end'] / 1000 / 1000 / end:.2f}MB/s "
+                                           f"=> {params['partNumber'] / chunks:.1%}")
 
         start = time.perf_counter()
         await self._upload({
@@ -568,11 +581,14 @@ class BiliBili:
                 r = self.__session.post(url, params=p, json={"parts": parts}, headers=headers, timeout=15).json()
                 if r.get('OK') == 1:
                     print(f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s. {r}')
+                    signal_bus.log_signal.emit(
+                        f'[info] {filename} uploaded >> {total_size / 1000 / 1000 / cost:.2f}MB/s. {r}')
                     return {"title": splitext(filename)[0], "filename": splitext(basename(upos_uri))[0], "desc": ""}
                 raise IOError(r)
             except IOError:
                 ii += 1
                 print("[info] 上传出现问题，尝试重连，次数：" + str(ii))
+                signal_bus.log_signal.emit("[info] 上传出现问题，尝试重连，次数：" + str(ii))
                 time.sleep(15)
 
     @staticmethod
@@ -596,6 +612,7 @@ class BiliBili:
                         break
                     except (asyncio.TimeoutError, aiohttp.ClientError) as e:
                         print(f"[error] retry chunk{clone['chunk']} >> {i + 1}. {e}")
+                        signal_bus.log_signal.emit(f"[error] retry chunk{clone['chunk']} >> {i + 1}. {e}")
 
         async with aiohttp.ClientSession() as session:
             await asyncio.gather(*[upload_chunk() for _ in range(tasks)])
@@ -638,6 +655,7 @@ class BiliBili:
 
     def submit_client(self):
         print('[info] 使用客户端api端提交')
+        signal_bus.log_signal.emit('[info] 使用客户端api端提交')
         if not self.access_token:
             if self.account is None:
                 raise RuntimeError("Access token is required, but account and access_token does not exist!")
@@ -648,6 +666,7 @@ class BiliBili:
                                       timeout=5, json=asdict(self.video)).json()
             if ret['code'] == -101:
                 print(f'[info] 刷新token{ret}')
+                signal_bus.log_signal.emit(f'[info] 刷新token{ret}')
                 continue
             return ret
 

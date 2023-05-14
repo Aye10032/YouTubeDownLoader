@@ -6,6 +6,7 @@ class SignalBus(QObject):
 
     path2_download_signal = pyqtSignal(str)
     url2_download_signal = pyqtSignal(str)
+    log_signal = pyqtSignal(str)
 
 
 signal_bus = SignalBus()
