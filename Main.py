@@ -17,6 +17,7 @@ from view.LocalVideoInterface import LocalVideoInterface
 from view.SettingInterface import SettingInterface
 from view.SubscribeInterface import SubscribeInterface
 from view.TodoListInterface import TodoListInterface
+from view.UploadInterface import UploadInterface
 
 
 class Window(FramelessWindow):
@@ -32,6 +33,7 @@ class Window(FramelessWindow):
         self.stack_widget = QStackedWidget(self)  # 多窗口控件
 
         self.download_interface = DownloadInterface('edit_interface', self)
+        self.upload_interface = UploadInterface('upload_interface', self)
         self.local_video_interface = LocalVideoInterface('local_video_interface', self)
         self.subscribe_interface = SubscribeInterface('subscribe_interface', self)
         self.todo_list_interface = TodoListInterface('todo_list_interface', self)
@@ -39,6 +41,7 @@ class Window(FramelessWindow):
         self.setting_interface = SettingInterface('setting_interface', self)
 
         self.stack_widget.addWidget(self.download_interface)
+        self.stack_widget.addWidget(self.upload_interface)
         self.stack_widget.addWidget(self.local_video_interface)
         self.stack_widget.addWidget(self.subscribe_interface)
         self.stack_widget.addWidget(self.todo_list_interface)
@@ -65,6 +68,9 @@ class Window(FramelessWindow):
         self.navigation_interface.addItem(routeKey=self.download_interface.objectName(), icon=FIF.EDIT,
                                           text=self.tr('Download'),
                                           onClick=lambda: self.switch_to(self.download_interface))
+        self.navigation_interface.addItem(routeKey=self.upload_interface.objectName(), icon=FIF.SEND,
+                                          text=self.tr('Upload'),
+                                          onClick=lambda : self.switch_to(self.upload_interface))
         self.navigation_interface.addItem(routeKey=self.local_video_interface.objectName(), icon=FIF.HISTORY,
                                           text=self.tr('Local Video'),
                                           onClick=lambda: self.switch_to(self.local_video_interface),
