@@ -1,5 +1,6 @@
 from typing import Union
 
+import qfluentwidgets
 from PyQt5.QtCore import pyqtSignal, Qt, QRectF
 from PyQt5.QtGui import QIcon, QPixmap, QPainter
 from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QGridLayout, QTableWidgetItem, QFrame, \
@@ -258,6 +259,7 @@ class VideoCardView(QWidget):
     def adjustSize(self):
         h = self.cardLayout.heightForWidth(self.width()) + 46
         return self.resize(self.width(), h)
+        # return self.setFixedHeight(h)
 
     def set_qss(self):
         self.titleLabel.setObjectName('viewTitleLabel')
@@ -426,3 +428,46 @@ class DistListSettingCard(ExpandSettingCard):
                 qconfig.set(self.configItem, self.channels)
 
                 return
+
+
+class UploadCard(QFrame):
+    def __init__(self, title: str, path: str, route_key, parent=None):
+        super().__init__(parent=parent)
+        self.route_key = route_key
+        self.title = title
+        self.path = path
+
+        # self.title_label = QLabel(TextWrap.wrap(self.title, 70, False)[0], self)
+        self.title_label = QLabel(self.title, self)
+        self.path_label = QLabel(self.path, self)
+
+        self.edit_btn = qfluentwidgets.ToolButton(FIF.EDIT, self)
+        self.del_btn = qfluentwidgets.ToolButton(FIF.DELETE, self)
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.vBoxLayout = QVBoxLayout()
+
+        self.setFixedHeight(60)
+        self.hBoxLayout.setSpacing(28)
+        self.hBoxLayout.setContentsMargins(20, 5, 20, 5)
+        self.vBoxLayout.setSpacing(2)
+        self.vBoxLayout.setContentsMargins(10, 0, 10, 0)
+        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
+
+        self.vBoxLayout.addStretch(1)
+        self.vBoxLayout.addWidget(self.title_label)
+        self.vBoxLayout.addWidget(self.path_label)
+        self.vBoxLayout.addStretch(1)
+
+        self.hBoxLayout.addLayout(self.vBoxLayout)
+        self.hBoxLayout.addWidget(self.edit_btn, alignment=Qt.AlignBottom)
+        self.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignBottom)
+
+        self.set_qss()
+
+    def set_qss(self):
+        self.title_label.setObjectName('titleLabel')
+        self.path_label.setObjectName('contentLabel')
+
+        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())

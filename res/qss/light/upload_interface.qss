@@ -1,0 +1,69 @@
+UploadInterface {
+    border: 1px solid rgb(229, 229, 229);
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 10px;
+    background-color: rgb(249, 249, 249);
+}
+
+#Title{
+    font-size: 24px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+#Text{
+    font-size: 14px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+#content {
+    color: rgb(118, 118, 118);
+    font-size: 12px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+LineEdit{
+    border: 1px solid black;
+}
+
+TextEdit#desc{
+    font-size: 12px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+ScrollArea {
+    background-color: rgb(249, 249, 249);
+    border: none;
+}
+
+QWidget#ScrollWidget{
+    background-color: rgb(249, 249, 249);
+}
+
+QScrollBar {
+    background: transparent;
+    width: 4px;
+    margin-top: 32px;
+    margin-bottom: 0;
+    padding-right: 2px;
+}
+
+QScrollBar::sub-line {
+    background: transparent;
+}
+
+QScrollBar::add-line {
+    background: transparent;
+}
+
+QScrollBar::handle {
+    background: rgb(122, 122, 122);
+    border: 2px solid rgb(128, 128, 128);
+    border-radius: 1px;
+    min-height: 32px;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
