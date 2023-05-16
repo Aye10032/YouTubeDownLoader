@@ -430,6 +430,8 @@ class DistListSettingCard(ExpandSettingCard):
 
 
 class UploadCard(QFrame):
+    del_signal = pyqtSignal(str)
+
     def __init__(self, title: str, path: str, parent=None):
         super().__init__(parent=parent)
         self.title = title
@@ -461,6 +463,7 @@ class UploadCard(QFrame):
         self.hBoxLayout.addWidget(self.path_label, stretch=5)
         self.hBoxLayout.addSpacing(5)
         self.hBoxLayout.addWidget(self.del_btn, stretch=1, alignment=Qt.AlignBottom)
+        self.del_btn.clicked.connect(self.on_del_btn_clicked)
 
         self.set_qss()
 
@@ -469,3 +472,6 @@ class UploadCard(QFrame):
 
         with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+    def on_del_btn_clicked(self):
+        self.del_signal.emit(self.objectName())
