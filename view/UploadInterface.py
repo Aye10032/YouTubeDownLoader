@@ -1,3 +1,6 @@
+import json
+import os
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout
 from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PushButton, PrimaryPushButton
@@ -7,6 +10,8 @@ from common.MyWidget import UploadCard, VideoCardView
 
 
 class UploadInterface(QFrame):
+    _videos = []
+
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
@@ -14,21 +19,20 @@ class UploadInterface(QFrame):
         self.scroll_widget = QWidget(self)
         self.expand_layout = ExpandLayout(self.scroll_widget)
 
-        self.title_label = QLabel(self.tr("Settings"), self)
+        self.title_label = QLabel(self.tr("Upload"), self)
 
         self.video_title_label = QLabel(self.tr('Video Title'), self.scroll_widget)
         self.video_title_input = LineEdit(self.scroll_widget)
 
         self.cover_label = QLabel(self.tr('Cover'), self.scroll_widget)
-        self.cover_path_label = QLabel('cover path', self.scroll_widget)
+        self.cover_path_input = LineEdit(self.scroll_widget)
         self.cover_path_btn = ToolButton(FIF.FOLDER, self.scroll_widget)
 
-        self.video_list_widget = QWidget(self.scroll_widget)
-        self.h_video_layout = QHBoxLayout()
+        self.widget_3 = QWidget(self.scroll_widget)
         self.video_label = QLabel(self.tr('Video'), self.scroll_widget)
-        self.video_card_view = VideoCardView('', self.scroll_widget)
+        self.video_card_view = QWidget(self.scroll_widget)
+        self.video_card_layout = QVBoxLayout()
         self.add_video_btn = ToolButton(FIF.FOLDER_ADD, self.scroll_widget)
-        self.video_list_widget.setLayout(self.h_video_layout)
 
         self.reprint_info_label = QLabel(self.tr('Reprint Info'), self.scroll_widget)
         self.reprint_info_input = LineEdit(self.scroll_widget)
@@ -57,6 +61,7 @@ class UploadInterface(QFrame):
         widget_1 = QWidget(self.scroll_widget)
         layout_1 = QHBoxLayout()
         layout_1.setContentsMargins(5, 0, 5, 0)
+        self.video_title_label.setFixedWidth(100)
         layout_1.addWidget(self.video_title_label, stretch=1)
         layout_1.addWidget(self.video_title_input, stretch=6)
         widget_1.setLayout(layout_1)
@@ -66,33 +71,30 @@ class UploadInterface(QFrame):
         widget_2 = QWidget(self.scroll_widget)
         layout_2 = QHBoxLayout()
         layout_2.setContentsMargins(5, 0, 5, 0)
+        self.cover_label.setFixedWidth(100)
         layout_2.addWidget(self.cover_label, stretch=1)
-        layout_2.addWidget(self.cover_path_label, stretch=5)
+        layout_2.addWidget(self.cover_path_input, stretch=5)
         layout_2.addWidget(self.cover_path_btn, stretch=1)
         widget_2.setLayout(layout_2)
         widget_2.setFixedHeight(35)
         self.expand_layout.addWidget(widget_2)
 
-        self.video_list_widget.setFixedHeight(35)
-        self.expand_layout.addWidget(self.video_list_widget)
-
-        # card = UploadCard('test', 'test', 'test', self.scroll_widget)
-        # self.video_card_view.add_video_card(card)
-
-        widget_3 = QWidget(self.scroll_widget)
         layout_3 = QHBoxLayout()
         layout_3.setContentsMargins(5, 0, 5, 0)
-        layout_3.addWidget(self.reprint_info_label, stretch=1)
-        layout_3.addWidget(self.reprint_info_input, stretch=6)
-        widget_3.setLayout(layout_3)
-        widget_3.setFixedHeight(35)
-        self.expand_layout.addWidget(widget_3)
+        self.video_label.setFixedWidth(100)
+        layout_3.addWidget(self.video_label, stretch=1, alignment=Qt.AlignTop)
+        layout_3.addWidget(self.video_card_view, stretch=6, alignment=Qt.AlignTop)
+        self.video_card_layout.addWidget(self.add_video_btn, alignment=Qt.AlignRight)
+        self.widget_3.setLayout(layout_3)
+        self.widget_3.setFixedHeight(35)
+        self.expand_layout.addWidget(self.widget_3)
 
         widget_4 = QWidget(self.scroll_widget)
         layout_4 = QHBoxLayout()
         layout_4.setContentsMargins(5, 0, 5, 0)
-        layout_4.addWidget(self.tag_label, stretch=1)
-        layout_4.addWidget(self.tag_input, stretch=6)
+        self.reprint_info_label.setFixedWidth(100)
+        layout_4.addWidget(self.reprint_info_label, stretch=1)
+        layout_4.addWidget(self.reprint_info_input, stretch=6)
         widget_4.setLayout(layout_4)
         widget_4.setFixedHeight(35)
         self.expand_layout.addWidget(widget_4)
@@ -100,20 +102,32 @@ class UploadInterface(QFrame):
         widget_5 = QWidget(self.scroll_widget)
         layout_5 = QHBoxLayout()
         layout_5.setContentsMargins(5, 0, 5, 0)
-        layout_5.addWidget(self.video_description_label, stretch=1, alignment=Qt.AlignTop)
-        layout_5.addWidget(self.video_description_input, stretch=6, alignment=Qt.AlignTop)
-        self.video_description_input.setFixedHeight(240)
+        self.tag_label.setFixedWidth(100)
+        layout_5.addWidget(self.tag_label, stretch=1)
+        layout_5.addWidget(self.tag_input, stretch=6)
         widget_5.setLayout(layout_5)
-        widget_5.setFixedHeight(250)
+        widget_5.setFixedHeight(35)
         self.expand_layout.addWidget(widget_5)
 
         widget_6 = QWidget(self.scroll_widget)
         layout_6 = QHBoxLayout()
         layout_6.setContentsMargins(5, 0, 5, 0)
-        layout_6.addWidget(self.upload_btn, alignment=Qt.AlignRight)
+        self.video_description_label.setFixedWidth(100)
+        layout_6.addWidget(self.video_description_label, stretch=1, alignment=Qt.AlignTop)
+        layout_6.addWidget(self.video_description_input, stretch=6, alignment=Qt.AlignTop)
+        self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
+        self.video_description_input.setFixedHeight(240)
         widget_6.setLayout(layout_6)
-        widget_6.setFixedHeight(35)
+        widget_6.setFixedHeight(250)
         self.expand_layout.addWidget(widget_6)
+
+        widget_7 = QWidget(self.scroll_widget)
+        layout_7 = QHBoxLayout()
+        layout_7.setContentsMargins(5, 0, 5, 0)
+        layout_7.addWidget(self.upload_btn, alignment=Qt.AlignRight)
+        widget_7.setLayout(layout_7)
+        widget_7.setFixedHeight(35)
+        self.expand_layout.addWidget(widget_7)
 
         self.log_output.setFixedHeight(100)
         self.log_output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -123,13 +137,12 @@ class UploadInterface(QFrame):
     def init_layout(self):
         self.title_label.setAlignment(Qt.AlignCenter)
 
-        self.expand_layout.setSpacing(15)
-        self.expand_layout.setContentsMargins(20, 0, 35, 0)
+        self.video_card_view.setLayout(self.video_card_layout)
+        self.video_card_layout.setSpacing(5)
+        self.video_card_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.h_video_layout.setContentsMargins(5, 0, 5, 0)
-        self.h_video_layout.addWidget(self.video_label, stretch=1, alignment=Qt.AlignTop)
-        self.h_video_layout.addWidget(self.video_card_view, stretch=6, alignment=Qt.AlignTop)
-        self.h_video_layout.addWidget(self.add_video_btn, stretch=1, alignment=Qt.AlignTop)
+        self.expand_layout.setSpacing(10)
+        self.expand_layout.setContentsMargins(20, 0, 35, 0)
 
         self.layout.addWidget(self.title_label)
         self.layout.addWidget(self.scroll_area)
@@ -137,12 +150,46 @@ class UploadInterface(QFrame):
 
         self.set_qss()
 
+    def init_text(self, path: str):
+        data_file = os.path.join(path, 'data.json')
+        with open(data_file, 'r') as f:
+            data_contents = json.loads(f.read())
+            self.video_title_input.setText(data_contents['title'])
+            self.reprint_info_input.setText(data_contents['reprint'])
+            self.video_description_input.setText(data_contents['description'])
+
+        self.cover_path_input.setText(os.path.join(path, 'cover.jpg'))
+        for file in os.listdir(path):
+            if file.endswith('.mp4') or file.endswith('.mkv'):
+                video_path = os.path.join(path, file)
+                self.add_video(video_path)
+
+    def add_video(self, path):
+        if path not in self._videos:
+            self._videos.append(path)
+            count = len(self._videos)
+            if count == 0:
+                self.video_card_view.setFixedHeight(35)
+                self.widget_3.setFixedHeight(35)
+            else:
+                self.video_card_view.setFixedHeight(count * 80 + 45)
+                self.widget_3.setFixedHeight(count * 80 + 45)
+
+            card = UploadCard(os.path.split(path)[1], path, os.path.split(path)[1], self.scroll_widget)
+            self.video_card_layout.addWidget(card)
+
+            self.video_card_layout.update()
+            self.video_card_view.update()
+            self.scroll_widget.update()
+            self.update()
+        else:
+            return
+
     def set_qss(self):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
         self.video_title_label.setObjectName('Text')
         self.cover_label.setObjectName('Text')
-        self.cover_path_label.setObjectName('content')
         self.video_label.setObjectName('Text')
         self.reprint_info_label.setObjectName('Text')
         self.tag_label.setObjectName('Text')

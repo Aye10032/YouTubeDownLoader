@@ -115,6 +115,7 @@ class Window(FramelessWindow):
     def connect_signal(self):
         signal_bus.path2_download_signal.connect(self.local2_download)
         signal_bus.url2_download_signal.connect(self.url2_download)
+        signal_bus.path2_upload_signal.connect(self.path2_upload)
 
     def set_qss(self):
         with open(f'res/qss/light/main.qss', encoding='utf-8') as f:
@@ -127,6 +128,10 @@ class Window(FramelessWindow):
     def url2_download(self, url):
         self.download_interface.set_url(url)
         self.switch_to(self.download_interface)
+
+    def path2_upload(self, path):
+        self.upload_interface.init_text(path)
+        self.switch_to(self.upload_interface)
 
     def switch_to(self, widget):
         self.stack_widget.setCurrentWidget(widget)

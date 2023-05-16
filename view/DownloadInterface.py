@@ -15,6 +15,7 @@ from yt_dlp import YoutubeDL
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog
+from common.SignalBus import signal_bus
 
 
 class DownloadInterface(QFrame):
@@ -221,6 +222,7 @@ class DownloadInterface(QFrame):
         self.play_btn.clicked.connect(self.on_play_btn_clicked)
         self.link_btn.clicked.connect(self.on_link_btn_clicked)
         self.copy_btn.clicked.connect(self.on_copy_btn_clicked)
+        self.upload_btn.clicked.connect(self.on_upload_btn_clicked)
 
     def auto_quality_btn_changed(self, is_checked: bool):
         if is_checked:
@@ -467,6 +469,13 @@ class DownloadInterface(QFrame):
         clipboard = QGuiApplication.clipboard()
         clipboard.setText(self.video_description_input.toPlainText())
         self.show_finish_tooltip(self.tr('the content of the description has been copied'), SUCCESS)
+
+    def on_upload_btn_clicked(self):
+        if self._path == '':
+            self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
+            return
+
+        signal_bus.path2_upload_signal.emit(self._path)
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))

@@ -259,7 +259,6 @@ class VideoCardView(QWidget):
     def adjustSize(self):
         h = self.cardLayout.heightForWidth(self.width()) + 46
         return self.resize(self.width(), h)
-        # return self.setFixedHeight(h)
 
     def set_qss(self):
         self.titleLabel.setObjectName('viewTitleLabel')
@@ -437,36 +436,37 @@ class UploadCard(QFrame):
         self.title = title
         self.path = path
 
-        # self.title_label = QLabel(TextWrap.wrap(self.title, 70, False)[0], self)
-        self.title_label = QLabel(self.title, self)
-        self.path_label = QLabel(self.path, self)
+        self.title_input = LineEdit(self)
+        self.title_input.setText(title)
+        self.path_label = QLabel(TextWrap.wrap(self.path, 50, True)[0], self)
 
         self.edit_btn = qfluentwidgets.ToolButton(FIF.EDIT, self)
         self.del_btn = qfluentwidgets.ToolButton(FIF.DELETE, self)
 
-        self.hBoxLayout = QHBoxLayout(self)
-        self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayout = QVBoxLayout(self)
+        self.hBoxLayout = QHBoxLayout()
 
-        self.setFixedHeight(60)
-        self.hBoxLayout.setSpacing(28)
-        self.hBoxLayout.setContentsMargins(20, 5, 20, 5)
-        self.vBoxLayout.setSpacing(2)
+        self.setFixedHeight(85)
+        self.vBoxLayout.setSpacing(5)
         self.vBoxLayout.setContentsMargins(10, 0, 10, 0)
+        self.hBoxLayout.setSpacing(5)
+        self.hBoxLayout.setContentsMargins(5, 0, 5, 0)
         self.vBoxLayout.setAlignment(Qt.AlignVCenter)
 
         self.vBoxLayout.addStretch(1)
-        self.vBoxLayout.addWidget(self.title_label)
-        self.vBoxLayout.addWidget(self.path_label)
+        self.vBoxLayout.addSpacing(5)
+        self.vBoxLayout.addWidget(self.title_input)
+        self.vBoxLayout.addLayout(self.hBoxLayout)
+        self.vBoxLayout.addSpacing(5)
         self.vBoxLayout.addStretch(1)
 
-        self.hBoxLayout.addLayout(self.vBoxLayout)
-        self.hBoxLayout.addWidget(self.edit_btn, alignment=Qt.AlignBottom)
-        self.hBoxLayout.addWidget(self.del_btn, alignment=Qt.AlignBottom)
+        self.hBoxLayout.addWidget(self.path_label, stretch=5)
+        self.hBoxLayout.addWidget(self.edit_btn, stretch=1, alignment=Qt.AlignBottom)
+        self.hBoxLayout.addWidget(self.del_btn, stretch=1, alignment=Qt.AlignBottom)
 
         self.set_qss()
 
     def set_qss(self):
-        self.title_label.setObjectName('titleLabel')
         self.path_label.setObjectName('contentLabel')
 
         with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:

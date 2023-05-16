@@ -26,7 +26,7 @@ LineEdit{
     border: 1px solid black;
 }
 
-TextEdit#desc{
+#desc{
     font-size: 12px;
     font-family: 'Segoe UI', 'Microsoft YaHei';
 }
