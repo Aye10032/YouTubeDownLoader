@@ -3,6 +3,7 @@ from yt_dlp import YoutubeDL
 from yt_dlp.extractor.youtube import YoutubeIE
 
 from common.Config import cfg
+from common.Uploader import Data, BiliBili
 
 
 class UpdateMessage(QThread):
@@ -55,3 +56,19 @@ class Download(QThread):
 
     def my_hook(self, d):
         self.log_signal.emit(d)
+
+
+class Upload(QThread):
+    finish_signal = pyqtSignal()
+
+    def __init__(self, video: Data, cover_path: str, bili: BiliBili):
+        super().__init__()
+        self.video = video
+        self.cover_path = cover_path
+        self.bili = bili
+
+    def run(self):
+        self.video.cover = self.bili.cover_up(self.cover_path).replace('http:', '')
+        ret = self.bili.submit_client()  # 提交视频
+
+        self.finish_signal.emit()

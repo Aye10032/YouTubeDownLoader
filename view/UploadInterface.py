@@ -4,11 +4,15 @@ import re
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
-from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PushButton, PrimaryPushButton
+from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PushButton, PrimaryPushButton, \
+    Dialog, InfoBar
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import cfg
+from common.Config import cfg, SUCCESS, WARNING
+from common.MyThread import Upload
 from common.MyWidget import UploadCard, VideoCardView
+from common.SignalBus import signal_bus
+from common.Uploader import Data, BiliBili
 
 
 class UploadInterface(QFrame):
@@ -16,6 +20,8 @@ class UploadInterface(QFrame):
 
     def __init__(self, text: str, parent=None):
         super().__init__(parent)
+        self.upload_thread = None
+
         self.layout = QVBoxLayout(self)
         self.scroll_area = ScrollArea(self)
         self.scroll_widget = QWidget(self)
@@ -224,6 +230,7 @@ class UploadInterface(QFrame):
         self.cover_path_btn.clicked.connect(self.on_cover_path_btn_clicked)
         self.add_video_btn.clicked.connect(self.on_add_video_btn_clicked)
         self.upload_btn.clicked.connect(self.on_upload_btn_clicked)
+        signal_bus.log_signal.connect(self.log_update)
 
     def on_cover_path_btn_clicked(self):
         options = QFileDialog.Options()
@@ -241,7 +248,99 @@ class UploadInterface(QFrame):
         self.add_video(file_name)
 
     def on_upload_btn_clicked(self):
-        for video in self._videos:
-            card = self.video_card_view.findChild(UploadCard, video['route_key'], options=Qt.FindDirectChildrenOnly)
-            if card is not None:
-                print(card.title_input.text())
+        cookie_file = os.path.join('config', 'cookies.json')
+        if not os.path.exists(cookie_file):
+            dialog = Dialog(
+                self.tr('No Cookies Found'),
+                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
+                        'cookies.json and put it in the config folder'),
+                self.window())
+            dialog.setTitleBarVisible(False)
+            return
+
+        with open(cookie_file, 'r') as f:
+            cookie_contents = json.loads(f.read())
+
+        sessdata = ''
+        bili_jct = ''
+        dedeuserid_ckmd5 = ''
+        dedeuserid = ''
+        access_token = ''
+
+        if 'cookie_info' in cookie_contents:
+            cookies = cookie_contents['cookie_info']['cookies']
+            for cookie in cookies:
+                if cookie['name'] == 'SESSDATA':
+                    sessdata = cookie['value']
+                elif cookie['name'] == 'bili_jct':
+                    bili_jct = cookie['value']
+                elif cookie['name'] == 'DedeUserID__ckMd5':
+                    dedeuserid_ckmd5 = cookie['value']
+                elif cookie['name'] == 'DedeUserID':
+                    dedeuserid = cookie['value']
+        else:
+            dialog = Dialog(
+                self.tr('No Cookies Found'),
+                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
+                        'cookies.json and put it in the config folder'),
+                self.window())
+            dialog.setTitleBarVisible(False)
+
+        if 'token_info' in cookie_contents:
+            access_token = cookie_contents['token_info']['access_token']
+        else:
+            dialog = Dialog(
+                self.tr('No Cookies Found'),
+                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
+                        'cookies.json and put it in the config folder'),
+                self.window())
+            dialog.setTitleBarVisible(False)
+
+        video = Data()
+        video.title = self.video_title_input.text()
+        video.desc = self.video_description_input.toPlainText()
+        video.source = self.reprint_info_input.text()
+        video.tid = 17
+        video.set_tag(self.tag_input.text().split(','))
+        video.dynamic = ''
+        lines = 'AUTO'
+        tasks = 3
+        dtime = 7200  # 延后时间，单位秒
+        with BiliBili(video) as bili:
+            bili.login("bili.cookie", {
+                'cookies': {
+                    'SESSDATA': sessdata,
+                    'bili_jct': bili_jct,
+                    'DedeUserID__ckMd5': dedeuserid_ckmd5,
+                    'DedeUserID': dedeuserid
+                }, 'access_token': access_token})
+
+            for video_info in self._videos:
+                card = self.video_card_view.findChild(UploadCard, video_info['route_key'],
+                                                      options=Qt.FindDirectChildrenOnly)
+                title = 'part'
+                if card is not None:
+                    title = card.title_input.text()
+                video_part = bili.upload_file(video_info['path'], title, lines=lines, tasks=tasks)
+                video.append(video_part)
+            video.delay_time(dtime)
+
+            if self.upload_thread and self.upload_thread.isRunning():
+                return
+
+            self.upload_thread = Upload(video, self.cover_path_input.text(), bili)
+            self.upload_thread.finish_signal.connect(self.upload_done)
+            self.upload_thread.start()
+
+    def log_update(self, text):
+        self.log_output.append(text)
+
+    def upload_done(self):
+        self.show_finish_tooltip('upload done!', SUCCESS)
+
+    def show_finish_tooltip(self, text, tool_type: int):
+        """ show restart tooltip """
+        if tool_type == SUCCESS:
+            InfoBar.success('', text, parent=self.window(), duration=5000)
+        elif tool_type == WARNING:
+            InfoBar.warning('', text, parent=self.window(), duration=5000)
