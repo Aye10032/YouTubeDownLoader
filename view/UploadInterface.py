@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
@@ -166,8 +167,12 @@ class UploadInterface(QFrame):
                 self.add_video(video_path)
 
     def add_video(self, path):
-        if path not in self._videos:
-            self._videos.append(path)
+        video = {
+            'name': os.path.splitext(os.path.split(path)[1])[0],
+            'path': path
+        }
+        if video not in self._videos:
+            self._videos.append(video)
             count = len(self._videos)
             if count == 0:
                 self.video_card_view.setFixedHeight(35)
@@ -176,7 +181,9 @@ class UploadInterface(QFrame):
                 self.video_card_view.setFixedHeight(count * 85 + 45)
                 self.widget_3.setFixedHeight(count * 85 + 45)
 
-            card = UploadCard(os.path.split(path)[1], path, os.path.split(path)[1], self.scroll_widget)
+            route_key = re.findall(r'\[(.*?)\]', video['name'])[-1]
+            card = UploadCard(video['name'], video['path'], self.scroll_widget)
+            card.setObjectName(f"upload_card_{route_key}")
             self.video_card_layout.addWidget(card)
 
             self.video_card_layout.update()
@@ -202,6 +209,7 @@ class UploadInterface(QFrame):
     def connect_signal(self):
         self.cover_path_btn.clicked.connect(self.on_cover_path_btn_clicked)
         self.add_video_btn.clicked.connect(self.on_add_video_btn_clicked)
+        self.upload_btn.clicked.connect(self.on_upload_btn_clicked)
 
     def on_cover_path_btn_clicked(self):
         options = QFileDialog.Options()
@@ -217,3 +225,11 @@ class UploadInterface(QFrame):
                                                    "Video files (*.mp4)", options=options)
 
         self.add_video(file_name)
+
+    def on_upload_btn_clicked(self):
+        for video in self._videos:
+            route_key = re.findall(r'\[(.*?)\]', video['name'])[-1]
+            card = self.video_card_view.findChild(UploadCard, f"upload_card_{route_key}",
+                                                  options=Qt.FindDirectChildrenOnly)
+            if card is not None:
+                print(card.title_input.text())

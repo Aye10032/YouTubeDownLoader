@@ -430,9 +430,8 @@ class DistListSettingCard(ExpandSettingCard):
 
 
 class UploadCard(QFrame):
-    def __init__(self, title: str, path: str, route_key, parent=None):
+    def __init__(self, title: str, path: str, parent=None):
         super().__init__(parent=parent)
-        self.route_key = route_key
         self.title = title
         self.path = path
 
