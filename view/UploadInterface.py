@@ -2,10 +2,11 @@ import json
 import os
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout
+from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
 from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PushButton, PrimaryPushButton
 from qfluentwidgets import FluentIcon as FIF
 
+from common.Config import cfg
 from common.MyWidget import UploadCard, VideoCardView
 
 
@@ -50,7 +51,7 @@ class UploadInterface(QFrame):
         self.setObjectName(text)
         self.init_layout()
         self.init_widget()
-        # self.connect_signal()
+        self.connect_signal()
 
     def init_widget(self):
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -60,8 +61,8 @@ class UploadInterface(QFrame):
 
         widget_1 = QWidget(self.scroll_widget)
         layout_1 = QHBoxLayout()
-        layout_1.setContentsMargins(5, 0, 5, 0)
-        self.video_title_label.setFixedWidth(100)
+        layout_1.setContentsMargins(5, 0, 0, 0)
+        self.video_title_label.setFixedWidth(90)
         layout_1.addWidget(self.video_title_label, stretch=1)
         layout_1.addWidget(self.video_title_input, stretch=6)
         widget_1.setLayout(layout_1)
@@ -70,8 +71,8 @@ class UploadInterface(QFrame):
 
         widget_2 = QWidget(self.scroll_widget)
         layout_2 = QHBoxLayout()
-        layout_2.setContentsMargins(5, 0, 5, 0)
-        self.cover_label.setFixedWidth(100)
+        layout_2.setContentsMargins(5, 0, 0, 0)
+        self.cover_label.setFixedWidth(90)
         layout_2.addWidget(self.cover_label, stretch=1)
         layout_2.addWidget(self.cover_path_input, stretch=5)
         layout_2.addWidget(self.cover_path_btn, stretch=1)
@@ -80,8 +81,8 @@ class UploadInterface(QFrame):
         self.expand_layout.addWidget(widget_2)
 
         layout_3 = QHBoxLayout()
-        layout_3.setContentsMargins(5, 0, 5, 0)
-        self.video_label.setFixedWidth(100)
+        layout_3.setContentsMargins(5, 0, 0, 0)
+        self.video_label.setFixedWidth(90)
         layout_3.addWidget(self.video_label, stretch=1, alignment=Qt.AlignTop)
         layout_3.addWidget(self.video_card_view, stretch=6, alignment=Qt.AlignTop)
         self.video_card_layout.addWidget(self.add_video_btn, alignment=Qt.AlignRight)
@@ -91,8 +92,8 @@ class UploadInterface(QFrame):
 
         widget_4 = QWidget(self.scroll_widget)
         layout_4 = QHBoxLayout()
-        layout_4.setContentsMargins(5, 0, 5, 0)
-        self.reprint_info_label.setFixedWidth(100)
+        layout_4.setContentsMargins(5, 0, 0, 0)
+        self.reprint_info_label.setFixedWidth(90)
         layout_4.addWidget(self.reprint_info_label, stretch=1)
         layout_4.addWidget(self.reprint_info_input, stretch=6)
         widget_4.setLayout(layout_4)
@@ -101,8 +102,8 @@ class UploadInterface(QFrame):
 
         widget_5 = QWidget(self.scroll_widget)
         layout_5 = QHBoxLayout()
-        layout_5.setContentsMargins(5, 0, 5, 0)
-        self.tag_label.setFixedWidth(100)
+        layout_5.setContentsMargins(5, 0, 0, 0)
+        self.tag_label.setFixedWidth(90)
         layout_5.addWidget(self.tag_label, stretch=1)
         layout_5.addWidget(self.tag_input, stretch=6)
         widget_5.setLayout(layout_5)
@@ -111,8 +112,8 @@ class UploadInterface(QFrame):
 
         widget_6 = QWidget(self.scroll_widget)
         layout_6 = QHBoxLayout()
-        layout_6.setContentsMargins(5, 0, 5, 0)
-        self.video_description_label.setFixedWidth(100)
+        layout_6.setContentsMargins(5, 0, 0, 0)
+        self.video_description_label.setFixedWidth(90)
         layout_6.addWidget(self.video_description_label, stretch=1, alignment=Qt.AlignTop)
         layout_6.addWidget(self.video_description_input, stretch=6, alignment=Qt.AlignTop)
         self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
@@ -123,8 +124,8 @@ class UploadInterface(QFrame):
 
         widget_7 = QWidget(self.scroll_widget)
         layout_7 = QHBoxLayout()
-        layout_7.setContentsMargins(5, 0, 5, 0)
-        layout_7.addWidget(self.upload_btn, alignment=Qt.AlignRight)
+        layout_7.setContentsMargins(5, 0, 0, 0)
+        layout_7.addWidget(self.upload_btn, alignment=Qt.AlignCenter)
         widget_7.setLayout(layout_7)
         widget_7.setFixedHeight(35)
         self.expand_layout.addWidget(widget_7)
@@ -142,7 +143,7 @@ class UploadInterface(QFrame):
         self.video_card_layout.setContentsMargins(0, 0, 0, 0)
 
         self.expand_layout.setSpacing(10)
-        self.expand_layout.setContentsMargins(20, 0, 35, 0)
+        self.expand_layout.setContentsMargins(15, 0, 30, 0)
 
         self.layout.addWidget(self.title_label)
         self.layout.addWidget(self.scroll_area)
@@ -172,8 +173,8 @@ class UploadInterface(QFrame):
                 self.video_card_view.setFixedHeight(35)
                 self.widget_3.setFixedHeight(35)
             else:
-                self.video_card_view.setFixedHeight(count * 80 + 45)
-                self.widget_3.setFixedHeight(count * 80 + 45)
+                self.video_card_view.setFixedHeight(count * 85 + 45)
+                self.widget_3.setFixedHeight(count * 85 + 45)
 
             card = UploadCard(os.path.split(path)[1], path, os.path.split(path)[1], self.scroll_widget)
             self.video_card_layout.addWidget(card)
@@ -197,3 +198,22 @@ class UploadInterface(QFrame):
 
         with open(f'res/qss/light/upload_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+    def connect_signal(self):
+        self.cover_path_btn.clicked.connect(self.on_cover_path_btn_clicked)
+        self.add_video_btn.clicked.connect(self.on_add_video_btn_clicked)
+
+    def on_cover_path_btn_clicked(self):
+        options = QFileDialog.Options()
+        options.filter = "JPEG files (*.jpg)"
+        file_name, _ = QFileDialog.getOpenFileName(None, "Choose Image File", cfg.get(cfg.download_folder),
+                                                   "Image files (*.jpg *.png *.bmp)", options=options)
+        self.cover_path_input.setText(file_name)
+
+    def on_add_video_btn_clicked(self):
+        options = QFileDialog.Options()
+        options.filter = "MP4 files (*.mp4)"
+        file_name, _ = QFileDialog.getOpenFileName(None, "Choose Image File", cfg.get(cfg.download_folder),
+                                                   "Video files (*.mp4)", options=options)
+
+        self.add_video(file_name)
