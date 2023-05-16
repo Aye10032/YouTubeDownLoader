@@ -440,7 +440,6 @@ class UploadCard(QFrame):
         self.title_input.setText(title)
         self.path_label = QLabel(TextWrap.wrap(self.path, 55, True)[0], self)
 
-        # self.edit_btn = qfluentwidgets.ToolButton(FIF.EDIT, self)
         self.del_btn = qfluentwidgets.ToolButton(FIF.DELETE, self)
 
         self.vBoxLayout = QVBoxLayout(self)
@@ -462,7 +461,6 @@ class UploadCard(QFrame):
 
         self.hBoxLayout.addWidget(self.path_label, stretch=5)
         self.hBoxLayout.addSpacing(5)
-        # self.hBoxLayout.addWidget(self.edit_btn, stretch=1, alignment=Qt.AlignBottom)
         self.hBoxLayout.addWidget(self.del_btn, stretch=1, alignment=Qt.AlignBottom)
 
         self.set_qss()

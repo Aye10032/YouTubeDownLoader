@@ -4,7 +4,13 @@ VideoCard,TextCard,UploadCard {
     background-color: rgb(253, 253, 253);
 }
 
-VideoCard:hover,TextCard:hover,UploadCard:hover {
+UploadCard {
+    border: 1px solid rgb(177, 177, 177);
+    border-radius: 6px;
+    background-color: rgb(251, 251, 251);
+}
+
+VideoCard:hover,TextCard:hover{
     background-color: rgb(251, 251, 251);
     border-color: rgb(177, 177, 177);
 }
