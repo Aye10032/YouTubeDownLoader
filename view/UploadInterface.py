@@ -251,12 +251,7 @@ class UploadInterface(QFrame):
     def on_upload_btn_clicked(self):
         cookie_file = os.path.join('config', 'cookies.json')
         if not os.path.exists(cookie_file):
-            dialog = Dialog(
-                self.tr('No Cookies Found'),
-                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
-                        'cookies.json and put it in the config folder'),
-                self.window())
-            dialog.setTitleBarVisible(False)
+            self.show_finish_tooltip(self.tr('no cookies found'), WARNING)
             return
 
         with open(cookie_file, 'r') as f:
@@ -280,56 +275,48 @@ class UploadInterface(QFrame):
                 elif cookie['name'] == 'DedeUserID':
                     dedeuserid = cookie['value']
         else:
-            dialog = Dialog(
-                self.tr('No Cookies Found'),
-                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
-                        'cookies.json and put it in the config folder'),
-                self.window())
-            dialog.setTitleBarVisible(False)
+            self.show_finish_tooltip(self.tr('no cookies found'), WARNING)
 
         if 'token_info' in cookie_contents:
             access_token = cookie_contents['token_info']['access_token']
         else:
-            dialog = Dialog(
-                self.tr('No Cookies Found'),
-                self.tr('You haven\'t set your cookies yet, Please follow the instructions to generate '
-                        'cookies.json and put it in the config folder'),
-                self.window())
-            dialog.setTitleBarVisible(False)
+            self.show_finish_tooltip(self.tr('no cookies found'), WARNING)
 
-        video = Data()
-        video.title = self.video_title_input.text()
-        video.desc = self.video_description_input.toPlainText()
-        video.source = self.reprint_info_input.text()
-        video.tid = 17
-        video.set_tag(self.tag_input.text().split(','))
-        video.dynamic = ''
-        lines = 'AUTO'
-        tasks = 3
-        dtime = 7200  # 延后时间，单位秒
-        with BiliBili(video) as bili:
-            bili.login("bili.cookie", {
-                'cookies': {
-                    'SESSDATA': sessdata,
-                    'bili_jct': bili_jct,
-                    'DedeUserID__ckMd5': dedeuserid_ckmd5,
-                    'DedeUserID': dedeuserid
-                }, 'access_token': access_token})
+        login_access = {
+            'cookies': {
+                'SESSDATA': sessdata,
+                'bili_jct': bili_jct,
+                'DedeUserID__ckMd5': dedeuserid_ckmd5,
+                'DedeUserID': dedeuserid
+            },
+            'access_token': access_token
+        }
 
-            for video_info in self._videos:
-                card = self.video_card_view.findChild(UploadCard, video_info['route_key'],
-                                                      options=Qt.FindDirectChildrenOnly)
-                title = 'part'
-                if card is not None:
-                    title = card.title_input.text()
-                video_part = bili.upload_file(video_info['path'], title, lines=lines, tasks=tasks)
-                video.append(video_part)
-            video.delay_time(dtime)
+        video_list = []
+        for video_info in self._videos:
+            card = self.video_card_view.findChild(UploadCard, video_info['route_key'],
+                                                  options=Qt.FindDirectChildrenOnly)
+            title = 'part'
+            if card is not None:
+                title = card.title_input.text()
+                part_info = {
+                    'name': title,
+                    'path': video_info['path']
+                }
+                video_list.append(part_info)
 
             if self.upload_thread and self.upload_thread.isRunning():
                 return
 
-            self.upload_thread = Upload(video, self.cover_path_input.text(), bili)
+            info = {
+                'title': self.video_title_input.text(),
+                'desc': self.video_description_input.toPlainText(),
+                'source': self.reprint_info_input.text(),
+                'tag': self.tag_input.text().split(','),
+                'cover_path': self.cover_path_input.text()
+            }
+
+            self.upload_thread = Upload(login_access, info, video_list)
             self.upload_thread.finish_signal.connect(self.upload_done)
             self.upload_thread.start()
 

@@ -59,14 +59,31 @@ class Download(QThread):
 class Upload(QThread):
     finish_signal = pyqtSignal()
 
-    def __init__(self, video: Data, cover_path: str, bili: BiliBili):
+    def __init__(self, login_access, info: dict, video_list: list):
         super().__init__()
-        self.video = video
-        self.cover_path = cover_path
-        self.bili = bili
+        self.login_access = login_access
+        self.info = info
+        self.video_list = video_list
 
     def run(self):
-        self.video.cover = self.bili.cover_up(self.cover_path).replace('http:', '')
-        ret = self.bili.submit_client()  # 提交视频
+        video = Data()
+        video.title = self.info['title']
+        video.desc = self.info['desc']
+        video.source = self.info['source']
+        video.tid = 17
+        video.set_tag(self.info['tag'])
+        video.dynamic = ''
+        lines = 'AUTO'
+        tasks = 3
+        dtime = 0  # 延后时间，单位秒
+        with BiliBili(video) as bili:
+            bili.login("bili.cookie", self.login_access)
+
+            for part in self.video_list:
+                video_part = bili.upload_file(part['path'], part['name'], lines=lines, tasks=tasks)
+                video.append(video_part)
+            video.delay_time(dtime)
+            video.cover = bili.cover_up(self.info['cover_path']).replace('http:', '')
+            ret = bili.submit_client()  # 提交视频
 
         self.finish_signal.emit()
