@@ -292,6 +292,8 @@ class UploadInterface(QFrame):
             'access_token': access_token
         }
 
+        if len(self._videos) == 0:
+            self.show_finish_tooltip(self.tr('no videos, plead add video first!'), WARNING)
         video_list = []
         for video_info in self._videos:
             card = self.video_card_view.findChild(UploadCard, video_info['route_key'],
