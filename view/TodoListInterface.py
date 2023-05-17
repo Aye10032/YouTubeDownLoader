@@ -3,10 +3,9 @@ from datetime import datetime
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
-from qfluentwidgets import ScrollArea, ExpandLayout, isDarkTheme
+from qfluentwidgets import ScrollArea, ExpandLayout
 from requests import request
 
-from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import VideoCardView, TextCard
 from common.Style import StyleSheet

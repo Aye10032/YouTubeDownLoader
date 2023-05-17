@@ -1,8 +1,7 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel, QSizePolicy
-from qfluentwidgets import ScrollArea, ExpandLayout, TextEdit, isDarkTheme
+from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
+from qfluentwidgets import ScrollArea, ExpandLayout
 
-from Path import BASE_DIR
 from common.Config import LICENCE_PATH
 from common.Style import StyleSheet
 

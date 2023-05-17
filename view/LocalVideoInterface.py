@@ -4,9 +4,8 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
-from qfluentwidgets import ScrollArea, ExpandLayout, isDarkTheme
+from qfluentwidgets import ScrollArea, ExpandLayout
 
-from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import VideoCard, VideoCardView
 from common.Style import StyleSheet

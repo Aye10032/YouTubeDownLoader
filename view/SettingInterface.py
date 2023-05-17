@@ -1,12 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFrame, QWidget, QVBoxLayout, QLabel, QFileDialog
 from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSettingCard, SwitchSettingCard, \
-    ComboBoxSettingCard, InfoBar, CustomColorSettingCard, setThemeColor, OptionsSettingCard, setTheme, Theme, \
-    isDarkTheme
+    ComboBoxSettingCard, InfoBar, CustomColorSettingCard, setThemeColor, OptionsSettingCard, setTheme, Theme
 from qfluentwidgets import FluentIcon as FIF
 
-from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import RangeSettingCard, TextDialog, DistListSettingCard
 from common.Style import StyleSheet, MyIcon

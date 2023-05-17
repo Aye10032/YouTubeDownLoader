@@ -5,14 +5,13 @@ import webbrowser
 
 from PIL import Image
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QGuiApplication, QIcon
+from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, ToolTipFilter, \
     ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 
-from Path import BASE_DIR
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog

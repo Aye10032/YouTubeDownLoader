@@ -5,16 +5,14 @@ import re
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
 from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PrimaryPushButton, \
-    Dialog, InfoBar, isDarkTheme
+    InfoBar
 from qfluentwidgets import FluentIcon as FIF
 
-from Path import BASE_DIR
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import Upload
 from common.MyWidget import UploadCard
 from common.SignalBus import signal_bus
 from common.Style import StyleSheet
-from common.Uploader import Data, BiliBili
 
 
 class UploadInterface(QFrame):

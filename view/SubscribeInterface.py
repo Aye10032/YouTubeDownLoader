@@ -6,9 +6,8 @@ from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRepl
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from googleapiclient.discovery import build
 from httplib2 import ProxyInfo, socks, Http
-from qfluentwidgets import ScrollArea, ExpandLayout, isDarkTheme
+from qfluentwidgets import ScrollArea, ExpandLayout
 
-from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import VideoCardView, TextCard
 from common.Style import StyleSheet
