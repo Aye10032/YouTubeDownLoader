@@ -8,10 +8,7 @@ from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, QConfig
 from Path import BASE_DIR
 
 VERSION = '6.0.0'
-TEMP_PATH = f'config/temp.json'
 LICENCE_PATH = f'{BASE_DIR}/res/LICENCE.html'
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
 
 LOG_PATH = 'log'
 LOG_NAME = time.strftime("%Y-%m-%d", time.localtime())

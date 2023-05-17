@@ -9,7 +9,7 @@ from httplib2 import ProxyInfo, socks, Http
 from qfluentwidgets import ScrollArea, ExpandLayout
 
 from Path import BASE_DIR
-from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION
+from common.Config import cfg
 from common.MyWidget import VideoCardView, TextCard
 
 
@@ -77,7 +77,7 @@ def get_channel_info(channel_id: str):
     else:
         http = Http(timeout=300)
 
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=cfg.get(cfg.api_token), http=http)
+    youtube = build('youtube', 'v3', developerKey=cfg.get(cfg.api_token), static_discovery=False, http=http)
 
     result = youtube.search().list(
         part='snippet,id',
