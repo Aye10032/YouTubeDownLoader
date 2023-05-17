@@ -44,7 +44,7 @@ class UploadInterface(QFrame):
         self.video_card_layout = QVBoxLayout()
         self.add_video_btn = ToolButton(FIF.FOLDER_ADD, self.scroll_widget)
 
-        self.reprint_info_label = QLabel(self.tr('Reprint Info'), self.scroll_widget)
+        self.reprint_info_label = QLabel(self.tr('Source'), self.scroll_widget)
         self.reprint_info_input = LineEdit(self.scroll_widget)
 
         self.tag_label = QLabel(self.tr('Tag'), self.scroll_widget)
@@ -52,6 +52,9 @@ class UploadInterface(QFrame):
 
         self.video_description_label = QLabel(self.tr('Description'), self.scroll_widget)
         self.video_description_input = TextEdit(self.scroll_widget)
+
+        self.dynamic_label = QLabel(self.tr('Dynamic'), self.scroll_widget)
+        self.dynamic_input = LineEdit(self.scroll_widget)
 
         self.upload_btn = PrimaryPushButton(self.tr('Upload'), self.scroll_widget, FIF.SEND)
 
@@ -71,7 +74,7 @@ class UploadInterface(QFrame):
         widget_1 = QWidget(self.scroll_widget)
         layout_1 = QHBoxLayout()
         layout_1.setContentsMargins(5, 0, 0, 0)
-        self.video_title_label.setFixedWidth(90)
+        self.video_title_label.setFixedWidth(85)
         layout_1.addWidget(self.video_title_label, stretch=1)
         layout_1.addWidget(self.video_title_input, stretch=6)
         widget_1.setLayout(layout_1)
@@ -81,7 +84,7 @@ class UploadInterface(QFrame):
         widget_2 = QWidget(self.scroll_widget)
         layout_2 = QHBoxLayout()
         layout_2.setContentsMargins(5, 0, 0, 0)
-        self.cover_label.setFixedWidth(90)
+        self.cover_label.setFixedWidth(85)
         layout_2.addWidget(self.cover_label, stretch=1)
         layout_2.addWidget(self.cover_path_input, stretch=5)
         layout_2.addWidget(self.cover_path_btn, stretch=1)
@@ -91,7 +94,7 @@ class UploadInterface(QFrame):
 
         layout_3 = QHBoxLayout()
         layout_3.setContentsMargins(5, 0, 0, 0)
-        self.video_label.setFixedWidth(90)
+        self.video_label.setFixedWidth(85)
         layout_3.addWidget(self.video_label, stretch=1, alignment=Qt.AlignTop)
         layout_3.addWidget(self.video_card_view, stretch=6, alignment=Qt.AlignTop)
         self.video_card_layout.addWidget(self.add_video_btn, alignment=Qt.AlignRight)
@@ -102,7 +105,7 @@ class UploadInterface(QFrame):
         widget_4 = QWidget(self.scroll_widget)
         layout_4 = QHBoxLayout()
         layout_4.setContentsMargins(5, 0, 0, 0)
-        self.reprint_info_label.setFixedWidth(90)
+        self.reprint_info_label.setFixedWidth(85)
         layout_4.addWidget(self.reprint_info_label, stretch=1)
         layout_4.addWidget(self.reprint_info_input, stretch=6)
         widget_4.setLayout(layout_4)
@@ -112,7 +115,7 @@ class UploadInterface(QFrame):
         widget_5 = QWidget(self.scroll_widget)
         layout_5 = QHBoxLayout()
         layout_5.setContentsMargins(5, 0, 0, 0)
-        self.tag_label.setFixedWidth(90)
+        self.tag_label.setFixedWidth(85)
         layout_5.addWidget(self.tag_label, stretch=1)
         layout_5.addWidget(self.tag_input, stretch=6)
         widget_5.setLayout(layout_5)
@@ -122,7 +125,7 @@ class UploadInterface(QFrame):
         widget_6 = QWidget(self.scroll_widget)
         layout_6 = QHBoxLayout()
         layout_6.setContentsMargins(5, 0, 0, 0)
-        self.video_description_label.setFixedWidth(90)
+        self.video_description_label.setFixedWidth(85)
         layout_6.addWidget(self.video_description_label, stretch=1, alignment=Qt.AlignTop)
         layout_6.addWidget(self.video_description_input, stretch=6, alignment=Qt.AlignTop)
         self.video_description_input.setStyleSheet('font-size: 12px;font-family: \'Segoe UI\', \'Microsoft YaHei\';')
@@ -130,14 +133,24 @@ class UploadInterface(QFrame):
         widget_6.setLayout(layout_6)
         widget_6.setFixedHeight(250)
         self.expand_layout.addWidget(widget_6)
-
+        
         widget_7 = QWidget(self.scroll_widget)
         layout_7 = QHBoxLayout()
         layout_7.setContentsMargins(5, 0, 0, 0)
-        layout_7.addWidget(self.upload_btn, alignment=Qt.AlignCenter)
+        self.dynamic_label.setFixedWidth(85)
+        layout_7.addWidget(self.dynamic_label, stretch=1)
+        layout_7.addWidget(self.dynamic_input, stretch=6)
         widget_7.setLayout(layout_7)
         widget_7.setFixedHeight(35)
         self.expand_layout.addWidget(widget_7)
+
+        widget_8 = QWidget(self.scroll_widget)
+        layout_8 = QHBoxLayout()
+        layout_8.setContentsMargins(5, 0, 0, 0)
+        layout_8.addWidget(self.upload_btn, alignment=Qt.AlignCenter)
+        widget_8.setLayout(layout_8)
+        widget_8.setFixedHeight(35)
+        self.expand_layout.addWidget(widget_8)
 
         self.log_output.setFixedHeight(100)
         self.log_output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -226,6 +239,7 @@ class UploadInterface(QFrame):
         self.reprint_info_label.setObjectName('Text')
         self.tag_label.setObjectName('Text')
         self.video_description_label.setObjectName('Text')
+        self.dynamic_label.setObjectName('Text')
 
         StyleSheet.UPLOAD.apply(self)
 
@@ -317,6 +331,7 @@ class UploadInterface(QFrame):
                 'desc': self.video_description_input.toPlainText(),
                 'source': self.reprint_info_input.text(),
                 'tag': self.tag_input.text().split(','),
+                'dynamic': self.dynamic_input.text(),
                 'cover_path': self.cover_path_input.text()
             }
 

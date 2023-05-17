@@ -72,7 +72,7 @@ class Upload(QThread):
         video.source = self.info['source']
         video.tid = 17
         video.set_tag(self.info['tag'])
-        video.dynamic = ''
+        video.dynamic = self.info['dynamic']
         lines = 'AUTO'
         tasks = 3
         dtime = 0  # 延后时间，单位秒
