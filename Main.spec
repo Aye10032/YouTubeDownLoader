@@ -41,5 +41,5 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=True,
+          console=False,
           icon='D:\\program\\python\\YouTubeDownLoader\\res\icons\\logo.ico')
