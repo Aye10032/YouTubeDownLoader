@@ -192,6 +192,7 @@ class DownloadInterface(QFrame):
             self.video_title_input.setText(data_contents['title'])
             self.reprint_info_input.setText(data_contents['reprint'])
             self.video_description_input.setText(data_contents['description'])
+            self._uploader = data_contents['uploader']
 
     def set_url(self, url):
         self.init_text()
@@ -371,7 +372,8 @@ class DownloadInterface(QFrame):
             'link': self.origin_link_input.text(),
             'title': self.video_title_input.text(),
             'reprint': self.reprint_info_input.text(),
-            'description': self.video_description_input.toPlainText()
+            'description': self.video_description_input.toPlainText(),
+            'uploader': self._uploader
         }
 
         with open(f'{self._path}/data.json', 'w') as f:
@@ -420,7 +422,8 @@ class DownloadInterface(QFrame):
             'link': self.origin_link_input.text(),
             'title': self.video_title_input.text(),
             'reprint': self.reprint_info_input.text(),
-            'description': self.video_description_input.toPlainText()
+            'description': self.video_description_input.toPlainText(),
+            'uploader': self._uploader
         }
 
         with open(f'{self._path}/data.json', 'w') as f:

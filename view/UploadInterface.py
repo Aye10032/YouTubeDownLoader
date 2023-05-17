@@ -168,6 +168,8 @@ class UploadInterface(QFrame):
             self.video_description_input.setText(data_contents['description'])
 
         self.cover_path_input.setText(os.path.join(path, 'cover.jpg'))
+        uploader = data_contents['uploader']
+        self.tag_input.setText(f'游戏,单机游戏,MC,youtube,minecraft,{uploader}')
         for file in os.listdir(path):
             if file.endswith('.mp4') or file.endswith('.mkv'):
                 video_path = os.path.join(path, file)
