@@ -38,7 +38,7 @@ class LanguageSerializer(ConfigSerializer):
 
 class Config(QConfig):
     reprint_id = ConfigItem(
-        'DownloadSetting', 'Reprint', 'Aye10032'
+        'DownloadSetting', 'Reprint', ''
     )
     proxy_enable = ConfigItem(
         "DownloadSetting", "EnableProxy", True, BoolValidator())
