@@ -16,13 +16,13 @@ class UpdateMessage(QThread):
         self.url = url
 
     def run(self):
+        ydl_opts = {}
         if cfg.get(cfg.proxy_enable):
-            ydl = YoutubeDL({
-                'proxy': cfg.get(cfg.proxy),
-            })
-        else:
-            ydl = YoutubeDL()
+            ydl_opts['proxy'] = cfg.get(cfg.proxy)
+            ydl_opts['socket_timeout'] = 3000
 
+        print(ydl_opts)
+        ydl = YoutubeDL(ydl_opts)
         ie = YoutubeIE
         ydl.add_info_extractor(ie)
         ydl.add_progress_hook(self.my_hook)

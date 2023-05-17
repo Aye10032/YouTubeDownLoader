@@ -304,8 +304,6 @@ class DownloadInterface(QFrame):
         else:
             ydl_opts['format'] = quality
 
-        print(ydl_opts)
-
         if self.download_thread and self.download_thread.isRunning():
             return
 
