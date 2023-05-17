@@ -12,7 +12,7 @@ from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextE
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 
-from common.Config import cfg, SUCCESS, WARNING
+from common.Config import cfg, SUCCESS, WARNING, BASE_DIR
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog
 from common.SignalBus import signal_bus
@@ -58,9 +58,9 @@ class DownloadInterface(QFrame):
         self.video_description_input = TextEdit(self)
 
         self.save_btn = ToolButton(FIF.SAVE, self)
-        self.play_btn = ToolButton(QIcon(f'res/icons/play.svg'), self)
+        self.play_btn = ToolButton(QIcon(f'{BASE_DIR}/res/icons/play.svg'), self)
         self.copy_btn = ToolButton(FIF.COPY, self)
-        self.link_btn = ToolButton(QIcon(f'res/icons/link.svg'), self)
+        self.link_btn = ToolButton(QIcon(f'{BASE_DIR}/res/icons/link.svg'), self)
         self.folder_btn = ToolButton(FIF.FOLDER, self)
         self.upload_btn = ToolButton(FIF.SEND, self)
 
@@ -204,7 +204,7 @@ class DownloadInterface(QFrame):
         self.video_title_label.setObjectName('Text')
         self.reprint_info_label.setObjectName('Text')
 
-        with open(f'res/qss/light/download_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/download_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def connect_signal(self):

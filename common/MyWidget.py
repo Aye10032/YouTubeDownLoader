@@ -10,6 +10,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, LineEdi
 from qfluentwidgets.components.dialog_box.dialog import Dialog
 from qfluentwidgets import FluentIcon as FIF
 
+from common.Config import BASE_DIR
 from common.SignalBus import signal_bus
 
 
@@ -182,7 +183,7 @@ class VideoCard(QFrame):
         self.title_label.setObjectName('titleLabel')
         self.content_label.setObjectName('contentLabel')
 
-        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
 
@@ -226,7 +227,7 @@ class TextCard(QFrame):
         self.url_label.setObjectName('contentLabel')
         self.upload_date_label.setObjectName('contentLabel')
 
-        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
 
@@ -263,7 +264,7 @@ class VideoCardView(QWidget):
     def set_qss(self):
         self.titleLabel.setObjectName('viewTitleLabel')
 
-        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
 
@@ -304,7 +305,7 @@ class ChannelDialog(Dialog):
         self.channel_name_label.setObjectName("contentLabel")
         self.channel_id_label.setObjectName("contentLabel")
 
-        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
 
@@ -365,7 +366,7 @@ class DistListSettingCard(ExpandSettingCard):
     channel_changed_signal = pyqtSignal(list)
 
     def __init__(self, config_item: ConfigItem, title: str, content: str = None, parent=None):
-        super().__init__(QIcon('res/icons/link.svg'), title, content, parent)
+        super().__init__(QIcon(f'{BASE_DIR}/res/icons/link.svg'), title, content, parent)
         self.configItem = config_item
         self.add_channel_btn = PushButton(self.tr('Add'), self)
 
@@ -470,7 +471,7 @@ class UploadCard(QFrame):
     def set_qss(self):
         self.path_label.setObjectName('contentLabel')
 
-        with open(f'res/qss/light/video_card.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/video_card.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def on_del_btn_clicked(self):

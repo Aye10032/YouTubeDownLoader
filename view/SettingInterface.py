@@ -5,7 +5,7 @@ from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSetti
     ComboBoxSettingCard, InfoBar, CustomColorSettingCard, setThemeColor, OptionsSettingCard, setTheme, Theme
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import cfg
+from common.Config import cfg, BASE_DIR
 from common.MyWidget import RangeSettingCard, TextDialog, DistListSettingCard
 
 
@@ -46,7 +46,7 @@ class SettingInterface(QFrame):
         )
         self.thread_card = RangeSettingCard(
             cfg.thread,
-            QIcon(f'res/icons/number.svg'),
+            QIcon(f'{BASE_DIR}/res/icons/number.svg'),
             self.tr('Number of threads'),
             parent=self.edit_setting_group
         )
@@ -63,7 +63,7 @@ class SettingInterface(QFrame):
         )
         self.google_api_card = PushSettingCard(
             self.tr('Edit'),
-            QIcon('res/icons/key.svg'),
+            QIcon(f'{BASE_DIR}/res/icons/key.svg'),
             self.tr('Google Api Token'),
             str_encryption(cfg.get(cfg.api_token)),
             self.advanced_setting_group
@@ -75,7 +75,7 @@ class SettingInterface(QFrame):
         )
         self.api_server_card = PushSettingCard(
             self.tr('Edit'),
-            QIcon('res/icons/server.svg'),
+            QIcon(f'{BASE_DIR}/res/icons/server.svg'),
             self.tr('Api Server'),
             cfg.get(cfg.api_server),
             self.advanced_setting_group
@@ -153,7 +153,7 @@ class SettingInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def connect_signal(self):

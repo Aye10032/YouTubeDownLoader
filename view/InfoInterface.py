@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel, QSizePolicy
 from qfluentwidgets import ScrollArea, ExpandLayout, TextEdit
 
-from common.Config import LICENCE_PATH
+from common.Config import LICENCE_PATH, BASE_DIR
 
 
 class InfoInterface(QFrame):
@@ -48,5 +48,5 @@ class InfoInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())

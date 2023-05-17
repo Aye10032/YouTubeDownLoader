@@ -3,14 +3,14 @@ import os
 import re
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QGridLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
-from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PushButton, PrimaryPushButton, \
+from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget, QSizePolicy, QHBoxLayout, QFileDialog
+from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolButton, PrimaryPushButton, \
     Dialog, InfoBar
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import cfg, SUCCESS, WARNING
+from common.Config import cfg, SUCCESS, WARNING, BASE_DIR
 from common.MyThread import Upload
-from common.MyWidget import UploadCard, VideoCardView
+from common.MyWidget import UploadCard
 from common.SignalBus import signal_bus
 from common.Uploader import Data, BiliBili
 
@@ -223,7 +223,7 @@ class UploadInterface(QFrame):
         self.tag_label.setObjectName('Text')
         self.video_description_label.setObjectName('Text')
 
-        with open(f'res/qss/light/upload_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/upload_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def connect_signal(self):

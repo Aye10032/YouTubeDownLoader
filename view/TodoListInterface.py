@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 
@@ -7,7 +6,7 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from qfluentwidgets import ScrollArea, ExpandLayout
 from requests import request
 
-from common.Config import cfg
+from common.Config import cfg, BASE_DIR
 from common.MyWidget import VideoCardView, TextCard
 
 
@@ -71,5 +70,5 @@ class TodoListInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())

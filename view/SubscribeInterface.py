@@ -8,8 +8,8 @@ from googleapiclient.discovery import build
 from httplib2 import ProxyInfo, socks, Http
 from qfluentwidgets import ScrollArea, ExpandLayout
 
-from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION
-from common.MyWidget import VideoCardView, VideoCard, TextCard
+from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, BASE_DIR
+from common.MyWidget import VideoCardView, TextCard
 
 
 class SubscribeInterface(QFrame):
@@ -63,7 +63,7 @@ class SubscribeInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
 

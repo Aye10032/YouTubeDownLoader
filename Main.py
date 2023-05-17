@@ -9,7 +9,7 @@ from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setThem
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
-from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME
+from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME, BASE_DIR
 from common.SignalBus import signal_bus
 from view.DownloadInterface import DownloadInterface
 from view.InfoInterface import InfoInterface
@@ -70,7 +70,7 @@ class Window(FramelessWindow):
                                           onClick=lambda: self.switch_to(self.download_interface))
         self.navigation_interface.addItem(routeKey=self.upload_interface.objectName(), icon=FIF.SEND,
                                           text=self.tr('Upload'),
-                                          onClick=lambda : self.switch_to(self.upload_interface))
+                                          onClick=lambda: self.switch_to(self.upload_interface))
         self.navigation_interface.addItem(routeKey=self.local_video_interface.objectName(), icon=FIF.HISTORY,
                                           text=self.tr('Local Video'),
                                           onClick=lambda: self.switch_to(self.local_video_interface),
@@ -102,7 +102,7 @@ class Window(FramelessWindow):
 
     def init_window(self):
         self.resize(650, 750)
-        self.setWindowIcon(QIcon('res/icons/logo.ico'))
+        self.setWindowIcon(QIcon(f'{BASE_DIR}/res/icons/logo.ico'))
         self.setWindowTitle('YoutubeDownloader V' + VERSION)
         self.titleBar.setAttribute(Qt.WA_StyledBackground)  # 允许使用样式表定义背景
 
@@ -118,7 +118,7 @@ class Window(FramelessWindow):
         signal_bus.path2_upload_signal.connect(self.path2_upload)
 
     def set_qss(self):
-        with open(f'res/qss/light/main.qss', encoding='utf-8') as f:
+        with open(f'{BASE_DIR}/res/qss/light/main.qss', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def local2_download(self, path):
@@ -205,7 +205,7 @@ class Logger(object):
         self.log.flush()
 
     def isatty(self):
-        pass
+        return False
 
     def flush(self):
         pass
@@ -215,7 +215,6 @@ if __name__ == '__main__':
     if not os.path.exists(LOG_PATH):
         os.makedirs(LOG_PATH)
 
-    sys.stdout.isatty = lambda: False
     sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
     sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
 
@@ -230,7 +229,7 @@ if __name__ == '__main__':
     locale = cfg.get(cfg.language).value
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
-    settingTranslator.load(locale, '', '', 'res/lang')
+    settingTranslator.load(locale, '', '', f'{BASE_DIR}/res/lang')
 
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)
