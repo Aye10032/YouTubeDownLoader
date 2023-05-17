@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, ToolTipFilter, \
-    ToolTipPosition
+    ToolTipPosition, isDarkTheme
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 
@@ -17,6 +17,7 @@ from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog
 from common.SignalBus import signal_bus
+from common.Style import StyleSheet
 
 
 class DownloadInterface(QFrame):
@@ -206,8 +207,7 @@ class DownloadInterface(QFrame):
         self.video_title_label.setObjectName('Text')
         self.reprint_info_label.setObjectName('Text')
 
-        with open(f'{BASE_DIR}/res/qss/light/download_interface.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        StyleSheet.DOWNLOAD.apply(self)
 
     def connect_signal(self):
         self.auto_quality_btn.checkedChanged.connect(self.auto_quality_btn_changed)

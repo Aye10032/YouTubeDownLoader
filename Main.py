@@ -5,13 +5,14 @@ from PyQt5.QtCore import Qt, QTranslator
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QHBoxLayout, QStackedWidget
 from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setTheme, Theme, PopUpAniStackedWidget,
-                            FluentTranslator, Dialog)
+                            FluentTranslator, Dialog, isDarkTheme)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
 from Path import BASE_DIR
 from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME
 from common.SignalBus import signal_bus
+from common.Style import StyleSheet
 from view.DownloadInterface import DownloadInterface
 from view.InfoInterface import InfoInterface
 from view.LocalVideoInterface import LocalVideoInterface
@@ -31,7 +32,7 @@ class Window(FramelessWindow):
         self.h_box_layout = QHBoxLayout(self)
         self.view = PopUpAniStackedWidget(self)
         self.navigation_interface = NavigationInterface(self, showMenuButton=True, showReturnButton=False)
-        self.stack_widget = QStackedWidget(self)  # 多窗口控件
+        self.stack_widget = QStackedWidget(self)
 
         self.download_interface = DownloadInterface('edit_interface', self)
         self.upload_interface = UploadInterface('upload_interface', self)
@@ -105,11 +106,14 @@ class Window(FramelessWindow):
         self.resize(650, 750)
         self.setWindowIcon(QIcon(f'{BASE_DIR}/res/icons/logo.ico'))
         self.setWindowTitle('YoutubeDownloader V' + VERSION)
-        self.titleBar.setAttribute(Qt.WA_StyledBackground)  # 允许使用样式表定义背景
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+
+        self.navigation_interface.displayModeChanged.connect(
+            self.titleBar.raise_)
+        self.titleBar.raise_()
 
         self.set_qss()
 
@@ -119,8 +123,7 @@ class Window(FramelessWindow):
         signal_bus.path2_upload_signal.connect(self.path2_upload)
 
     def set_qss(self):
-        with open(f'{BASE_DIR}/res/qss/light/main.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        StyleSheet.MAIN_WINDOW.apply(self)
 
     def local2_download(self, path):
         self.download_interface.update_ui(path)

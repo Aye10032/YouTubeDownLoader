@@ -6,11 +6,12 @@ from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRepl
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from googleapiclient.discovery import build
 from httplib2 import ProxyInfo, socks, Http
-from qfluentwidgets import ScrollArea, ExpandLayout
+from qfluentwidgets import ScrollArea, ExpandLayout, isDarkTheme
 
 from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import VideoCardView, TextCard
+from common.Style import StyleSheet
 
 
 class SubscribeInterface(QFrame):
@@ -64,8 +65,7 @@ class SubscribeInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        StyleSheet.SCROLL.apply(self)
 
 
 def get_channel_info(channel_id: str):

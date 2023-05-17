@@ -4,11 +4,12 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
-from qfluentwidgets import ScrollArea, ExpandLayout
+from qfluentwidgets import ScrollArea, ExpandLayout, isDarkTheme
 
 from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import VideoCard, VideoCardView
+from common.Style import StyleSheet
 
 
 class LocalVideoInterface(QFrame):
@@ -70,8 +71,7 @@ class LocalVideoInterface(QFrame):
         self.title_label.setObjectName('Title')
         self.scroll_widget.setObjectName('ScrollWidget')
 
-        with open(f'{BASE_DIR}/res/qss/light/scroll_interface.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        StyleSheet.SCROLL.apply(self)
 
     def connect_signal(self):
         pass

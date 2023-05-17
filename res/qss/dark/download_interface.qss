@@ -1,0 +1,29 @@
+#Title{
+    font-size: 24px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    color: white;
+}
+
+#Text{
+    font-size: 14px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    color: white;
+}
+
+LineEdit{
+    border: 1px solid white;
+}
+
+TextEdit#desc{
+    font-size: 12px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    color: white;
+}
+
+DownloadInterface{
+    border: 1px solid rgb(36, 36, 36);
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 10px;
+    background-color: rgb(51, 51, 51);
+}

@@ -1,0 +1,35 @@
+VideoCard,TextCard {
+    border: 1px solid rgb(35, 35, 35);
+    border-radius: 6px;
+    background-color: rgb(50, 50, 50);
+}
+
+UploadCard {
+    background-color: rgb(62, 62, 62);
+    border-radius: 6px;
+    border-color: rgb(37, 37, 37);
+}
+
+VideoCard:hover,TextCard:hover{
+    background-color: rgb(62, 62, 62);
+    border-color: rgb(37, 37, 37);
+}
+
+#titleLabel {
+    color: white;
+    font-size: 14px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+    font-weight: bold;
+}
+
+#contentLabel {
+    color: rgb(208, 208, 208);
+    font-size: 12px;
+    font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+#viewTitleLabel {
+    color: white;
+    font-size: 20px;
+    font-family: "Segoe UI SemiBold", "Microsoft YaHei";
+}
