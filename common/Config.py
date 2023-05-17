@@ -1,19 +1,11 @@
-import os
-import sys
 import time
 from enum import Enum
 
 from PyQt5.QtCore import QLocale
-from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, EnumSerializer, QConfig, ConfigItem, \
+from qfluentwidgets import qconfig, OptionsConfigItem, OptionsValidator, QConfig, ConfigItem, \
     RangeConfigItem, RangeValidator, BoolValidator, ConfigSerializer, FolderValidator
 
-BASE_DIR = ""
-if getattr(sys, 'frozen', False):
-    # we are running in a |PyInstaller| bundle
-    BASE_DIR = sys._MEIPASS
-else:
-    # we are running in a normal Python environment
-    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ))
+from Path import BASE_DIR
 
 VERSION = '6.0.0'
 TEMP_PATH = f'config/temp.json'

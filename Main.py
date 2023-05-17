@@ -9,7 +9,8 @@ from qfluentwidgets import (NavigationInterface, NavigationItemPosition, setThem
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
-from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg, VERSION, LOG_PATH, LOG_NAME
 from common.SignalBus import signal_bus
 from view.DownloadInterface import DownloadInterface
 from view.InfoInterface import InfoInterface

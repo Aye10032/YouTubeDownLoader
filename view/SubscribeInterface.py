@@ -8,7 +8,8 @@ from googleapiclient.discovery import build
 from httplib2 import ProxyInfo, socks, Http
 from qfluentwidgets import ScrollArea, ExpandLayout
 
-from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg, YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION
 from common.MyWidget import VideoCardView, TextCard
 
 

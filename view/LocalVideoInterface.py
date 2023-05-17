@@ -6,7 +6,8 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from qfluentwidgets import ScrollArea, ExpandLayout
 
-from common.Config import cfg, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg
 from common.MyWidget import VideoCard, VideoCardView
 
 

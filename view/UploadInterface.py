@@ -8,7 +8,8 @@ from qfluentwidgets import TextEdit, ScrollArea, ExpandLayout, LineEdit, ToolBut
     Dialog, InfoBar
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import cfg, SUCCESS, WARNING, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import Upload
 from common.MyWidget import UploadCard
 from common.SignalBus import signal_bus

@@ -10,7 +10,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, Slider, qconfig, LineEdi
 from qfluentwidgets.components.dialog_box.dialog import Dialog
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import BASE_DIR
+from Path import BASE_DIR
 from common.SignalBus import signal_bus
 
 

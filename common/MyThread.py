@@ -19,12 +19,9 @@ class UpdateMessage(QThread):
         if cfg.get(cfg.proxy_enable):
             ydl = YoutubeDL({
                 'proxy': cfg.get(cfg.proxy),
-                # 'logger': self.logger.info
             })
         else:
-            ydl = YoutubeDL({
-                # 'logger': self.logger.info
-            })
+            ydl = YoutubeDL()
 
         ie = YoutubeIE
         ydl.add_info_extractor(ie)
@@ -46,6 +43,7 @@ class Download(QThread):
         super().__init__()
         self.url = url
         self.ydl_opts = ydl_opts
+        print(ydl_opts)
 
     def run(self):
         ydl = YoutubeDL(self.ydl_opts)

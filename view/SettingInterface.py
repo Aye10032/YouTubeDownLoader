@@ -5,7 +5,8 @@ from qfluentwidgets import ScrollArea, ExpandLayout, SettingCardGroup, PushSetti
     ComboBoxSettingCard, InfoBar, CustomColorSettingCard, setThemeColor, OptionsSettingCard, setTheme, Theme
 from qfluentwidgets import FluentIcon as FIF
 
-from common.Config import cfg, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg
 from common.MyWidget import RangeSettingCard, TextDialog, DistListSettingCard
 
 

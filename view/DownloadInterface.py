@@ -12,7 +12,8 @@ from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextE
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 
-from common.Config import cfg, SUCCESS, WARNING, BASE_DIR
+from Path import BASE_DIR
+from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog
 from common.SignalBus import signal_bus
