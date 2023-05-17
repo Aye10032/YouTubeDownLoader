@@ -20,7 +20,7 @@ class TodoListInterface(QFrame):
         self.expand_layout = ExpandLayout(self.scroll_widget)
         self.video_card_view = VideoCardView('', self.scroll_widget)
 
-        self.title_label = QLabel(self.tr("Subscribe List"), self)
+        self.title_label = QLabel(self.tr("TODO List"), self)
 
         self.setObjectName(text)
         self.init_layout()
