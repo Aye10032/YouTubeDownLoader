@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
 from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextEdit, InfoBar, ToolTipFilter, \
-    ToolTipPosition, isDarkTheme
+    ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
 
@@ -17,7 +17,7 @@ from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
 from common.MyWidget import TableDialog
 from common.SignalBus import signal_bus
-from common.Style import StyleSheet
+from common.Style import StyleSheet, MyIcon
 
 
 class DownloadInterface(QFrame):
@@ -60,9 +60,9 @@ class DownloadInterface(QFrame):
         self.video_description_input = TextEdit(self)
 
         self.save_btn = ToolButton(FIF.SAVE, self)
-        self.play_btn = ToolButton(QIcon(f'{BASE_DIR}/res/icons/play.svg'), self)
+        self.play_btn = ToolButton(MyIcon.PLAY, self)
         self.copy_btn = ToolButton(FIF.COPY, self)
-        self.link_btn = ToolButton(QIcon(f'{BASE_DIR}/res/icons/link.svg'), self)
+        self.link_btn = ToolButton(MyIcon.LINK, self)
         self.folder_btn = ToolButton(FIF.FOLDER, self)
         self.upload_btn = ToolButton(FIF.SEND, self)
 

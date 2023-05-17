@@ -1,6 +1,6 @@
 from enum import Enum
 
-from qfluentwidgets import StyleSheetBase, Theme, qconfig
+from qfluentwidgets import StyleSheetBase, Theme, qconfig, FluentIconBase, getIconColor
 
 from Path import BASE_DIR
 
@@ -18,3 +18,18 @@ class StyleSheet(StyleSheetBase, Enum):
         theme = qconfig.theme if theme == Theme.AUTO else theme
 
         return f"{BASE_DIR}/res/qss/{theme.value.lower()}/{self.value}.qss"
+
+
+class MyIcon(FluentIconBase, Enum):
+    """ Custom icons """
+
+    KEY = 'key'
+    LINK = 'link'
+    NUMBER = 'number'
+    PLAY = 'play'
+    SERVER = 'server'
+
+    def path(self, theme=Theme.AUTO):
+        # path = f'{BASE_DIR}/res/icons/{self.value}_{getIconColor(theme)}.svg'
+        # print(path)
+        return f'{BASE_DIR}/res/icons/{self.value}_{getIconColor(theme)}.svg'

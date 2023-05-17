@@ -9,7 +9,7 @@ from qfluentwidgets import FluentIcon as FIF
 from Path import BASE_DIR
 from common.Config import cfg
 from common.MyWidget import RangeSettingCard, TextDialog, DistListSettingCard
-from common.Style import StyleSheet
+from common.Style import StyleSheet, MyIcon
 
 
 class SettingInterface(QFrame):
@@ -49,7 +49,7 @@ class SettingInterface(QFrame):
         )
         self.thread_card = RangeSettingCard(
             cfg.thread,
-            QIcon(f'{BASE_DIR}/res/icons/number.svg'),
+            MyIcon.NUMBER,
             self.tr('Number of threads'),
             parent=self.edit_setting_group
         )
@@ -66,7 +66,7 @@ class SettingInterface(QFrame):
         )
         self.google_api_card = PushSettingCard(
             self.tr('Edit'),
-            QIcon(f'{BASE_DIR}/res/icons/key.svg'),
+            MyIcon.KEY,
             self.tr('Google Api Token'),
             str_encryption(cfg.get(cfg.api_token)),
             self.advanced_setting_group
@@ -78,7 +78,7 @@ class SettingInterface(QFrame):
         )
         self.api_server_card = PushSettingCard(
             self.tr('Edit'),
-            QIcon(f'{BASE_DIR}/res/icons/server.svg'),
+            MyIcon.SERVER,
             self.tr('Api Server'),
             cfg.get(cfg.api_server),
             self.advanced_setting_group
