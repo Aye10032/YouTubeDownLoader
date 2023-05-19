@@ -101,6 +101,7 @@ class Window(FramelessWindow):
 
         self.stack_widget.currentChanged.connect(self.on_current_interface_changed)
         self.stack_widget.setCurrentIndex(0)
+        self.navigation_interface.setCurrentItem(self.download_interface.objectName())
 
     def init_window(self):
         self.resize(650, 750)
