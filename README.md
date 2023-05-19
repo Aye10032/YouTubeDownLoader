@@ -5,11 +5,10 @@
 红石科技搬运组工具软件，用于自动下载视频，视频封面，字幕，同时规范简介格式。      
 搬运组空间：[https://space.bilibili.com/1311124](https://space.bilibili.com/1311124)      
 作者：Aye10032 [https://space.bilibili.com/40077740](https://space.bilibili.com/40077740)     
-程序协助：Dazo66 [https://space.bilibili.com/5725331/](https://space.bilibili.com/5725331/)
 
 ## 依赖环境
 
-Windows系统；        
+Windows系统（已测试）；Linux系统（未测试）、macos（未测试）        
 代理软件;        
 
 
@@ -19,36 +18,53 @@ Windows系统；
 使用介绍视频：     
 [![screenshot](screenshot.png)](https://www.bilibili.com/video/BV1S541157ej/)
 
+## 设置
 
-## 界面
+在设置界面，有以下设置选项：
 
-设置搬运者ID，是否适用代理（如果代理是部署在路由器上选择不使用即可），以及代理IP，**代理必须是以http：//开头**，之后跟上IP及端口号即可。
-这里编辑完毕后点击保存下次运行软件时会自动载入配置。
+### 普通设置
 
-输入视频链接，点击下载按钮即可开始。运行结束后可以点击按钮复制简介部分的文字。     
-你也可以仅点击**获取简介**按钮来仅获取简介信息而并不下载视频；       
-
-对于自定义视频质量功能，在勾选该复选框并输入视频链接后，点击边上的搜索按钮获取视频可用格式列表，点击你要的音频及视频格式并关闭该窗口，之后点击会自动加载你选择的视频格式代码，如果想要修改格式重复上述动作即可。选择好格式之后点击下载视频按钮即可。     
-如果你得电脑上装了ffmpeg程序会自动调用，没装会用默认方法合成音频及视频，但实际上也就慢一点点。
-
-在视频信息编辑完成之后点击 “X” 关闭窗口，简介等信息会自动保存。或者手动点击 文件-保存 也可以保存未编辑完的视频，以便之后继续进行编辑。
-
-点击 文件-加载 可以加载历史视频的标题、链接和简介信息。
-
-上方工具栏的搬运列表可以直接获取BOT中需求搬运的视频并进行下载。
-
-### 简介框边功能按钮
-- 点击🔗按钮可以跳转到油管原网页。
-- 点击▶按钮会使用系统默认播放器播放视频。
-- 点击谷歌翻译的logo可以弹出翻译对话框，不过因为发送格式的原因，目前不支持有换行的翻译。（也就是只能一段一段的翻译）
-- 最后一个按钮可以一键将简介区内容复制到剪贴板，方便投稿时使用。
+- **搬运者ID**
+- **是否使用代理以及代理地址**：理论上支持socks以及http代理，但是socks可能存在某些问题，这里建议使用http代理
+- **下载线程**：过大的线程可能会导致谷歌拒绝访问，请酌情设置
+- **下载文件夹**：下载后的视频存放位置
 
 
-### 下载
+
+### 高级设置
+
+这里的设置关系到订阅信息和待搬运列表两个选项卡的启用，若没有设置，则选项卡不会启用
+
+- **Google开发者密钥**：前往[谷歌API控制台](https://console.cloud.google.com/)获取你的token
+- **订阅频道列表**：只有在添加了token之后此设置才生效
+- **API服务器**：搬运组待搬运视频列表，如果你不使用此功能则不用填写
+
+
+
+## 上传功能
+
+要使用上传功能，需要先使用此项目获取你的cookies.json：[https://github.com/biliup/biliup-rs](https://github.com/biliup/biliup-rs)
+
+之后，将生成的cookies.json文件放入config文件夹下即可
+
+
+
+## 下载
 
 GitHub:[下载地址](https://github.com/Aye10032/YouTubeDownLoader/releases/latest)        
-Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v5.1.0)
+Gitee(国内镜像):[下载地址](https://gitee.com/aye10032/YouTubeDownLoader/releases/v6.0.0)
 
-### 引用
 
-- [youtube-dl](https://github.com/ytdl-org/youtube-dl)
+
+## 项目依赖
+
+- [yt_dlp](https://github.com/yt-dlp/yt-dlp)
+- [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+- [biliup](https://github.com/biliup/biliup)
+
+
+
+## 建议安装的第三方工具
+
+- [ffmpeg](https://ffmpeg.org/)：用于合成下载后的视频和音频
+- [PhantomJS](https://phantomjs.org/download.html)：有助于更好的解析视频资源
