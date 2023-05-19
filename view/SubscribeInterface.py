@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QFrame, QVBoxLayout, QWidget, QLabel
 from googleapiclient.discovery import build
 from httplib2 import ProxyInfo, socks, Http
 from qfluentwidgets import ScrollArea, ExpandLayout
+from socks import ProxyConnectionError
 
 from common.Config import cfg
 from common.MyWidget import VideoCardView, TextCard
@@ -76,16 +77,24 @@ def get_channel_info(channel_id: str):
     else:
         http = Http(timeout=300)
 
-    youtube = build('youtube', 'v3', developerKey=cfg.get(cfg.api_token), static_discovery=False, http=http)
+    try:
 
-    result = youtube.search().list(
-        part='snippet,id',
-        channelId=channel_id,
-        order='date',
-        maxResults=8
-    ).execute()
+        youtube = build('youtube', 'v3', developerKey=cfg.get(cfg.api_token), static_discovery=False, http=http)
 
-    return result['items']
+        result = youtube.search().list(
+            part='snippet,id',
+            channelId=channel_id,
+            order='date',
+            maxResults=8
+        ).execute()
+
+        return result['items']
+    except ConnectionRefusedError as e:
+        print(e)
+    except ProxyConnectionError as e:
+        print(e)
+
+    return []
 
 
 def str_local_time(utc_time_str: str):

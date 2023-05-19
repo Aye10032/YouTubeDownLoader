@@ -248,6 +248,7 @@ class DownloadInterface(QFrame):
         self.update_message_thread.log_signal.connect(self.update_log)
         self.update_message_thread.result_signal.connect(self.update_message)
         self.update_message_thread.finish_signal.connect(self.get_quality_done)
+        self.update_message_thread.error_signal.connect(self.network_error)
         self.update_message_thread.start()
 
     def start_get_info(self):
@@ -258,6 +259,7 @@ class DownloadInterface(QFrame):
         self.update_message_thread.log_signal.connect(self.update_log)
         self.update_message_thread.result_signal.connect(self.update_message)
         self.update_message_thread.finish_signal.connect(self.get_info_done)
+        self.update_message_thread.error_signal.connect(self.network_error)
         self.update_message_thread.start()
 
     def on_download_btn_clicked(self):
@@ -273,6 +275,7 @@ class DownloadInterface(QFrame):
             self.update_message_thread.log_signal.connect(self.update_log)
             self.update_message_thread.result_signal.connect(self.update_message)
             self.update_message_thread.finish_signal.connect(self.start_download)
+            self.update_message_thread.error_signal.connect(self.network_error)
             self.update_message_thread.start()
         else:
             self.start_download()
@@ -310,6 +313,7 @@ class DownloadInterface(QFrame):
         self.download_thread = Download(self.origin_link_input.text(), ydl_opts)
         self.download_thread.log_signal.connect(self.update_log)
         self.download_thread.finish_signal.connect(self.download_done)
+        self.download_thread.error_signal.connect(self.network_error)
         self.download_thread.start()
 
     def update_message(self, info_dict):
@@ -477,6 +481,9 @@ class DownloadInterface(QFrame):
             return
 
         signal_bus.path2_upload_signal.emit(self._path)
+
+    def network_error(self):
+        self.show_finish_tooltip(self.tr('network error!'), WARNING)
 
     def update_log(self, log):
         self.log_output.append('[' + log.get('status') + '] ' + log.get('_default_template'))
