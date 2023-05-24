@@ -371,16 +371,7 @@ class DownloadInterface(QFrame):
                 with Image.open(old_path) as im:
                     im.convert('RGB').save(new_path, 'JPEG')
 
-        info = {
-            'link': self.origin_link_input.text(),
-            'title': self.video_title_input.text(),
-            'reprint': self.reprint_info_input.text(),
-            'description': self.video_description_input.toPlainText(),
-            'uploader': self._uploader
-        }
-
-        with open(f'{self._path}/data.json', 'w') as f:
-            json.dump(info, f)
+        self.save_data()
 
         self.show_finish_tooltip(self.tr('download complete'), SUCCESS)
         self._download = True
@@ -421,6 +412,11 @@ class DownloadInterface(QFrame):
             self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
             return
 
+        self.save_data()
+
+        self.show_finish_tooltip(self.tr('video information is saved'), SUCCESS)
+
+    def save_data(self):
         info = {
             'link': self.origin_link_input.text(),
             'title': self.video_title_input.text(),
@@ -431,8 +427,6 @@ class DownloadInterface(QFrame):
 
         with open(f'{self._path}/data.json', 'w') as f:
             json.dump(info, f)
-
-        self.show_finish_tooltip(self.tr('video information is saved'), SUCCESS)
 
     def on_folder_btn_clicked(self):
         if self._path == '':
@@ -479,6 +473,8 @@ class DownloadInterface(QFrame):
         if self._path == '':
             self.show_finish_tooltip(self.tr('you haven\'t downloaded any videos yet'), WARNING)
             return
+
+        self.save_data()
 
         signal_bus.path2_upload_signal.emit(self._path)
 
