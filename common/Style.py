@@ -30,6 +30,4 @@ class MyIcon(FluentIconBase, Enum):
     SERVER = 'server'
 
     def path(self, theme=Theme.AUTO):
-        # path = f'{BASE_DIR}/res/icons/{self.value}_{getIconColor(theme)}.svg'
-        # print(path)
         return f'{BASE_DIR}/res/icons/{self.value}_{getIconColor(theme)}.svg'

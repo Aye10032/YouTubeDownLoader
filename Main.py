@@ -186,10 +186,13 @@ class Logger(object):
         self.log = open(filename, 'a', encoding='utf-8')
 
     def write(self, message):
-        self.terminal.write(message)
-        self.terminal.flush()
-        self.log.write(message)
-        self.log.flush()
+        try:
+            self.terminal.write(message)
+            self.terminal.flush()
+            self.log.write(message)
+            self.log.flush()
+        except Exception as e:
+            print(str(e))
 
     def debug(self, message):
         self.terminal.write('[debug]' + message + '\n')
