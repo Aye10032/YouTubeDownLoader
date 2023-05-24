@@ -140,6 +140,7 @@ class Window(FramelessWindow):
 
     def switch_to(self, widget):
         self.stack_widget.setCurrentWidget(widget)
+        self.navigation_interface.setCurrentItem(widget.objectName())
 
     def switch_to_subscribe(self):
         if cfg.get(cfg.api_token) == '':
@@ -150,6 +151,8 @@ class Window(FramelessWindow):
             dialog.setTitleBarVisible(False)
             if dialog.exec():
                 self.switch_to(self.setting_interface)
+            else:
+                self.switch_to(self.download_interface)
         else:
             self.switch_to(self.subscribe_interface)
 
@@ -162,22 +165,14 @@ class Window(FramelessWindow):
             dialog.setTitleBarVisible(False)
             if dialog.exec():
                 self.switch_to(self.setting_interface)
+            else:
+                self.switch_to(self.download_interface)
         else:
             self.switch_to(self.todo_list_interface)
 
     def on_current_interface_changed(self, index):
         widget = self.stack_widget.widget(index)
         self.navigation_interface.setCurrentItem(widget.objectName())
-
-
-class Widget(QFrame):
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.layout = QHBoxLayout(self)
-        self.layout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
 
 
 class Logger(object):
