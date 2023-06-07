@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -220,6 +221,8 @@ if __name__ == '__main__':
 
     sys.stdout = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stdout)
     sys.stderr = Logger(LOG_PATH + '/' + LOG_NAME + '.log', sys.stderr)
+
+    logging.basicConfig(filename=LOG_PATH + '/' + LOG_NAME + '.log', level=logging.INFO)
 
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)

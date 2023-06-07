@@ -1,3 +1,4 @@
+import logging
 from urllib.error import URLError
 
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -20,7 +21,13 @@ class UpdateMessage(QThread):
 
     def run(self):
         try:
-            ydl_opts = {}
+            logger = logging.getLogger()
+            handler = logging.StreamHandler()
+            logger.addHandler(handler)
+
+            ydl_opts = {
+                'logger': logger
+            }
             if cfg.get(cfg.proxy_enable):
                 ydl_opts['proxy'] = cfg.get(cfg.proxy)
                 ydl_opts['socket_timeout'] = 3000
@@ -56,6 +63,11 @@ class Download(QThread):
 
     def run(self):
         try:
+            logger = logging.getLogger()
+            handler = logging.StreamHandler()
+            logger.addHandler(handler)
+            self.ydl_opts['logger'] = logger
+
             ydl = YoutubeDL(self.ydl_opts)
             ydl.add_progress_hook(self.my_hook)
             ydl.download(self.url)

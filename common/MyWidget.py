@@ -13,7 +13,7 @@ from qframelesswindow import TitleBar
 
 from Path import BASE_DIR
 from common.SignalBus import signal_bus
-from common.Style import StyleSheet
+from common.Style import StyleSheet, MyIcon
 
 
 class CustomTitleBar(TitleBar):
@@ -407,7 +407,7 @@ class DistListSettingCard(ExpandSettingCard):
     channel_changed_signal = pyqtSignal(list)
 
     def __init__(self, config_item: ConfigItem, title: str, content: str = None, parent=None):
-        super().__init__(QIcon(f'{BASE_DIR}/res/icons/link.svg'), title, content, parent)
+        super().__init__(MyIcon.LINK.icon(), title, content, parent)
         self.configItem = config_item
         self.add_channel_btn = PushButton(self.tr('Add'), self)
 
