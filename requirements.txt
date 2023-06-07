@@ -5,7 +5,7 @@ Pillow==9.5.0
 PyQt5==5.15.9
 PyQt5_Frameless_Window==0.2.7
 PyQt_Fluent_Widgets==0.8.7
-requests==2.28.2
+requests==2.31.0
 rsa==4.9
 SocksiPy_branch==1.01
 yt_dlp==2023.3.4
