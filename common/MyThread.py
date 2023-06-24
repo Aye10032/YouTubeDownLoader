@@ -1,5 +1,4 @@
 import logging
-from urllib.error import URLError
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from yt_dlp import YoutubeDL, DownloadError

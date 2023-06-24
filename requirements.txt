@@ -1,11 +1,11 @@
 aiohttp==3.8.4
-google_api_python_client==2.86.0
-httplib2==0.21.0
+google_api_python_client==2.90.0
 Pillow==9.5.0
 PyQt5==5.15.9
 PyQt5_Frameless_Window==0.2.7
-PyQt_Fluent_Widgets==0.8.7
+PyQt_Fluent_Widgets==0.9.7
 requests==2.31.0
-rsa==4.9
-SocksiPy_branch==1.01
-yt_dlp==2023.3.4
+rsa~=4.9
+yt_dlp==2023.6.22
+httplib2~=0.22.0
+PySocks==1.7.1

@@ -18,8 +18,8 @@ from pathlib import Path
 from typing import Union, Any
 from urllib import parse
 from urllib.parse import quote
+from aiohttp import ClientError, ClientSession
 
-import aiohttp
 import requests.utils
 import rsa
 import xml.etree.ElementTree as ET
@@ -610,11 +610,11 @@ class BiliBili:
                     try:
                         await afunc(session, chunks_data, clone)
                         break
-                    except (asyncio.TimeoutError, aiohttp.ClientError) as e:
+                    except (asyncio.TimeoutError, ClientError) as e:
                         print(f"[error] retry chunk{clone['chunk']} >> {i + 1}. {e}")
                         signal_bus.log_signal.emit(f"[error] retry chunk{clone['chunk']} >> {i + 1}. {e}")
 
-        async with aiohttp.ClientSession() as session:
+        async with ClientSession() as session:
             await asyncio.gather(*[upload_chunk() for _ in range(tasks)])
 
     def submit(self, submit_api=None):
@@ -675,10 +675,10 @@ class BiliBili:
         :param img: img path or stream
         :return: img URL
         """
-        from PIL import Image
+        from PIL.Image import open
         from io import BytesIO
 
-        with Image.open(img) as im:
+        with open(img) as im:
             # 宽和高,需要16：10
             xsize, ysize = im.size
             if xsize / ysize > 1.6:
