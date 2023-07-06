@@ -6,6 +6,6 @@ PyQt5_Frameless_Window==0.2.7
 PyQt_Fluent_Widgets==0.9.7
 requests==2.31.0
 rsa~=4.9
-yt_dlp==2023.6.22
+yt_dlp==2023.7.6
 httplib2~=0.22.0
 PySocks==1.7.1
