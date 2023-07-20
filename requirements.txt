@@ -1,4 +1,4 @@
-aiohttp==3.8.4
+aiohttp==3.8.5
 google_api_python_client==2.90.0
 Pillow==9.5.0
 PyQt5==5.15.9
