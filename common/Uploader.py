@@ -357,6 +357,7 @@ class BiliBili:
         bos: {"os":"bos","query":"bucket=bvcupcdnboshb&probe_version=20221109",
         "probe_url":"??"}
         """
+        preferred_upos_cdn = None
         if not self._auto_os:
             if lines == 'kodo':
                 self._auto_os = {"os": "kodo", "query": "bucket=bvcupcdnkodobm&probe_version=20221109",
@@ -364,18 +365,23 @@ class BiliBili:
             elif lines == 'bda2':
                 self._auto_os = {"os": "upos", "query": "upcdn=bda2&probe_version=20221109",
                                  "probe_url": "//upos-sz-upcdnbda2.bilivideo.com/OK"}
+                preferred_upos_cdn = 'bda2'
             elif lines == 'cs-bda2':
                 self._auto_os = {"os": "upos", "query": "upcdn=bda2&probe_version=20221109",
                                  "probe_url": "//upos-cs-upcdnbda2.bilivideo.com/OK"}
+                preferred_upos_cdn = 'bda2'
             elif lines == 'ws':
                 self._auto_os = {"os": "upos", "query": "upcdn=ws&probe_version=20221109",
                                  "probe_url": "//upos-sz-upcdnws.bilivideo.com/OK"}
+                preferred_upos_cdn = 'ws'
             elif lines == 'qn':
                 self._auto_os = {"os": "upos", "query": "upcdn=qn&probe_version=20221109",
                                  "probe_url": "//upos-sz-upcdnqn.bilivideo.com/OK"}
+                preferred_upos_cdn = 'qn'
             elif lines == 'cs-qn':
                 self._auto_os = {"os": "upos", "query": "upcdn=qn&probe_version=20221109",
                                  "probe_url": "//upos-cs-upcdnqn.bilivideo.com/OK"}
+                preferred_upos_cdn = 'qn'
             elif lines == 'cos':
                 self._auto_os = {"os": "cos", "query": "",
                                  "probe_url": ""}
@@ -411,10 +417,25 @@ class BiliBili:
                 'name': part_name,
                 'size': total_size,
             }
-            ret = self.__session.get(
+            resp = self.__session.get(
                 f"https://member.bilibili.com/preupload?{self._auto_os['query']}", params=query,
                 timeout=5)
-            return asyncio.run(upload(f, part_name, total_size, ret.json(), tasks=tasks))
+            ret = resp.json()
+            print(f"preupload: {ret}")
+            if preferred_upos_cdn:
+                original_endpoint: str = ret['endpoint']
+                if re.match(r'//upos-(sz|cs)-upcdn(bda2|ws|qn)\.bilivideo\.com', original_endpoint):
+                    if re.match(r'bda2|qn|ws', preferred_upos_cdn):
+                        print(f"[debug] Preferred UpOS CDN: {preferred_upos_cdn}")
+                        new_endpoint = re.sub(r'upcdn(bda2|qn|ws)', f'upcdn{preferred_upos_cdn}', original_endpoint)
+                        print(f"[debug] {original_endpoint} => {new_endpoint}")
+                        ret['endpoint'] = new_endpoint
+                    else:
+                        print(f"Unrecognized preferred_upos_cdn: {preferred_upos_cdn}")
+                else:
+                    print(
+                        f"Assigned UpOS endpoint {original_endpoint} was never seen before, something else might have changed, so will not modify it")
+            return asyncio.run(upload(f, total_size, ret, tasks=tasks))
 
     async def cos(self, file, name, total_size, ret, chunk_size=10485760, tasks=3, internal=False):
         filename = name
@@ -545,7 +566,7 @@ class BiliBili:
             "X-Upos-Auth": auth
         }
         # 向上传地址申请上传，得到上传id等信息
-        upload_id = self.__session.post(f'{url}?uploads&output=json', timeout=5,
+        upload_id = self.__session.post(f'{url}?uploads&output=json', timeout=15,
                                         headers=headers).json()["upload_id"]
         # 开始上传
         parts = []  # 分块信息
@@ -575,8 +596,8 @@ class BiliBili:
             'output': 'json',
             'profile': 'ugcupos/bup'
         }
-        ii = 0
-        while ii <= 3:
+        attempt = 0
+        while attempt <= 5:  # 一旦放弃就会丢失前面所有的进度，多试几次吧
             try:
                 r = self.__session.post(url, params=p, json={"parts": parts}, headers=headers, timeout=15).json()
                 if r.get('OK') == 1:
@@ -586,9 +607,9 @@ class BiliBili:
                     return {"title": splitext(filename)[0], "filename": splitext(basename(upos_uri))[0], "desc": ""}
                 raise IOError(r)
             except IOError:
-                ii += 1
-                print("[info] 上传出现问题，尝试重连，次数：" + str(ii))
-                signal_bus.log_signal.emit("[info] 上传出现问题，尝试重连，次数：" + str(ii))
+                attempt += 1
+                print(f"请求合并分片时出现问题，尝试重连，次数：" + str(attempt))
+                signal_bus.log_signal.emit(f"请求合并分片时出现问题，尝试重连，次数:{attempt}")
                 time.sleep(15)
 
     @staticmethod
@@ -667,6 +688,8 @@ class BiliBili:
             if ret['code'] == -101:
                 print(f'[info] 刷新token{ret}')
                 signal_bus.log_signal.emit(f'[info] 刷新token{ret}')
+                self.login_by_password(**self.account)
+                self.store()
                 continue
             return ret
 
@@ -675,18 +698,18 @@ class BiliBili:
         :param img: img path or stream
         :return: img URL
         """
-        from PIL.Image import open
+        from PIL import Image
         from io import BytesIO
 
-        with open(img) as im:
+        with Image.open(img) as im:
             # 宽和高,需要16：10
             xsize, ysize = im.size
             if xsize / ysize > 1.6:
                 delta = xsize - ysize * 1.6
-                region = im.crop((int(delta / 2), 0, int(xsize - delta / 2), ysize))
+                region = im.crop((delta / 2, 0, xsize - delta / 2, ysize))
             else:
                 delta = ysize - xsize * 10 / 16
-                region = im.crop((0, int(delta / 2), xsize, int(ysize - delta / 2)))
+                region = im.crop((0, delta / 2, xsize, ysize - delta / 2))
             buffered = BytesIO()
             region.save(buffered, format=im.format)
         r = self.__session.post(

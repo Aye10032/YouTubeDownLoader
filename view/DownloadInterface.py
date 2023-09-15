@@ -11,6 +11,7 @@ from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextE
     ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
+from yt_dlp.postprocessor import FFmpegSubtitlesConvertorPP
 
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
@@ -296,6 +297,12 @@ class DownloadInterface(QFrame):
             'writeautomaticsub': True,
             'subtitlesformat': 'vtt',
             'subtitleslangs': ['zh-Hans', 'en'],
+            'postprocessors': [
+                {
+                    'key': 'FFmpegSubtitlesConvertor',
+                    'format': 'ass',
+                }
+            ]
         }
 
         if cfg.get(cfg.proxy_enable):

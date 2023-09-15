@@ -1,11 +1,12 @@
 import logging
+from urllib.error import URLError
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from yt_dlp import YoutubeDL, DownloadError
 from yt_dlp.extractor.youtube import YoutubeIE
 
 from common.Config import cfg
-from common.Uploader import Data, BiliBili
+from common.Uploader import BiliBili, Data
 
 
 class UpdateMessage(QThread):
@@ -31,7 +32,7 @@ class UpdateMessage(QThread):
                 ydl_opts['proxy'] = cfg.get(cfg.proxy)
                 ydl_opts['socket_timeout'] = 3000
 
-            print(ydl_opts)
+            # print(ydl_opts)
             ydl = YoutubeDL(ydl_opts)
             ie = YoutubeIE
             ydl.add_info_extractor(ie)
@@ -43,6 +44,8 @@ class UpdateMessage(QThread):
         except DownloadError as e:
             self.error_signal.emit()
         except ConnectionRefusedError as e:
+            self.error_signal.emit()
+        except URLError as e:
             self.error_signal.emit()
 
     def my_hook(self, d):
@@ -58,7 +61,7 @@ class Download(QThread):
         super().__init__()
         self.url = url
         self.ydl_opts = ydl_opts
-        print(ydl_opts)
+        # print(ydl_opts)
 
     def run(self):
         try:
