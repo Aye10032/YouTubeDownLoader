@@ -3,7 +3,6 @@ import os
 import subprocess
 import webbrowser
 
-from PIL import Image
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QFrame, QGridLayout, QLabel, QWidget, QSizePolicy, QHBoxLayout
@@ -11,7 +10,6 @@ from qfluentwidgets import LineEdit, PushButton, ToolButton, SwitchButton, TextE
     ToolTipPosition
 from qfluentwidgets import FluentIcon as FIF
 from yt_dlp import YoutubeDL
-from yt_dlp.postprocessor import FFmpegSubtitlesConvertorPP
 
 from common.Config import cfg, SUCCESS, WARNING
 from common.MyThread import UpdateMessage, Download
@@ -301,6 +299,10 @@ class DownloadInterface(QFrame):
                 {
                     'key': 'FFmpegSubtitlesConvertor',
                     'format': 'ass',
+                },
+                {
+                    'key': 'FFmpegThumbnailsConvertor',
+                    'format': 'jpg'
                 }
             ]
         }
@@ -372,11 +374,6 @@ class DownloadInterface(QFrame):
                 old_path = os.path.join(self._path, file)
                 new_path = os.path.join(self._path, 'cover{}'.format(os.path.splitext(file)[1]))
                 os.rename(old_path, new_path)
-            elif file.endswith('.webp'):
-                old_path = os.path.join(self._path, file)
-                new_path = os.path.join(self._path, 'cover.jpg')
-                with Image.open(old_path) as im:
-                    im.convert('RGB').save(new_path, 'JPEG')
 
         self.save_data()
 
